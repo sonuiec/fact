@@ -1,0 +1,1299 @@
+﻿@using FactFinderWeb.ModelsView
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Http;
+
+@model AwarenessViewModel
+@{
+    ViewData["Title"] = "Awareness";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+    var userPlan = HttpContextAccessor.HttpContext.Session.GetString("UserPlan") ?? "Comprehensive";
+    var _profileId = HttpContextAccessor.HttpContext.Request.RouteValues["pid"]?.ToString();
+
+    var newPlanType = @Model.ProfileDetail.PlanType.ToLower();
+    if (newPlanType == "zero to one" || newPlanType == "zero2one")
+    {
+        newPlanType = "Zero2One";
+    }
+    else if (newPlanType == "basic")
+    {
+        newPlanType = "Basic";
+    }
+     else if ( newPlanType == "comprehensive")
+    {
+        newPlanType = "Comprehensive";
+    }
+     else if (newPlanType == "wealth" )
+    {
+        newPlanType = "Wealth";
+    }
+}
+
+<style>
+    .text-truncate-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    }
+
+</style>
+
+<div class="mt-4 ">
+    @await Html.PartialAsync("_StepProgress", 1)
+    <div style="background-color: 	#E6E6FA" class="px-4  py-2 g-4 rounded d-flex flex-column gap-3">
+        <div style="color:#006400" class="d-flex justify-content-between align-items-center ">
+            <h2 class="mb-0" style="width: 65%;">1. Awareness</h2>
+            <a href="javascript:void(0);" id="toggleBtn" class="btn btn-link p-0 d-nonee">View more info</a>
+            <a href="javascript:void(0);" onclick="submitFormAsSave()" class="btn btn-primary px-3 py-1 rounded mx-3">Save</a>
+        </div>
+        <div class="more-less-section">
+            <p id="infoPara" class="text-truncate-3">
+                The first step of this plan is to be AWARE of current situation. You and your advisor both need to understand your back ground and current state of affairs. Your financial journey needs to accommodate the current situation. This step is also the realization that you are already abundant and then investment doesn’t seem like a sacrifice.
+            </p>
+        </div>
+    </div>
+    <div style="background-color: 	#fcfcff" class="px-4  py-2 g-4 rounded d-flex flex-column gap-3">
+        <div class="d-flex justify-content-end mt-1 mx-3 bg-light ">
+            @if (ViewData["msg"] != null)
+            {
+                <p style="color: green;">@ViewData["msg"]</p>
+            }
+        </div>
+    </div>
+    <!-- form -->
+    <form id="mainForm" style="background-color: #F5F5F5" class="mt-2 p-3 d-flex flex-column gap-4  rounded"
+    asp-controller="Comprehensive"
+    asp-action="Awareness"
+    asp-route-planType="@userPlan"
+
+    >
+        <!--plan details -->
+        <fieldset class="d-flex flex-column gap-2">
+            <legend style="color: #3B3737" class="fw-bold">Plan Details</legend>
+            <div style="color:	#006400" class="row g-3">
+                <div class="col-12 col-md-4">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="ProfileDetail.PlanType">
+                        Plan Type<span class="text-danger fw-bold ">*</span>
+                    </label>
+
+                    @*  <select asp-for="ProfileDetail.PlanType" required class="form-select d-none">
+                        <option value="">Select</option>
+                        <option value="Zero to one">Zero to one</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Comprehensive">Comprehensive</option>
+                        <option value="Wealth Management">Wealth Management</option>
+                    </select> *@
+                    <!-- Hidden field that will actually bind to the model -->
+                    <input type="hidden" asp-for="ProfileDetail.PlanType" value="@userPlan" />
+
+                    <!-- Display only, not bound -->
+                    <input type="text" value="@newPlanType" class="form-control inputnumyr" readonly />
+
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.PlanYear" class="form-label gap-1 d-flex">
+                        Plan Year<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input asp-for="ProfileDetail.PlanYear" type="text" required class="form-control inputnumyr" maxlength="4"  value="@DateTime.Now.Year">
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.PlanDuration" class="form-label d-flex align-content-center gap-1">
+                        Plan Duration<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <select asp-for="ProfileDetail.PlanDuration" class="form-select" required>
+                        <option value="">Select</option>
+                        <option value="Half Yearly">Half Yearly</option>
+                        <option value="Quarterly">Quarterly</option>
+                        <option value="Annually">Annually</option>
+                    </select>
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.PlanDuration, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </fieldset>
+        <!-- personal details-->
+        <fieldset class="d-flex flex-column gap-2">
+            <legend style="color: #3B3737" class="fw-bold">Personal Details</legend>
+            <div class="row g-3" style="color:	#006400">
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.Name" class="form-label gap-1 d-flex">
+                        Name (As per PAN Card)
+                        <span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input asp-for="ProfileDetail.Name" type="text" required class="form-control">
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Name, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label gap-1 d-flex" asp-for="ProfileDetail.Gender">
+                        Gender<span class=" text-danger fw-bold "> * </span>
+                    </label>
+                    <select class="form-select" asp-for="ProfileDetail.Gender">
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Gender, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.Dob" for="txtDob" class="form-label gap-1 d-flex">Date of Birth<span class="text-danger fw-bold ">*</span></label>
+                    <input asp-for="ProfileDetail.Dob"  type="text"  class="form-control mydateformat" placeholder="Select Date"  readonly >
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Dob, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.Phone" class="form-label gap-1 d-flex">
+                        Mobile No.<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input asp-for="ProfileDetail.Phone" required="0-9" placeholder="Enter Mobile Number" type="text"
+                    class="form-control" maxlength="10" minlength="10">
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Phone, "", new { @class = "text-danger" })
+
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.AltPhone" class="form-label">Alternate Mobile No.</label>
+                    <input asp-for="ProfileDetail.AltPhone" placeholder="Enter Mobile Number" type="text"
+                    class="form-control" maxlength="10" minlength="10">
+                </div>
+                <div class="col-12   col-md-4">
+                    <label asp-for="ProfileDetail.Aadhaar" class="form-label gap-1 d-flex">
+                        Aadhaar Number 
+                    </label>
+                    <input asp-for="ProfileDetail.Aadhaar"   maxlength="12"
+                    placeholder="Enter Aadhar Number" type="text" class="form-control" maxlength="12">
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.Email" class="form-label gap-1 d-flex">
+                        Primary Email<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input asp-for="ProfileDetail.Email" required placeholder="Enter Email Address"
+                    type="email" class="form-control" maxlength="60">
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Email, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.SecEmail" class="form-label">Secondary Email</label>
+                    <input asp-for="ProfileDetail.SecEmail" class="form-control" placeholder="Enter Secondary Email Address" />
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.PAN" class="form-label gap-1 d-flex">
+                        PAN Card No.<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input asp-for="ProfileDetail.PAN" required placeholder="Enter PAN Card Number" type="text"
+                    class="form-control" maxlength="10" oninput="this.value = this.value.toUpperCase();"
+                    onkeypress="return /^[a-zA-Z0-9]$/.test(String.fromCharCode(event.which));">
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.PAN, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.EduDetails" class="form-label">Education Background</label>
+                    <input asp-for="ProfileDetail.EduDetails" type="text" class="form-control" maxlength="60">
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.Hobbies" class="form-label">Hobbies</label>
+                    <input asp-for="ProfileDetail.Hobbies" type="text" class="form-control" maxlength="60" >
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label gap-1 d-flex" for="selectOccup">
+                        Occupation<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <select class="form-select" required asp-for="ProfileDetail.Occupation">
+                        <option value="">Select</option>
+                        <option value="Service">Service</option>
+                        <option value="Self Employed">Self Employed</option>
+                        <option value="Business">Business</option>
+                        <option value="Home Maker">Home Maker</option>
+                        <option value="Professional">Professional</option>
+                        <option value="Retired">Retired</option>
+                        <option value="Student">Student</option>
+                        <option value="n/a">n/a</option>
+                    </select>
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Occupation, "", new { @class = "text-danger" })
+                </div>
+
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.CompanyName" class="form-label">Company Name</label>
+                    <input asp-for="ProfileDetail.CompanyName" type="text" class="form-control" maxlength="60" >
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.CompanyAddress" class="form-label">Company Address</label>
+                    <input asp-for="ProfileDetail.CompanyAddress" type="text" class="form-control" maxlength="60" >
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="ProfileDetail.CompanyCity" class="form-label">Company City</label>
+                    <input asp-for="ProfileDetail.CompanyCity" type="text" class="form-control" maxlength="60" >
+                </div>
+
+                <div class="row g-3 address-block">
+                    <div class="col-md-3">
+                        <label asp-for="ProfileDetail.CompanyCountry" class="form-label">Company Country</label>
+                        <select class="form-select bindAddressCountry" asp-for="ProfileDetail.CompanyCountry" data-selected="@Model.ProfileDetail.CompanyCountry">
+                            <option value="" >Select</option>
+                        </select>
+
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label asp-for="ProfileDetail.CompanyState" class="form-label d-flex gap-1">Company State</label>
+                        <select class="form-select bindAddressState" asp-for="ProfileDetail.CompanyState"  data-selected="@Model.ProfileDetail.CompanyState">
+                            <option value="" >Select</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="ProfileDetail.CompanyPINcode" class="form-label d-flex gap-1">Company Pin/Zip Code</label>
+                        <input asp-for="ProfileDetail.CompanyPINcode" type="text" class="form-control" minlength="6" maxlength="6">
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <!-- Third Field address -->
+
+        <fieldset class="d-flex flex-column gap-2">
+            <h5 style="color: #3B3737">Residential Address</h5>
+            <div style="color:	#006400" class="d-flex flex-column gap-3">
+
+                <div class="col-md-6">
+                    <label asp-for="ProfileDetail.ResAddress" class="form-label d-flex gap-1">Address</label>
+                    <textarea type="text" class="form-control" asp-for="ProfileDetail.ResAddress"></textarea>
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.ResAddress, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="row g-3 address-block">
+                    <!-- `g-3` for proper gap -->
+
+                    <div class="col-md-3">
+                        <label asp-for="ProfileDetail.ResCity" class="form-label d-flex gap-1">City</label>
+                        <input asp-for="ProfileDetail.ResCity" placeholder="Type Your city" type="text"
+                        class="form-control" maxlength="60">
+                        @Html.ValidationMessageFor(model => model.ProfileDetail.ResCity, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="ProfileDetail.ResCountry" class="form-label">Country</label>
+                        <select class="form-select bindAddressCountry" asp-for="ProfileDetail.ResCountry" data-selected="@Model.ProfileDetail.ResCountry">
+                            <option value="" >Select</option>
+                        </select>
+                        @Html.ValidationMessageFor(model => model.ProfileDetail.ResCountry, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label asp-for="ProfileDetail.ResState" class="form-label d-flex gap-1">State</label>
+                        <select class="form-select bindAddressState" asp-for="ProfileDetail.ResState" data-selected="@Model.ProfileDetail.ResState">
+                            <option value="" >Select</option>
+                        </select> 
+                        @Html.ValidationMessageFor(model => model.ProfileDetail.ResState, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="ProfileDetail.ResPincode" class="form-label d-flex gap-1">Pin/Zip Code</label>
+                        <input asp-for="ProfileDetail.ResPincode" type="text" class="form-control" minlength="6" maxlength="6">
+                        @Html.ValidationMessageFor(model => model.ProfileDetail.ResPincode, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <!-- peramnent -->
+            <h5 style="color: #3B3737" class="mt-2">Permanent Address</h5>
+            <div class="d-flex align-items-center gap-2 p-2">
+                <input asp-for="ProfileDetail.IsSameAddress" type="checkbox">
+                <p class="mb-0">Is your Permanent Address the same as your Residential Address?</p>
+            </div>
+            <div style="color:	#006400" class="d-flex flex-column gap-3">
+                <div class="col-md-6">
+                    <label asp-for="ProfileDetail.PermAddress" class="form-label">Address</label>
+                    <textarea  asp-for="ProfileDetail.PermAddress" type="text" class="form-control"
+                    maxlength="100" ></textarea> 
+                </div>
+
+                <div class="row g-3  address-block">
+                    <div class="col-md-3">
+                        <label asp-for="ProfileDetail.PermCity" class="form-label">City</label>
+                        <input asp-for="ProfileDetail.PermCity" placeholder="Type Your city" maxlength="60"
+                        type="text" class="form-control">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="ProfileDetail.PermCountry" class="form-label">Country</label>
+                        <select class="form-select  bindAddressCountry" asp-for="ProfileDetail.PermCountry" data-selected="@Model.ProfileDetail.PermCountry">
+                            <option value="" >Select</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label asp-for="ProfileDetail.PermState" class="form-label">State</label>
+                        <select class="form-select  bindAddressState" asp-for="ProfileDetail.PermState" data-selected="@Model.ProfileDetail.PermState">
+                            <option value="" >Select</option>
+                        </select>
+
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="ProfileDetail.PermPincode" class="form-label">Pin/Zip Code</label>
+                        <input asp-for="ProfileDetail.PermPincode" type="text" class="form-control" minlength="6"
+                        maxlength="6">
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+
+        <!------------------------------- maritial status -->
+
+        <fieldset class="d-flex flex-column  gap-3">
+            <div class="d-flex flex-md-row flex-wrap gap-2">
+                <h3 style="color:  rgb(214, 143, 11)" class="fw-bold">Marital status</h3>
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="form-group">
+                        <div class="btn-group btn-group-toggle d-flex gap-2" data-toggle="buttons">
+                            <label class="btn btn-outline-primary">
+                                <input type="radio" asp-for=" ProfileDetail.MaritalStatus" value="Married" data-status="Married" autocomplete="off" id="marital-option" class="marital-option" /> Married
+                            </label>
+                            <label class="btn btn-outline-primary">
+                                <input type="radio" asp-for="ProfileDetail.MaritalStatus" id="marital-option" class="marital-option" value="Un-Married" data-status="Un-Married" autocomplete="off" /> Un-Married
+                            </label>
+                            <label class="btn btn-outline-primary">
+                                <input type="radio" asp-for="ProfileDetail.MaritalStatus" id="marital-option" class="marital-option" value="Divorced" data-status="Divorced" autocomplete="off" /> Divorced
+                            </label>
+                            <label class="btn btn-outline-primary">
+                                <input type="radio" asp-for="ProfileDetail.MaritalStatus" id="marital-option" class="marital-option" value="Single Parent" data-status="Single Parent" autocomplete="off" /> Single Parent
+                            </label>
+                        </div>
+                        <span asp-validation-for="ProfileDetail.MaritalStatus" class="text-danger"></span>
+                    </div>
+
+                </div>
+            </div>
+            <section id="spouseDetailsSection">
+                <legend style="color: #3B3737" class="fw-bold">Spouse details</legend>
+                <div style="color:	#006400" class="row g-3  address-block">
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseName" class="form-label">
+                            Name (As per PAN Card)  <span class=" text-danger fw-bold "> * </span>
+                        </label>
+                        <input asp-for="SpouseDetails.SpouseName" type="text" class="form-control" maxlength="60">
+                        @Html.ValidationMessageFor(model => model.SpouseDetails.SpouseName, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label gap-1 d-flex" asp-for="SpouseDetails.SpouseGender">
+                            Gender<span class=" text-danger fw-bold "> * </span>
+                        </label>
+                        <select class="form-select" asp-for="SpouseDetails.SpouseGender">
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        @Html.ValidationMessageFor(model => model.SpouseDetails.SpouseGender, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseDob" class="form-label">Date of Birth<span class="text-danger fw-bold ">*</span></label>
+                        <input class="form-control mydateformat" asp-for="SpouseDetails.SpouseDob" type="text" placeholder="Select Date" readonly />
+                        @Html.ValidationMessageFor(model => model.SpouseDetails.SpouseDob, "", new { @class = "text-danger" })
+
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpousePhone" class="form-label d-flex gap-1">Mobile No.</label>
+                        <input asp-for="SpouseDetails.SpousePhone" maxlength="10" type="text" class="form-control">
+                        @Html.ValidationMessageFor(model => model.SpouseDetails.SpousePhone, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseAltPhone" class="form-label"> Alternate Mobile No. </label>
+                        <input asp-for="SpouseDetails.SpouseAltPhone" maxlength="10" type="text" class="form-control">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseAadhaar" class="form-label d-flex gap-1">Aadhaar No.
+                        </label>
+                        <input asp-for="SpouseDetails.SpouseAadhaar" maxlength="12"  type="text" class="form-control">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseEmail" class="form-label d-flex gap-1">Primary Email</label>
+                        <input asp-for="SpouseDetails.SpouseEmail" maxlength="60" type="text" class="form-control">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseSecEmail" class="form-label">Secondary Email</label>
+                        <input asp-for="SpouseDetails.SpouseSecEmail" maxlength="60" type="text" class="form-control">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpousePan" class="form-label">Pan Card No.</label>
+                        <input asp-for="SpouseDetails.SpousePan" maxlength="10" minlength="10" type="text" class="form-control" oninput="this.value = this.value.toUpperCase();"
+                        onkeypress="return /^[a-zA-Z0-9]$/.test(String.fromCharCode(event.which));">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseOccupation" class="form-label">
+                            Occupation<span class=" text-danger fw-bold "> * </span> </label>
+                        <select class="form-select" asp-for="SpouseDetails.SpouseOccupation">
+                            <option value="">Select</option>
+                            <option value="Student">Student</option>
+                            <option value="Service">Service</option>
+                            <option value="Self Employed">Self Employed</option>
+                            <option value="Professional">Professional</option>
+                            <option value="Home Maker">Home Maker</option>
+                            <option value="Retired">Retired</option>
+                            <option value="n/a">n/a</option>
+                        </select>
+                        @Html.ValidationMessageFor(model => model.SpouseDetails.SpouseOccupation, "", new { @class = "text-danger" })
+                    </div>
+
+
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseCompanyName" class="form-label">Company Name</label>
+                        <input asp-for="SpouseDetails.SpouseCompanyName" type="text" class="form-control" maxlength="60">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseCompanyAddress" class="form-label">Company Address</label>
+                        <input asp-for="SpouseDetails.SpouseCompanyAddress" type="text" class="form-control" maxlength="60">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseCompanyCity" class="form-label">Company City</label>
+                        <input asp-for="SpouseDetails.SpouseCompanyCity" type="text" class="form-control" maxlength="60">
+                    </div>
+
+                    <div class="col-12  col-md-4">
+                        <label asp-for="SpouseDetails.SpouseCompanyCountry" class="form-label">Company Country</label>
+                        <select class="form-select bindAddressCountry" asp-for="SpouseDetails.SpouseCompanyCountry" data-selected="@Model.SpouseDetails.SpouseCompanyCountry">
+                            <option value="">Select</option>
+                        </select>
+
+                    </div>
+                    <div class="form-group col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseCompanyState" class="form-label d-flex gap-1">Company State</label>
+                        <select class="form-select bindAddressState" asp-for="SpouseDetails.SpouseCompanyState" data-selected="@Model.SpouseDetails.SpouseCompanyState">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="SpouseDetails.SpouseCompanyPINcode" class="form-label d-flex gap-1">Company Pin/Zip Code</label>
+                        <input asp-for="SpouseDetails.SpouseCompanyPINcode" type="text" class="form-control" minlength="6" maxlength="6">
+                    </div>
+                </div>
+            </section>
+        </fieldset>
+
+
+        <!-- children -->
+        <section id="childrenDetailsSection">
+
+            <fieldset class="d-flex flex-column gap-2">
+                <div id="dvchildrenSection" class="d-flex flex-md-row flex-wrap gap-2">
+                    @if (userPlan?.ToLower() == "wealth")
+                    {
+                        <h3 style="color:  rgb(214, 143, 11)" class="fw-bold">Do you have dependent children</h3>
+                    } else {
+                        <h3 style="color:  rgb(214, 143, 11)" class="fw-bold">Do you have Children</h3>
+                    }
+                    <div class="d-flex flex-wrap gap-2">
+                        <div class="form-group">
+                            <div class="btn-group btn-group-toggle d-flex gap-2" data-toggle="buttons">
+                                <label class="btn btn-outline-primary">
+                                    <input type="radio" asp-for="ProfileDetail.HaveChildren" class="have-children" value="Yes" data-status="Yes" autocomplete="off" /> Yes
+                                </label>
+                                <label class="btn btn-outline-primary">
+                                    <input type="radio" asp-for="ProfileDetail.HaveChildren" class="have-children" value="No" data-status="No" autocomplete="off" /> No
+                                </label>
+                            </div>
+                            <span asp-validation-for="ProfileDetail.HaveChildren" class="text-danger"></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="dvchildrenDetailsSection">
+                    <legend style="color: #3B3737" class="fw-bold">Children details</legend> 
+                    <div id="childrenContainer">
+                        <div id="childrenContainerFormAdd" class="  child-item border-bottom border-4 mb-2 pb-2">
+
+                            <div style="color:#006400" class="row g-3" data-index="${childIndex}">
+
+                            <div class="col-12 col-md-3">
+                            <input id="ChildrenDetails.Id" name="ChildrenDetails.Id" required type="hidden" value="0" class="form-control">
+                                <label asp-for="ChildrenDetail.ChildName" class="form-label gap-1 d-flex">
+                                   Child Name <span class="text-danger fw-bold ">*</span>
+                                </label>
+                                    <input asp-for="ChildrenDetail.ChildName"  type="text" class="form-control" >
+                                    @Html.ValidationMessageFor(model => model.ChildrenDetail.ChildName, "", new { @class = "text-danger", data_val = "false" })
+                                </div>
+
+                            <div class="col-12 col-md-3">
+                                <label class="form-label d-flex gap-1" asp-for="ChildrenDetail.ChildGender"> Gender<span class="text-danger fw-bold ">*</span></label>
+                                <select class="form-select"  asp-for="ChildrenDetail.ChildGender" >
+                                    <option value="">Select</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                                    @Html.ValidationMessageFor(model => model.ChildrenDetail.ChildGender, "", new { @class = "text-danger", data_val = "false" })
+                                </div>
+
+                            <div class="col-12 col-md-3">
+                                <label asp-for="ChildrenDetail.ChildDob" class="form-label d-flex gap-1">Date of Birth<span class="text-danger fw-bold ">*</span></label>
+                             <input class="form-control mydateformat" asp-for="ChildrenDetail.ChildDob" type="text" placeholder="Select Date" readonly />
+                             @Html.ValidationMessageFor(model => model.ChildrenDetail.ChildDob, "", new { @class = "text-danger", data_val = "false" })
+                                </div>
+                            <div class="col-12 col-md-3">
+                                    <label asp-for="ChildrenDetail.ChildPhone" class="form-label">Mobile No.</label>
+                                    <input asp-for="ChildrenDetail.ChildPhone" maxlength="10" type="text" class="form-control" minlength="10">
+                                </div>
+                            
+                        </div>
+                        <div class="row g-3" >
+                            <div class="col-12 col-md-3">
+                                <label asp-for="ChildrenDetail.ChildAadhaar" class="form-label d-flex gap-1">Aadhaar No.</label>
+                                    <input asp-for="ChildrenDetail.ChildAadhaar" maxlength="12" type="text" class="form-control">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label asp-for="ChildrenDetail.ChildEmail" class="form-label">Primary Email</label>
+                                    <input asp-for="ChildrenDetail.ChildEmail" type="text" class="form-control">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label asp-for="ChildrenDetail.ChildPan" class="form-label">Pan Card No.</label>
+                                    <input asp-for="ChildrenDetail.ChildPan" maxlength="10" type="text" class="form-control" oninput="this.value = this.value.toUpperCase();"
+                                           onkeypress="return /^[a-zA-Z0-9]$/.test(String.fromCharCode(event.which));">
+                            </div>
+                            <div class="col-12 col-md-3 d-flex justify-content-center align-items-center">
+                            <button type="button" id="saveChildBtn" class="btn btn-primary mx-2">Add Child</button>
+                            <button type="button" id="addnewChildBtn" class="btn btn-primary mx-2">Add New Child</button>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div id="childrenContainerView">
+                        <div id="childListContainer" class="mt-4"></div>
+                    </div>
+                </div>
+            </fieldset>
+        </section>
+
+        <!-- family Secion  Financial-->
+        <fieldset class="d-flex flex-column gap-2">
+            <legend style="color: #3B3737" class="fw-bold">Family Financial Habits</legend>
+            <div style="color:#006400" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" asp-for="ProfileDetail.Stock">Do you invest in stocks/mutual funds regularly? </label>
+                    <select class="form-select" asp-for="ProfileDetail.Stock">
+                        <option value="">Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                        <option value="Occasionally">Occasionally</option>
+                    </select>
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Stock, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ProfileDetail.Income" class="form-label d-flex gap-1">
+                        What propotion of income do you save currently?
+                    </label>
+                    <select class="form-select" asp-for="ProfileDetail.Income">
+                        <option value="">Select</option>
+                        <option value="More than 30%">More than 30%</option>
+                        <option value="20-30%">20-30%</option>
+                        <option value="10-20%">10-20%</option>
+                        <option value="Less than 10%">Less than 10%</option>
+                    </select>
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Income, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ProfileDetail.Payment" class="form-label d-flex gap-1">Do you use digital payment?</label>
+                    <select class="form-select" asp-for="ProfileDetail.Payment">
+                        <option value="">Select</option>
+                        <option value="Mostly digital">Mostly digital</option>
+                        <option value="Mostly cash">Mostly cash</option>
+                        <option value="Mix of digital and cash">Mix of digital and cash</option>
+                    </select>
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Payment, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ProfileDetail.Holiday" class="form-label">How often you go for a family holiday? </label>
+                    <select class="form-select" asp-for="ProfileDetail.Holiday">
+                        <option value="">Select</option>
+                        <option value="Regularly">Regularly</option>
+                        <option value="Occasionally">Occasionally</option>
+                        <option value="Rarely">Rarely</option>
+                    </select>
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Holiday, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ProfileDetail.Shopping" class="form-label"> Rate your family's shopping habits </label>
+                    <select class="form-select" asp-for="ProfileDetail.Shopping">
+                        <option value="">Select</option>
+                        <option value="1-(rarely Shop)">1-(rarely Shop)</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10-(most frequently shop)">10-(most frequently shop)</option>
+                    </select>
+                    <span class="fs-6 fw-light">
+                        (10 being the hyper active shopper and 1 being very stingy shopper)
+                    </span>
+                    @Html.ValidationMessageFor(model => model.ProfileDetail.Shopping, "", new { @class = "text-danger" })
+
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Assumptions -->
+        <fieldset class="d-flex flex-column gap-2">
+            <!-- Assumptions Related with Investments -->
+            <legend style="color: #3B3737" class="fw-bold">Assumptions</legend>
+            <div class="d-flex align-items-baseline">
+                <h5 class="mb-0">Assumptions Related with Investments</h5>
+                <small class="text-muted fst-italic ms-2">Default values are editable.</small>
+            </div>
+
+            <div style="color:	#006400" class="row">
+                <div class="col-12 col-md-4">
+                    <label asp-for="Assumptions.Equity" class="form-label">Return from shares and Equity funds(%)</label>
+                    <input asp-for="Assumptions.Equity" maxlength="5" type="text"  class="form-control inputper" placeholder="%">
+                    @Html.ValidationMessageFor(model => model.Assumptions.Equity, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="Assumptions.Debt" class="form-label">Return from Debt (income) funds (%)</label>
+                    <input asp-for="Assumptions.Debt" maxlength="5" type="text"  class="form-control inputper" placeholder="%">
+                    @Html.ValidationMessageFor(model => model.Assumptions.Debt, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="Assumptions.Gold" class="form-label">Return from Gold (%)</label>
+                    <input asp-for="Assumptions.Gold" maxlength="5" type="text"   class="form-control inputper" placeholder="%">
+                    @Html.ValidationMessageFor(model => model.Assumptions.Gold, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div style="color:	#006400" class="row">
+                <div class="col-12 col-md-4">
+                    <label asp-for="Assumptions.RealEstateReturn" class="form-label">Return from Real estate (%)</label>
+                    <input asp-for="Assumptions.RealEstateReturn" maxlength="5"   type="text"  
+                           class="form-control inputper" placeholder="%">
+                    @Html.ValidationMessageFor(model => model.Assumptions.RealEstateReturn, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="Assumptions.LiquidFunds" class="form-label">Return from Liquid funds (%)</label>
+                    <input asp-for="Assumptions.LiquidFunds" maxlength="5"   type="text" class="form-control inputper" placeholder="%">
+                    @Html.ValidationMessageFor(model => model.Assumptions.LiquidFunds, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div style="color:	#006400" class="row">
+                <div class="col-12 col-md-4">
+                    <label asp-for="Assumptions.InflationRates" class="form-label">Rate of inflation (%)</label>
+                    <input asp-for="Assumptions.InflationRates" maxlength="5"   type="text" class="form-control inputper" placeholder="%">
+                    @Html.ValidationMessageFor(model => model.Assumptions.InflationRates, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="Assumptions.EducationInflation" class="form-label">
+                        Rate of inflation for higher Education (%)
+                    </label>
+                    <input asp-for="Assumptions.EducationInflation" maxlength="5"   type="text" class="form-control inputper" placeholder="%">
+                    @Html.ValidationMessageFor(model => model.Assumptions.EducationInflation, "", new{@class="text-danger"})
+                </div>
+            </div>
+
+            <!-- Assumptions Related with Client's Profile -->
+            <h5>Assumptions Related with Client's Profile</h5>
+            
+            <div style="color:	#006400" class="row">
+                <div class="col-12 col-md-4">
+                    <label asp-for="Assumptions.ApplicantRetirement" class="form-label">
+                        Assumed Retirement Age for Applicant<span class="text-danger fw-bold">*</span>
+                    </label>
+                    <input asp-for="Assumptions.ApplicantRetirement" type="text" class="form-control inputnumage" maxlength="3" placeholder="0">
+                    @Html.ValidationMessageFor(model => model.Assumptions.ApplicantRetirement, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-12 col-md-4 clsSpouse "
+                 >
+                
+                    <label asp-for="Assumptions.SpouseRetirement" class="form-label">
+                        Assumed Retirement Age for Applicant’s Spouse<span class="text-danger fw-bold">*</span>
+                    </label>
+                    <input asp-for="Assumptions.SpouseRetirement" type="text" class="form-control inputnumage" maxlength="3" placeholder="0">
+                    @Html.ValidationMessageFor(model => model.Assumptions.SpouseRetirement, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div style="color:	#006400" class="row">
+                <div class="col-12 col-md-4">
+                    <label asp-for="Assumptions.ApplicantLifeExpectancy" class="form-label">Assumed Life Expectancy of Applicant<span class="text-danger fw-bold">*</span> </label>
+                    <input asp-for="Assumptions.ApplicantLifeExpectancy" type="text" class="form-control inputnumage" maxlength="3" placeholder="0">
+                    @Html.ValidationMessageFor(model => model.Assumptions.ApplicantLifeExpectancy, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-12 col-md-4 clsSpouse"
+                   >
+             
+                    <label asp-for="Assumptions.SpouseLifeExpectancy" class="form-label">Assumed Life Expectancy of Applicant’s Spouse<span class="text-danger fw-bold">*</span>  </label>
+                    <input asp-for="Assumptions.SpouseLifeExpectancy" type="text" class="form-control inputnumage" maxlength="3" placeholder="0">
+                    @Html.ValidationMessageFor(model => model.Assumptions.SpouseLifeExpectancy, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="d-flex justify-content-end mt-3 mx-5 ">
+            <div class="col-12 col-md-3" style="margin:0 auto;">
+            </div>
+            <div class="col-12 col-md-6 text-end px-2" style="margin:0 auto;">
+                @{
+                    if (ViewData["errorcheck"] != null)
+                    {
+                        <div class="error-msg text-danger">@ViewData["errorcheck"]</div>
+                    }
+                }
+            </div>
+            <div class="col-12 col-md-3" style="margin:0 auto;">
+                <button name="btnSubmit" id="btnSubmit" class="btn btn-primary px-5 py-1 rounded ">Next</button>
+            </div>
+        </div>
+
+        <div class="row">
+            
+        </div>
+
+    </form>
+</div>
+
+
+
+@section Scripts {
+
+    <script>
+
+       
+  
+
+
+    //      document.addEventListener('DOMContentLoaded', function () {
+    //     const occupationSelect = document.getElementById('spouseOccupation');
+    //     const spouseInputDiv = document.getElementById('spouseRetirementDiv');
+    //     const spouseInput = document.getElementById('spouseRetirementInput');
+
+    //     function toggleSpouseInput() {
+    //         const selectedValue = occupationSelect.value;
+    //         if (selectedValue === 'Home Maker') {
+    //             spouseInputDiv.style.display = 'none';
+    //             spouseInput.disabled = true;
+
+    //             // Optional: clear value and validation error
+    //             spouseInput.value = '';
+    //             const validationSpan = spouseInputDiv.querySelector('.text-danger');
+    //             if (validationSpan) validationSpan.textContent = '';
+    //         } else {
+    //             spouseInputDiv.style.display = '';
+    //             spouseInput.disabled = false;
+    //         }
+    //     }
+    //     // Trigger on page load in case pre-filled
+    //     toggleSpouseInput();
+
+    //     // Listen to dropdown changes
+    //     occupationSelect.addEventListener('change', toggleSpouseInput);
+    // });
+
+
+  $(document).ready(function () {
+        document.querySelectorAll('.btn-group-toggle input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.btn-group-toggle .btn').forEach(btn => btn.classList.remove('active'));
+                this.closest('label').classList.add('active');
+            });
+        });
+
+            // Disable validation for all ChildrenDetail.* fields
+            $('[name^="ChildrenDetail."]').each(function () {
+                $(this).removeAttr('data-val')
+                    .removeAttr('data-val-required')
+                    .removeAttr('data-val-length')
+                    .removeAttr('aria-invalid')
+                    .removeClass('input-validation-error');
+            });
+
+            // Remove validation message spans too
+            $('[data-valmsg-for^="ChildrenDetail."]').each(function () {
+                $(this).empty().removeClass('field-validation-error').addClass('field-validation-valid');
+            });
+
+
+            $('#ProfileDetail_IsSameAddress').change(function () {
+                if ($(this).is(':checked')) { // Copy values
+                    $('#ProfileDetail_PermAddress').val($('#ProfileDetail_ResAddress').val()).prop('readonly', true);
+                    $('#ProfileDetail_PermCity').val($('#ProfileDetail_ResCity').val()).prop('readonly', true);
+                    $('#ProfileDetail_PermState').val($('#ProfileDetail_ResState').val()).prop('readonly', true);
+                    $('#ProfileDetail_PermCountry').val($('#ProfileDetail_ResCountry').val()).prop('readonly', true);
+                    $('#ProfileDetail_PermPincode').val($('#ProfileDetail_ResPincode').val()).prop('readonly', true);
+                } else {// Enable editing
+                    $('#ProfileDetail_PermAddress').prop('readonly', false);
+                    $('#ProfileDetail_PermCity').prop('readonly', false);
+                    $('#ProfileDetail_PermState').prop('readonly', false);
+                    $('#ProfileDetail_PermCountry').prop('readonly', false);
+                    $('#ProfileDetail_PermPincode').prop('readonly', false);
+                }
+            }); 
+
+            $('#spouseDetailsSection').hide(); // Initially hide the spouse details section
+            $('#dvchildrenDetailsSection').hide(); // Initially hide the spouse details section
+            $('#childrenDetailsSection').hide();//childrenDetailsSection
+
+            var MaritalStatuscheckboxValue = $('input[name="ProfileDetail.MaritalStatus"]:checked').val() ?? "";
+            var HaveChildrenStatuscheckboxValue = $('input[name="ProfileDetail.HaveChildren"]:checked').val() ?? "";
+
+            if (MaritalStatuscheckboxValue.toLowerCase() === "married") {
+                $('#spouseDetailsSection').show();
+                $('#dvchildrenDetailsSection').show();
+                $('#childrenDetailsSection').show();
+                $('.clsSpouse').show();
+            } else {
+                $('#spouseDetailsSection').hide();
+                $('#dvchildrenDetailsSection').hide();
+                $('#childrenDetailsSection').hide();
+                $('.clsSpouse').hide();
+            }
+
+            if (HaveChildrenStatuscheckboxValue.toLowerCase() === "yes") {
+                $('#dvchildrenDetailsSection').show();
+                $('#childrenDetailsSection').show();
+                $('.clsSpouse').show();
+            } else {
+                $('#dvchildrenDetailsSection').hide();
+                //$('#childrenDetailsSection').hide();
+                //$('.clsSpouse').hide();
+            }
+
+            //$('.marital-option').click(function (e) {
+            $('input[name="ProfileDetail.MaritalStatus"]').change(function () {
+                // e.preventDefault();
+                var maritalStatus = $(this).val();
+
+                // List of marital statuses that imply having children
+                var hasChildrenStatuses = ["Married", "Divorced", "Single Parent"];
+
+                // Check if the status implies children
+                if (hasChildrenStatuses.includes(maritalStatus)) {
+                    if (maritalStatus === "Married") {
+                        $('#spouseDetailsSection').show();
+                        $('.clsSpouse').show();
+                    }
+                    else {
+                        $('#spouseDetailsSection').hide();
+                        $('.clsSpouse').hide();
+                    }
+                    $('input[name="ProfileDetail.HaveChildren"][value="Yes"]').prop('checked', true).closest('label').addClass('active');
+                    $('input[name="ProfileDetail.HaveChildren"][value="No"]').prop('checked', false).closest('label').removeClass('active');
+                    $('#childrenDetailsSection').show();
+                    $('#dvchildrenDetailsSection').show();
+
+                } else {
+                    $('input[name="ProfileDetail.HaveChildren"][value="No"]').prop('checked', true).closest('label').addClass('active');
+                    $('input[name="ProfileDetail.HaveChildren"][value="Yes"]').prop('checked', false).closest('label').removeClass('active');
+
+                    $('#childrenDetailsSection').hide();
+                    $('#spouseDetailsSection').hide();
+                    $('#dvchildrenDetailsSection').hide();
+                        $('.clsSpouse').hide();
+                }
+                $('#maritalStatus').val(maritalStatus);                
+            });
+          
+            $('input[name="ProfileDetail.HaveChildren"]').change(function () {
+                var MaritalStatusvalue = $('input[name="ProfileDetail.MaritalStatus"]').val();
+                var HaveChildrenValue = $(this).val();
+
+                if (HaveChildrenValue === "Yes" && MaritalStatusvalue !== "Un-Married") {
+                    $('#dvchildrenDetailsSection').show();
+                } else {
+                    $('#dvchildrenDetailsSection').hide();
+                }
+            });
+
+         
+
+
+            $('form').submit(function () {
+                disableChildValidation();
+                $('.inputper').each(function () {
+                    let val = $(this).val();
+                    if (val.includes('%')) {
+                        $(this).val(val.replace('%', '').trim());
+                    }
+                });
+            });
+
+            $('.inputnumage , .inputnumnumyr').on('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            $('#toggleBtn').click(function () {
+                $('#infoPara').toggleClass('text-truncate-3');
+
+                if ($('#infoPara').hasClass('text-truncate-3')) {
+                    $(this).text('View More');
+                } else {
+                    $(this).text('View Less');
+                }
+            });
+
+        });
+
+                  $(function () {
+                    var currentDate = new Date(); // Get current date
+                    $(".mydateformat").datepicker({
+                        dateFormat: "dd/mm/yy",
+                        changeMonth: true,
+                        changeYear: true,
+                        yearRange: "1900:" + currentDate.getFullYear(), // Dynamic year range
+                        maxDate: currentDate // Restrict the datepicker to only allow dates after today
+                    });
+                });
+                
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/js/countries.json')
+                .then(response => response.json())
+                .then(data => {
+                    const countrySelects = document.querySelectorAll(".bindAddressCountry");
+
+                    countrySelects.forEach(countrySelect => {
+                        const addressBlock = countrySelect.closest(".address-block");
+                        const stateSelect = addressBlock.querySelector(".bindAddressState");
+
+                        const selectedCountry = countrySelect.getAttribute("data-selected");
+                        const selectedState = stateSelect.getAttribute("data-selected");
+
+                        // Populate country dropdown
+                        for (const code in data) {
+                            const option = document.createElement("option");
+                            option.value = code;
+                            option.textContent = data[code].name;
+                            if (code === selectedCountry) {
+                                option.selected = true;
+                            }
+                            countrySelect.appendChild(option);
+                        }
+
+                        // Populate state dropdown if a country is already selected
+                        if (selectedCountry && data[selectedCountry]) {
+                            stateSelect.innerHTML = '<option value="">Select</option>';
+                            data[selectedCountry].states.forEach(state => {
+                                const option = document.createElement("option");
+                                option.value = state.code;
+                                option.textContent = state.name;
+                                if (state.code === selectedState) {
+                                    option.selected = true;
+                                }
+                                stateSelect.appendChild(option);
+                            });
+                        }
+
+                        // On change of country, update state dropdown
+                        countrySelect.addEventListener("change", function () {
+                            const selected = this.value;
+                            stateSelect.innerHTML = '<option value="">Select</option>';
+                            if (data[selected]) {
+                                data[selected].states.forEach(state => {
+                                    const option = document.createElement("option");
+                                    option.value = state.code;
+                                    option.textContent = state.name;
+                                    stateSelect.appendChild(option);
+                                });
+                            }
+                        });
+                    });
+                })
+                .catch(err => console.error("Error loading countries:", err));
+        });
+
+        ///children
+        function getChildFormData() {
+            const container = $("#childrenContainerFormAdd");
+            const formData = {
+                Id: container.find("[name*='Id']").val(),
+                ChildName: container.find("[name*='ChildName']").val(),
+                ChildGender: container.find("[name*='ChildGender']").val(),
+                ChildDob: container.find("[name*='ChildDob']").val(),
+                ChildPhone: container.find("[name*='ChildPhone']").val(),
+                ChildAadhaar: container.find("[name*='ChildAadhaar']").val(),
+                ChildEmail: container.find("[name*='ChildEmail']").val(),
+                ChildPan: container.find("[name*='ChildPan']").val()
+            };
+            return formData;
+        }
+
+        $("#saveChildBtn").on("click", function (e) {
+            // $('[id^="ChildrenDetail_"]').each(function () {
+            //     $(this).attr('data-val', 'true');
+            // });
+            e.preventDefault();
+            enableChildValidation();
+            const formData = getChildFormData();
+
+            $.ajax({
+                url: "/api/child/addchildren", // your API endpoint
+                type: "POST",
+                data: formData,
+                success: function (res) {
+                    alert(res.message);
+                    resetChildForm();
+                    loadChildList();
+                },
+                error: function (xhr) {
+                    const response = xhr.responseJSON;
+
+                    // Check if it's a validation error
+                    if (response && response.errors) {
+                        // Extract all error messages
+                        const messages = [];
+
+                        for (const key in response.errors) {
+                            if (response.errors.hasOwnProperty(key)) {
+                                messages.push(...response.errors[key]); // support multiple messages per field
+                            }
+                        }
+
+                        // Join messages into one string
+                        const errorText = messages.join('\n');
+
+                        // Show a user-friendly alert
+                        alert(errorText);
+                    } else {
+                        // Generic fallback error
+                        alert("Something went wrong. Please try again.");
+                    }
+                }
+            });
+        });
+
+        function resetChildForm() {
+            const container = $("#childrenContainerFormAdd");
+            container.find("input, select").val("");
+            container.find("[name*='Id']").val("0"); // reset Id for new insert
+             $('#saveChildBtn').show();
+            $('#saveChildBtn').text('Add Child');
+            $('#addnewChildBtn').hide();
+        }
+
+
+        function loadChildList() {
+            //$.get("/api/child/list", function (data) {
+             $.ajax({
+                url: `/api/child/list`,
+                method: 'GET',
+                success: function (data) {
+                let html = `
+                        <table class='table table-bordered'>
+                      <thead><tr><th>Name</th><th>Gender</th><th>DOB</th><th class="hide-mobile">Phone</th>
+                      <th class="hide-mobile">Email</th>  <th class="hide-mobile">Aadhaar</th>
+                        <th class="hide-mobile">PAN</th><th>Actions</th></tr></thead>  <tbody>`;
+                data.forEach(child => {
+                    html += `
+                        <tr>
+                            <td>${child.childName}</td>
+                            <td>${child.childGender}</td>
+                            <td>${child.childDob?.split("T")[0]}</td>
+                            <td class="hide-mobile">${child.childPhone || ''}</td>
+                            <td class="hide-mobile">${child.childEmail || ''}</td>
+                            <td class="hide-mobile">${child.childAadhaar || ''}</td>
+                            <td class="hide-mobile">${child.childPan || ''}</td>
+                            <td>
+                            <button class="btn btn-sm btn-warning btneditchild" data-id="${child.id}">Edit</button>
+                            <button class="btn btn-sm btn-danger btndeletechild" data-id="${child.id}">Delete</button>
+                            </td>
+                        </tr>`;
+                        });
+                        html += "</tbody></table>";
+                        $("#childListContainer").html(html);
+                  },
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        window.location.href = '/sogin';
+                    } else {
+                        console.error("Error loading child data:", xhr);
+                        alert("An error occurred while loading the child's data.");
+                    }
+                }
+            });
+        }
+
+        $(document).on("click", "#addnewChildBtn", function (e) {
+            $('#saveChildBtn').show();
+            $('#saveChildBtn').text('Add Child');
+            $('#addnewChildBtn').hide();
+            resetChildForm();
+        });
+        $(document).on("click", ".btndeletechild", function (e) {
+            e.preventDefault();
+            const id = $(this).data("id");
+            deleteChild(id);
+        });
+
+        $('#addnewChildBtn').hide();
+
+        $(document).on("click", ".btneditchild", function (e) {
+            e.preventDefault();
+            $('#saveChildBtn').text('Update Child');
+            $('#addnewChildBtn').show();
+            
+            const id = $(this).data("id");
+            editChild(id);
+        });
+
+        function editChild(id) {
+            $.ajax({
+                url: `/api/child/get/${id}`,
+                method: 'GET',
+                success: function (data) {
+                    const container = $("#childrenContainerFormAdd");
+                    container.find("[name*='Id']").val(data.id);
+                    container.find("[name*='ChildName']").val(data.childName);
+                    container.find("[name*='ChildGender']").val(data.childGender);
+                    container.find("[name*='ChildDob']").val(data.childDob?.split("T")[0]);
+                    container.find("[name*='ChildPhone']").val(data.childPhone);
+                    container.find("[name*='ChildAadhaar']").val(data.childAadhaar);
+                    container.find("[name*='ChildEmail']").val(data.childEmail);
+                    container.find("[name*='ChildPan']").val(data.childPan);
+                },
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        // 🔁 Redirect to login if session is invalid
+                        window.location.href = '/login'; // <-- change to your actual login URL
+                    } else {
+                        console.error("Error loading child data:", xhr);
+                        alert("An error occurred while loading the child's data.");
+                    }
+                }
+            });
+        }
+
+
+        function deleteChild(id) {
+            if (!confirm("Are you sure you want to delete this child?")) return;
+
+            $.ajax({
+                url: `/api/child/delete/${id}`,
+                //type: "DELETE",
+                 type: "POST",                // use POST instead
+                //data: { "__method": "DELETE" }, // optional
+                success: function () {
+                    alert("Child deleted.");
+                    loadChildList();
+                },
+                error: function () {
+                    alert("Failed to delete child.");
+                }
+            });
+        }
+
+        function disableChildValidation() {
+            $("#childrenContainerFormAdd").find("[required]").each(function () {
+                $(this).attr("data-required", "true"); // keep track of what was required
+                $(this).removeAttr("required");
+            });
+        }
+
+        // 🔧 Helper: Re-enable child validation
+        function enableChildValidation() {
+            $("#childrenContainerFormAdd").find("[data-required='true']").each(function () {
+                $(this).attr("required", "required");
+            });
+        }
+
+
+                    // $('.inputper').each(function () {
+                    //     formatPercentInput($(this));
+                    // });
+        // Load child list on page ready
+        $(document).ready(function () {
+            loadChildList();
+
+            
+            $('.inputper').on('blur', function () {
+                formatPercentInput($(this));
+            });
+                     const $input = $('.inputper');
+                  $input.focus(function () {
+                      let inputperval = $(this).val();
+                      if (inputperval.endsWith('%')) {
+                          $(this).val(inputperval.slice(0, -1)); // Remove %
+                      }
+                  });
+
+              });
+
+
+
+
+                  document.addEventListener("DOMContentLoaded", function () {
+                const sameAddressCheckbox = document.querySelector('input[name="ProfileDetail.IsSameAddress"]');
+
+                sameAddressCheckbox.addEventListener("change", function () {
+                    const isChecked = this.checked;
+
+                    if (isChecked) {
+                        // Copy values from Residential to Permanent
+                        document.querySelector('[name="ProfileDetail.PermAddress"]').value = document.querySelector('[name="ProfileDetail.ResAddress"]').value;
+                        document.querySelector('[name="ProfileDetail.PermCity"]').value = document.querySelector('[name="ProfileDetail.ResCity"]').value;
+                        document.querySelector('[name="ProfileDetail.PermPincode"]').value = document.querySelector('[name="ProfileDetail.ResPincode"]').value;
+
+                        const resCountrySelect = document.querySelector('[name="ProfileDetail.ResCountry"]');
+                        const permCountrySelect = document.querySelector('[name="ProfileDetail.PermCountry"]');
+                        const resStateSelect = document.querySelector('[name="ProfileDetail.ResState"]');
+
+                        // Set the country in permanent address
+                        permCountrySelect.value = resCountrySelect.value;
+
+                        // Trigger the change event to load corresponding states
+                        const event = new Event('change');
+                        permCountrySelect.dispatchEvent(event);
+
+                        // Wait a little for states to populate then set state value
+                        setTimeout(() => {
+                            const permStateSelect = document.querySelector('[name="ProfileDetail.PermState"]');
+                            permStateSelect.value = resStateSelect.value;
+                        }, 300); // adjust delay if needed
+                    } else {
+                        // Optionally clear the permanent address if unchecked
+                        document.querySelector('[name="ProfileDetail.PermAddress"]').value = '';
+                        document.querySelector('[name="ProfileDetail.PermCity"]').value = '';
+                        document.querySelector('[name="ProfileDetail.PermPincode"]').value = '';
+                        document.querySelector('[name="ProfileDetail.PermCountry"]').value = '';
+                        const permStateSelect = document.querySelector('[name="ProfileDetail.PermState"]');
+                        permStateSelect.innerHTML = '<option value="">Select</option>';
+                    }
+                });
+            });
+
+                  $('.inputper').each(function () {
+                      formatPercentInput($(this));
+                  });
+                  function formatPercentInput($input) {
+                      let inputperval = $input.val().trim();// Check if the input is a valid number (and not empty)
+                      if (inputperval === '' || !/^\d+(\.\d+)?$/.test(inputperval)) {
+                          inputperval=0;
+                          $input.val(inputperval + '%');//$input.val('%');
+                      } else {
+                          if (!inputperval.endsWith('%')) {
+                              $input.val(inputperval + '%');
+                          }
+                      }
+                  }
+
+                     function submitFormAsSave() {
+                        var form = document.getElementById("mainForm");
+                        if (!form) {
+                            console.error("Form not found");
+                            return;
+                        }
+
+                        $('.inputper').each(function () {
+                            let val = $(this).val();
+                            if (val.includes('%')) {
+                                $(this).val(val.replace('%', '').trim());
+                            }
+                        });
+
+                        var input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = "btnSubmit";
+                        input.value = "Save";
+                        form.appendChild(input);
+
+                        form.submit();
+                    }
+
+
+
+ 
+
+
+
+</script>
+
+    <partial name="_ValidationScriptsPartial" />
+
+}
+ 

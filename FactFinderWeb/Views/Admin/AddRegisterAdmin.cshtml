@@ -1,0 +1,84 @@
+﻿@model FactFinderWeb.ModelsView.AdminMV.AdminRegViewModel
+@{
+    ViewData["Title"] = "Add Admin";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container py-5">
+<div class="row ">
+    <div class="col-md-5">
+        <h1 class="page-title">Add Admin</h1>
+    </div>
+
+
+</div>
+
+    <div class="row ">
+        <div class="col-md-5 mx-auto">
+<form asp-action="AddRegisterAdmin" asp-controller="admin" method="post" class="form-horizontal">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email" class="control-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Password" class="control-label"></label>
+        <input asp-for="Password" class="form-control" type="password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
+        <input asp-for="ConfirmPassword" class="form-control" type="password" />
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Mobile" class="control-label"></label>
+        <input asp-for="Mobile" class="form-control" />
+        <span asp-validation-for="Mobile" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="AdminRole" class="control-label"></label>
+        <select asp-for="AdminRole" class="form-control">
+            <option value="">-- Select Admin Role --</option>
+            <option value="admin">Admin</option>
+            <option value="superadmin">SuperAdmin</option>
+        </select>
+        <span asp-validation-for="AdminRole" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Department" class="control-label">Department / Team</label>
+        <select asp-for="Department" class="form-control">
+            <option value="">-- Select Admin Role --</option>
+            <option value="FactFinder">FactFinder</option>
+            <option value="AwakenDevTeam">AwakenDevTeam</option>
+            <option value="FactFinderDevTeam">FactFinderDevTeam</option>
+            <option value="Mainstream">Mainstream</option>
+        </select>
+        <span asp-validation-for="Department" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Create Admin" class="btn btn-primary" />
+    </div>
+</form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

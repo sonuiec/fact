@@ -1,0 +1,253 @@
+﻿@using FactFinderWeb.ModelsView
+@model TblFfAdminUser
+@{
+	ViewData["Title"] = "Admin User Details";
+	Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+<style>
+	.form-wrap {
+		background: rgba(255,255,255,1);
+		width: 100%;
+		max-width: 850px;
+		padding: 50px;
+		margin: 0 auto;
+		position: relative;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+		-webkit-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		-moz-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		margin-top: 10px;
+		margin-bottom: 80px;
+	}
+
+		.form-wrap:before {
+			content: "";
+			width: 90%;
+			height: calc(100% + 60px);
+			left: 0;
+			right: 0;
+			margin: 0 auto;
+			position: absolute;
+			top: -30px;
+			background: #101357;
+			z-index: -1;
+			opacity: 0.8;
+			-webkit-border-radius: 10px;
+			-moz-border-radius: 10px;
+			border-radius: 10px;
+			-webkit-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+			-moz-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+			box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		}
+
+	.form-group {
+		margin-bottom: 25px;
+	}
+
+		.form-group > label {
+			display: block;
+			font-size: 18px;
+			color: #000;
+			letter-spacing: 1px;
+		}
+
+	.custom-control-label {
+		color: #000;
+		font-size: 16px;
+	}
+
+	.form-control {
+		height: 50px;
+		background: #ecf0f4;
+		border-color: transparent;
+		padding: 0 15px;
+		font-size: 16px;
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+	}
+
+		.form-control:focus {
+			border-color: #00bcd9;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+	textarea.form-control {
+		height: 51px;
+		padding-top: 15px;
+		resize: none;
+	}
+
+	.btn {
+		padding: .657rem .75rem;
+		font-size: 18px;
+		letter-spacing: 0.050em;
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+		width: 48%;
+	}
+
+	.btn-primary {
+		color: #fff;
+		background-color: #FF1D58;
+		border-color: #FF1D58;
+	}
+
+		.btn-primary:hover {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+		.btn-primary:focus, .btn-primary.focus {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+		.btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
+		.show > .btn-primary.dropdown-toggle {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+		}
+
+			.btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus,
+			.show > .btn-primary.dropdown-toggle:focus {
+				-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+				-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+				box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			}
+
+	.imgh {
+		width: 300px;
+		height: 200px;
+		object-fit: contain;
+	}
+
+</style>
+
+
+
+
+
+<div class="container py-5">
+	<div class="row ">
+		<div class="col-md-5">
+			<h1 class="page-title">Profile Name : @Model.Name!</h1>
+		</div>
+
+
+	</div>
+
+	<form id="survey-form" method="post" asp-action="adminuserdata" asp-controller="Admin">
+
+		<div class="card shadow-sm">
+			<div class="card-header bg-primary1 text-white">
+				<h5 class="mb-0">Admin Profile Detail</h5>
+			</div>
+			<div class="card-body">
+				<div class="row mb-3">
+					<div class="col-md-6"><strong>Email:</strong> @Model.Email</div>
+					<div class="col-md-6"><strong>Mobile:</strong> @Model.Mobile</div>
+				</div> 
+				<div class="row mb-3">
+					<div class="col-md-6">
+						@{
+							var UserActiveStatus = Model.AccountStatus?.ToLower() == "active" ? "Active" : "Deactive";
+						}
+						<strong>Active Status:</strong> @UserActiveStatus
+					</div>
+					<div class="col-md-6">
+                        <strong>Registered Date:</strong> @Model.CreateDate?.ToString("dd-MM-yyyy")
+						<input asp-for="Id" type="hidden" class="form-control  ">
+						<input asp-for="Name" type="hidden" class="form-control  ">
+						<input asp-for="Email" type="hidden" class="form-control  ">
+						<input asp-for="Mobile" type="hidden" class="form-control  ">
+						<input asp-for="Department" type="hidden" class="form-control  ">
+					</div>
+				</div> 
+			</div>
+		</div>
+
+
+		<!-- Plans Section plan, year, accout status, AdvisorName, profilelock, profilepdfdownload,profilejsondownload-->
+		<div class="card">
+			<div class="card-header bg-primary1 text-white">
+				<h5 class="mb-0">Profile Manager</h5>
+			</div>
+
+			<div class="card-body"> 
+				<div class="row mb-3">
+					<div class="col-md-6">
+						<label class="form-label gap-1 d-flex" asp-for="AdminRole">Admin Role</label>
+						<select class="form-select" asp-for="AdminRole" id="advisorSelect">
+							<option value="">Select</option>
+							<option value="admin">Admin</option>
+							<option value="advisor">Advisor</option>
+						</select>
+						<input asp-for="AdminRole" id="advisorNameHidden" type="hidden" class="form-control  ">
+						@Html.ValidationMessageFor(model => model.AdminRole, "", new { @class = "text-danger" })
+					</div>
+					<div class="col-md-6">
+						<label class="form-label gap-1 d-flex" asp-for="AccountStatus">Account Status</label>
+						<select class="form-select" asp-for="AccountStatus">
+							<option value="">Select</option>
+							<option value="Active">Active</option>
+							<option value="Deactive">Deactive</option>
+						</select>
+						@Html.ValidationMessageFor(model => model.AccountStatus, "", new { @class = "text-danger" })
+					</div>
+				</div> 
+
+				<div class="row mb-3 ">
+					<div class="col-md-6">
+						@if (ViewData["msg"] != null)
+						{
+							<p style="color: dodgerblue;">@ViewData["msg"]</p>
+						}
+					</div>
+					<div class="col-md-6">
+						<button type="submit" class="btn btn-primary btn-block">Submit</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+
+
+@section Scripts {
+	<script>
+			let goals = JSON.parse(localStorage.getItem("test")) || [];
+
+
+							 document.getElementById('advisorSelect').addEventListener('change', function () {
+			const selectedOption = this.options[this.selectedIndex];
+			const advisorName = selectedOption.text;
+
+			// Ignore "Select"
+			if (selectedOption.value !== '') {
+				document.getElementById('advisorNameHidden').value = advisorName;
+			} else {
+				document.getElementById('advisorNameHidden').value = '';
+			}
+		});
+	</script>
+
+}

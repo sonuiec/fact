@@ -1,0 +1,185 @@
+﻿@using FactFinderWeb.ModelsView
+ @model ExecutionWithPrecisionModelView
+@{
+    ViewData["Title"] = "Execution With Precision";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+
+}
+
+<style>
+    .text-truncate-3 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+    }
+     
+    .formfield {
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+        color: #333;
+        text-align: left;
+    }
+</style>
+
+<div class="mt-4 ">
+    @await Html.PartialAsync("_StepProgress", 5)
+    <div style="background-color: 	#E6E6FA" class="px-4  py-2 g-4 rounded d-flex flex-column gap-3">
+
+        <div style="color:#006400" class="d-flex justify-content-between align-items-center ">
+            <h2 class="mb-0">5. Execution With Precision</h2>
+        </div>
+
+    </div>
+
+    <!-- form -->
+    <form style="background-color: #F5F5F5" class="mt-3 p-3 d-flex flex-column gap-4  rounded" asp-controller="Comprehensive" asp-action="ExecutionWithPrecision">
+        <!--plan details -->
+        <fieldset class="d-flex flex-column gap-2"> 
+            <legend style="color: #3B3737" class="fw-bold">
+                Action plan for Financial Goals
+            </legend>
+            <div style="color:	#006400" class="row ">
+                <div class="col-12  formfield">
+                    @{
+                        if (Model.wingsGoalStep5ExecutionDataList != null && Model.wingsGoalStep5ExecutionDataList.Any())
+                        {
+                            int dataindex = 1;
+                            decimal? totalLumpsum = 0;
+                            decimal? totalSIP = 0; 
+                            string? goalName = string.Empty;
+                            //foreach (var executionData in Model.wingsGoalStep5ExecutionDataList)
+                                @for (int i = 0; i < Model.wingsGoalStep5ExecutionDataList.Count; i++)
+                                {
+                                    if (goalName != Model.wingsGoalStep5ExecutionDataList[i].GoalName)
+                                {
+                                        goalName = Model.wingsGoalStep5ExecutionDataList[i].GoalName;
+                                    <div class="row bg-light ">
+                                            <div class="col-12 text-center text-lg font-bold text-gray-800 py-3"><h4>@Model.wingsGoalStep5ExecutionDataList[i].GoalName</h4></div>
+                                </div>
+                            }
+                            <div class="row">
+                                    <div class="col-2">
+                                        <input type="hidden" asp-for="@Model.wingsGoalStep5ExecutionDataList[i].Id" readonly="readonly"
+                                               class="form-control outline-none w-[40%] rounded-lg mx-[26%] float-end peer focus:outline-secondary my-2" />
+                                    </div>
+                                    <div class="col-5">  <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription" class="form-control outline-none w-[40%] rounded-lg mx-[26%] float-end peer focus:outline-secondary my-2" readonly="readonly" /></div>
+                                <div class="col-3">
+                                        <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue" class="form-control outline-none w-[40%] rounded-lg mx-[26%] float-end peer focus:outline-secondary my-2" />
+                                </div>
+
+                                    <div class="col-2"> @Html.ValidationMessageFor(model => model.wingsGoalStep5ExecutionDataList[i].ExecutionValue, "", new { @class = "text-danger" })</div>
+                                </div>
+                        }
+                        }
+                        else
+                        {
+                            <tr><td colspan="3" class="text-center">You have not select any Goals.</td></tr>
+                        }
+                    }
+
+            </div>
+        </fieldset>
+
+        <div class="d-flex justify-content-end mt-3 mx-5 ">
+            <button name="btnSubmit" id="btnSubmit" class="btn btn-primary px-5 py-1 rounded ">Next</button>
+
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Select all input fields matching the pattern
+            const valueInputs = document.querySelectorAll("input[id^='wingsGoalStep5ExecutionDataList_'][id$='__ExecutionValue']");
+
+            valueInputs.forEach(function (valueInput) {
+                valueInput.addEventListener("blur", function () {
+                    const valueId = valueInput.id; // e.g., wingsGoalStep5ExecutionDataList_4__ExecutionValue
+
+                    // Extract index from the id (e.g., 4)
+                    const match = valueId.match(/wingsGoalStep5ExecutionDataList_(\d+)__ExecutionValue/);
+                    if (!match) return;
+
+                    const index = match[1];
+
+                    // Find corresponding description input using the same index
+                    const descriptionInput = document.getElementById(`wingsGoalStep5ExecutionDataList_${index}__ExecutionDescription`);
+                    if (!descriptionInput) return;
+
+                    const description = descriptionInput.value.trim();
+                    const value = valueInput.value.trim();
+
+                    let isValid = true;
+                    const validationSpan = document.querySelector(`span[data-valmsg-for="wingsGoalStep5ExecutionDataList[${index}].ExecutionValue"]`);
+                    let errorMessage = "";
+                    
+                    // Example keyword-based validation
+                    if (description.includes("Months") || description.includes("Years") ) {
+                        if (!/^\d+$/.test(value)) {
+                            isValid = false;
+                            errorMessage = "Please enter a valid number.";
+                        }
+                    } else if (description.includes("Expected Return")) {
+                        if (!/^100$|^\d{1,2}(\.\d{1,2})?$/.test(value)) {
+                            isValid = false;
+                            errorMessage = "Please enter a valid percentage (0–100).";
+                        }
+                    } else if (description.includes(" Current Cost")) {
+
+                        if (!value || value.trim() === '') {
+                            valueInput.value = '0.00';
+                        } else if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+                            isValid = false;
+                            errorMessage = "Please enter a valid number (eq : 0.00)।";
+                        } else {
+                            // Format to 2 decimal places
+                            valueInput.value = parseFloat(value).toFixed(2);
+                        }
+
+                    } else {
+                        if (!/^[a-zA-Z0-9 ]+$/.test(value)) {
+                            isValid = false;
+                            errorMessage = "Please enter a valid alphanumeric value.";
+                        }
+                    }
+
+                    /*// Handle validation result
+                    if (!isValid) {
+                        //alert(errorMessage);
+                        console.log(errorMessage);
+                        valueInput.classList.add("border", "border-danger", "border-3");
+                        // valueInput.focus();
+                    } else {
+                        valueInput.classList.remove("border", "border-danger");
+                    }*/
+
+                    if (validationSpan) {
+                        if (!isValid) {
+                            validationSpan.classList.remove("field-validation-valid");
+                            validationSpan.classList.add("field-validation-error");
+                            validationSpan.innerText = errorMessage;
+                            valueInput.classList.add("border", "border-danger");
+                        } else {
+                            validationSpan.classList.remove("field-validation-error");
+                            validationSpan.classList.add("field-validation-valid");
+                            validationSpan.innerText = "";
+                            valueInput.classList.remove("border", "border-danger");
+                        }
+                    }
+
+                });
+            });
+        });
+    </script>
+
+
+    <partial name="_ValidationScriptsPartial" />
+
+}
+

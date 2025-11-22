@@ -1,0 +1,347 @@
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    var AdminUserId = Context.Session.GetString("AdminUserId");
+    var AdminUserFullName = Context.Session.GetString("AdminUserFullName");
+    var AdminUserRole = Context.Session.GetString("AdminUserRole");
+    AdminUserRole = string.IsNullOrEmpty(AdminUserRole) ? "advisor" : AdminUserRole;
+    bool isLoggedIn = !string.IsNullOrEmpty(AdminUserId);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FactFinder</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/FactFinderWeb.styles.css" asp-append-version="true" />
+    <link href="~/css/admincss.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <style>
+
+        body{
+            font-size: 14px;
+        }
+        .page-title1 {
+            text-align: center;
+            font-size: 25px;
+            font-weight: 700;
+            color: #202020;
+            text-transform: uppercase;
+            word-spacing: 1px;
+            letter-spacing: 2px;
+        }
+
+        .container{
+            margin: 0;
+        padding: 0;
+        }
+    </style>
+
+    <style>
+        .card-header {
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table th {
+            background-color: #e9ecef;
+            color: #fff
+        }
+ 
+        .formfield {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+            color: #333;
+            text-align: left;
+        }
+
+        .status-active {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .table thead {
+            background: #0a53be;
+            color: #fff;
+        }
+
+
+
+        .page-title {
+            text-align: left;
+            font-size: 25px;
+            font-weight: 700;
+            color: #202020;
+            text-transform: uppercase;
+            word-spacing: 1px;
+            letter-spacing: 2px;
+        }
+
+
+
+
+        .action-btn a {
+            margin-right: 8px;
+        }
+
+
+        /* Table container */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        /* Main table style */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+            /* Header styling */
+            .custom-table thead tr {
+                background-color: #0056C1;
+                color: #fff;
+                text-align: left;
+            }
+
+            .custom-table th {
+                padding: 12px 10px;
+                border: 1px solid #ddd;
+                font-weight: 600;
+            }
+
+            /* Row styling */
+            .custom-table td {
+                padding: 6px 10px;
+                border: 1px solid #ddd;
+                color: #333;
+            }
+
+            /* Hover effect */
+            .custom-table tbody tr:hover {
+                background-color: #f0f7ff !important;
+                cursor: pointer;
+            }
+
+            /* S.No column center align */
+            .custom-table td:first-child,
+            .custom-table th:first-child {
+                text-align: center;
+                width: 60px;
+            }
+
+            /* Action link */
+            .custom-table a {
+                color: #0056C1;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+                .custom-table a:hover {
+                    text-decoration: underline;
+                }
+
+            /* Dropdown style inside grid */
+            .custom-table select {
+                width: 140px;
+                padding: 5px;
+                border-radius: 4px;
+                border: 1px solid #aaa;
+            }
+
+        a {
+            color: #0056C1 !important
+         }
+
+        .btn-primary{
+            color: #fff !important
+        }
+    .bg-primary1 {
+    background-color: #0056C1 !important;
+}
+
+        .form-group{ margin: 10px;}
+table.custom-table tbody tr:hover {
+    background-color: #dbeaff !important;
+    cursor: pointer;
+    transition: 0.2s;
+}
+    </style>
+</head>
+<body>
+    <header>
+
+        <div class="header-banner">
+            <img src="/images/header.jpg" alt="Mainstream Logo Banner" class="banner-img" />
+        </div>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand page-title1" asp-area="" asp-controller="admin" asp-action="dashboard">Fact Finder Admin</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    @{
+                        @if (isLoggedIn)
+                        {
+                            <ul class="navbar-nav flex-grow-1 flex-row-reverse bd-highlight  nav">
+
+                                <li class="nav-item  text-info">
+                                 <a class="nav-link text-dark hdrlink" asp-area="" asp-controller="Admin" asp-action="Logout">Logout</a>
+                                </li>
+                            @{
+                                if (AdminUserRole.ToLower() == "superadmin" )
+                                {
+                                <li class="nav-item"><a class="nav-link text-dark hdrlink" asp-controller="Admin" asp-action="adminTeamlist">Admin List</a></li>
+                                  
+                                 }
+                                }
+                                <li class="nav-item text-info">
+                                    <a class="nav-link text-dark hdrlink" asp-area="" asp-controller="Admin" asp-action="Dashboard">Client List</a>
+                                </li>
+                                <li class="nav-item text-info ">
+                                    <a class="nav-link text-dark hdrlink" asp-area="" asp-controller="Admin" asp-action="ProfileDashboard">Dashboard</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark">Welcome, @AdminUserFullName</a>
+                                </li>
+                            </ul>
+                        }
+                        else
+                        {
+                            <ul class="navbar-nav flex-grow-1 flex-row-reverse bd-highlight  nav">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark hdrlink" asp-area="" asp-controller="Admin" asp-action="Login">Login</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark hdrlink" asp-area="" asp-controller="Home" asp-action="About">About Us</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark hdrlink" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                                </li>
+                            </ul>
+                        }
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+  
+    <footer class="border-top footer text-muted d-flex justify-content-center align-items-center" style="padding: 5px 20px;">
+        © 2025 Mainstream Investments Services Pvt. Ltd., All Rights Reserved.
+    </footer>
+
+    <div id="session-warning" style="display:none; position:fixed; top:20px; right:20px; background:#fff3cd; border:1px solid #ffeeba; padding:20px; z-index:10000; box-shadow:0 0 10px rgba(0,0,0,0.2);">
+        <strong>Session Expiring Soon!</strong>
+        <p>Your session will expire in 2 minutes. Do you want to stay logged in?</p>
+        <button class="btn btn-warning" onclick="stayLoggedIn()">Stay Logged In</button>
+    </div>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+          integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+    <!--session start-->
+    <script>
+        const sessionTimeout =30 * 60 * 1000; // 20 minutes
+        const warningBefore = 2 * 60 * 1000;   // Warn 2 minutes before
+        let warningTimeout, logoutTimeout;
+        let warningShown = false;
+
+        function resetTimers() {
+            clearTimeout(warningTimeout);
+            clearTimeout(logoutTimeout);
+            warningShown = false;
+
+            warningTimeout = setTimeout(showWarningPopup, sessionTimeout - warningBefore);
+            logoutTimeout = setTimeout(() => {
+                window.location.href = '/Login'; // Auto logout Account
+            }, sessionTimeout);
+        }
+
+        function showWarningPopup() {
+            warningShown = true;
+            const popup = document.getElementById("session-warning");
+            if (popup) popup.style.display = 'block';
+        }
+
+        function stayLoggedIn() {
+            fetch('/KeepAlive/Ping', {
+                method: 'GET',
+                credentials: 'include'
+            }).then(() => {
+                resetTimers();
+                const popup = document.getElementById("session-warning");
+                if (popup) popup.style.display = 'none';
+            });
+        }
+
+        // Detect activity to reset session
+        ['click', 'mousemove', 'keydown'].forEach(event => {
+            document.addEventListener(event, () => {
+                if (!warningShown) resetTimers();
+            });
+        });
+
+        // Start timers on load
+        resetTimers();
+
+        // Auto keep session alive every 15 min (in case no user activity)
+        setInterval(() => {
+            fetch('/KeepAlive/Ping', {
+                method: 'GET',
+                credentials: 'include'
+            });
+        }, 5 * 60 * 1000);
+    </script>
+
+    <!--session end-->
+
+    @{
+            /*
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>*/
+    }
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

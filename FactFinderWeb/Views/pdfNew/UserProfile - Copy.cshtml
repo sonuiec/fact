@@ -1,0 +1,2891 @@
+﻿@using FactFinderWeb.BLL
+@using FactFinderWeb.ModelsView
+@model FactFinderWeb.ModelsView.RootAwareness
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AWAKEN – User Summary Report (A4)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/FactFinderWeb.styles.css" asp-append-version="true" />
+    <!-- Robust html2pdf loader (primary + fallback CDN) -->
+    <script>
+        (function loadHtml2Pdf(){
+        var primary  = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+        var fallback = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        function inject(src){
+        var s = document.createElement('script');
+        s.src = src; s.defer = true;
+        s.onload = function(){ console.log('html2pdf loaded:', src); };
+        s.onerror = function(){ if (src !== fallback) inject(fallback); };
+        document.head.appendChild(s);
+        }
+        inject(primary);
+        })();
+    </script>
+    <title>Manish Sharma - Comprehensive Report</title>
+    <style>
+        /* ---------- GLOBAL STYLES ---------- */
+        body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #f8f9fa;
+        color: #222;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        }
+
+        h1, h2, h3 {
+        color: #1a237e;
+        text-align: center;
+        }
+
+        h2 {
+        background-color: #e3f2fd;
+        padding: 10px;
+        border-left: 5px solid #1565c0;
+        font-size: 25px !important;
+        text-align: left;
+        margin: 30px 0 10px;
+        }
+
+        h3 {
+        background-color: #e3f2fd;
+        padding: 10px;
+        border-left: 5px solid #1565c0;
+        font-size: 19px !important;
+        text-align: left;
+        margin: 30px 0 10px;
+        }
+
+        h4 {
+        background-color: #f2f8ff;
+        padding: 10px;
+
+        font-size: 19px !important;
+        text-align: left;
+        margin: 30px 0 10px;
+
+
+        color: #003b80 !important;
+
+
+        border-left: 4px solid #66aaff !important;
+        }
+
+        p {
+        padding: 10px 20px;
+        background: #fff;
+        margin: 0 0 20px;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+        border: 1px solid #ccc;
+        padding: 8px 12px;
+        text-align: left;
+        font-size: 14px;
+        }
+
+        th {
+        background: #1976d2;
+        color: white;
+        font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+        background-color: #f5f5f5;
+        }
+
+        .page {
+        max-width: 900px;
+        margin: 4px auto;
+        background: #fff;
+        padding: 3px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        footer {
+        text-align: center;
+        font-size: 13px;
+        color: #555;
+        padding: 15px;
+        margin-top: 40px;
+        }
+
+        .highlight {
+        background-color: #e8f5e9;
+        border-left: 4px solid #2e7d32;
+        padding: 10px;
+        margin: 15px 0;
+        border-radius: 6px;
+        }
+
+        .h1, h1 {
+        font-size: 29px !important;
+        }
+
+        .details-table {
+        width: 99%;
+        border-collapse: collapse; /* important! removes double lines */
+        font-size: 15px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        /* Header row */
+        .details-table th {
+        background-color: #1976d2;
+        color: #fff;
+        text-align: left;
+        padding: 10px 12px;
+        font-weight: 600;
+        font-size: 15px;
+        border: none;
+        }
+
+        .details-table td {
+        border-top: 1px solid #ADD8E6; /* top border */
+        border-left: 1px solid #ADD8E6; /* left border */
+        border-right: none; /* no overlap yet */
+        border-bottom: none; /* no overlap yet */
+        padding: 4px 10px;
+        vertical-align: top;
+        }
+        /* Last row – add clean bottom line once */
+        .details-table tr:last-child td {
+        border-bottom: 1px solid #ADD8E6;
+        }
+        /* Last column – add right border once */
+        .details-table tr td:last-child {
+        border-right: 1px solid #ADD8E6;
+        }
+        /* Zebra background */
+        .details-table tr:nth-child(even) td {
+        background: #f7f9fc;
+        }
+        /* Left column styling */
+        .details-table td:first-child {
+        width: 65%;
+        }
+
+        .details-table tr td:last-child {
+        border-right: 1px solid #ADD8E6;
+        }
+
+        .details-table tr:last-child td {
+        border-bottom: 1px solid #ADD8E6;
+        }
+        /* Add right border to the last column (fix missing right edge) */
+        .details-table tr td:last-child {
+        border-right: 1px solid #ADD8E6;
+        }
+
+        p {
+        padding: 0px 15px !important;
+        background: #fff !important;
+        margin: 0 0 10px !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+        }
+
+        .sub-header {
+        background-color: #f0f6ff;
+        font-weight: bold;
+        }
+
+        .details-table-1 {
+        width: 99%;
+        border-collapse: collapse; /* important! removes double lines */
+        font-size: 15px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        /* Header row */
+        .details-table-1 th {
+        background-color: #1976d2;
+        color: #fff;
+        text-align: left;
+        padding: 10px 12px;
+        font-weight: 600;
+        font-size: 15px;
+        border: none;
+        border-top: 1px solid #ADD8E6;
+        border-left: 1px solid #ADD8E6;
+        }
+
+        .details-table-1 td {
+        border-top: 1px solid #ADD8E6; /* top border */
+        border-left: 1px solid #ADD8E6; /* left border */
+        border-right: none; /* no overlap yet */
+        border-bottom: none; /* no overlap yet */
+        padding: 4px 10px;
+        vertical-align: top;
+        }
+        /* Last row – add clean bottom line once */
+        .details-table-1 tr:last-child td {
+        border-bottom: 1px solid #ADD8E6;
+        }
+        /* Last column – add right border once */
+        .details-table-1 tr td:last-child {
+        border-right: 1px solid #ADD8E6;
+        }
+        /* Zebra background */
+        .details-table-1 tr:nth-child(even) td {
+        background: #f7f9fc;
+        }
+
+        .details-table-1 tr td:last-child {
+        border-right: 1px solid #ADD8E6;
+        }
+
+        .details-table-1 tr:last-child td {
+        border-bottom: 1px solid #ADD8E6;
+        }
+        /* Add right border to the last column (fix missing right edge) */
+        .details-table-1 tr td:last-child {
+        border-right: 1px solid #ADD8E6;
+        }
+        .heading12{
+        font-size: 19px !important;
+        }
+
+
+
+        section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        margin-bottom: 25px;
+        }
+
+        /* Prevent tables or headings from splitting */
+        table, h2, h3, h4 {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        }
+
+        /* Force manual page break if needed */
+        .page-break {
+        page-break-before: always;
+        break-before: page;
+        }
+
+        /* Ensure each full 'page' div breaks cleanly */
+        .page {
+        page-break-after: always;
+        break-after: page;
+
+        }
+
+    </style>
+</head>
+<body  id="body">
+    
+    <div id="loader"
+         style="display:none;
+            position:fixed;
+            top:0; left:0;
+            width:100%; height:100%;
+            background:#fff;
+            z-index:9999;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-size:20px;
+            font-weight:bold;">
+        Generating PDF... Please wait
+    </div>
+
+    <div class="page" id="page1">
+        <h1>
+            @(char.ToUpper(Model.Awaken.Awareness.planDetails?.PlanType?[0] ?? ' ')
+                            + (Model.Awaken.Awareness.planDetails?.PlanType?.Substring(1) ?? ""))
+            Plan 
+        </h1>
+        <h3>Client: @Model.Awaken.Awareness.personalDetails?.Name </h3>
+        <p>Advisor:  @Model.Awaken.Awareness.personalDetails?.Advisor</p>
+        <div class="highlight">
+            <strong>Congratulations!</strong> So here we are with your Goal Oriented Financial Plan. This plan is built around the
+            timeless principles of all round "Abundance". But at the same time it also has a clear roadmap to
+            achieve your most important financial goals. We have developed this plan after assessing your
+            information that you provided in the fact finder, our discussion and our best understanding of your
+            situation.
+        </div>
+        <section>
+            <h2>Introduction</h2>
+            <p>
+                This is a six-step program, and every step takes you closer to your financial goals.
+                These steps are:
+            </p>
+            <ol style="background: #fff; padding: 5px 25px; border-radius: 8px;
+               line-height: 1.8; margin: 5px 0 20px; font-size: 15px;">
+                <li><strong>Awareness</strong></li>
+                <li><strong>Wings</strong></li>
+                <li><strong>Alertness</strong></li>
+                <li><strong>Knowledge</strong></li>
+                <li><strong>Execute Plan</strong></li>
+                <li><strong>Invest Now</strong></li>
+            </ol>
+            <p>
+                We have developed this plan based on a simple assumption that you want to design your life on true
+                abundance. Your happiness, fulfilment and peace of mind take you to set the right financial goals and
+                ultimately achieve them.
+            </p>
+            <p>
+                The aim is to become conscious while setting our goals, dealing with inflows and outflows of money,
+                investment planning and execution of the plan. Though you are setting your goals with a future date,
+                you will love every moment of the journey towards those goals. We assure you that we are always
+                there as your able assistant as you drive along the beautiful road toward your majestic goals.
+            </p>
+            <p>
+                While this is a beautiful journey towards your high-priority goals, we need to keep a keen vigil on our
+                efforts. We constantly need to ensure that we are on the right track, maintaining our reasonable speed
+                and avoiding accidents. For this, we need to work as a team and complement each other. A good journey
+                demands a good company — and we promise to be a good company.
+            </p>
+            <p>
+                As we mentioned, this program is a combination of inner abundance and conquering outer
+                challenges and goals. We will constantly remind ourselves that our outer success is grossly inadequate
+                without the discovery of inner abundance.
+            </p>
+        </section>
+        <section>
+        </section>
+        <section>
+            <h2>1. Awareness</h2>
+            <p>
+                The first step of this plan is to be AWARE of current situation. You and your advisor both need to understand your back ground and current state of affairs. Your financial journey needs to accommodate the current situation. This step is also the realization that you are already abundant and then investment doesn’t seem like a sacrifice.
+            </p>
+           
+            <h3>1.1 Personal Details</h3>
+
+            <table class="details-table">
+                <tr>
+                    <th colspan="2">
+                        Details of @Model.Awaken.Awareness.personalDetails?.Name
+                    </th>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Name</td>
+                </tr>
+                <tr>
+                    <td>Gender</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Gender</td>
+                </tr>
+                <tr>
+                    <td>Date of Birth</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Dob</td>
+                </tr>
+                <tr>
+                    <td>Mobile number</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Phone</td>
+                </tr>
+                <tr>
+                    <td>Alternate Mobile</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.AltPhone</td>
+                </tr>
+                <tr>
+                    <td>Aadhaar Number</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Aadhaar</td>
+                </tr>
+                <tr>
+                    <td>Primary E-mail</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Email</td>
+                </tr>
+                <tr>
+                    <td>Secondary E-mail</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.SecEmail</td>
+                </tr>
+                <tr>
+                    <td>PAN Number</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Pan</td>
+                </tr>
+                <tr>
+                    <td>Occupation</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Occupation</td>
+                </tr>
+
+                <!-- Residential -->
+                <tr class="sub-header">
+                    <td colspan="2">Residential Address</td>
+                </tr>
+                <tr>
+                    <td>Country</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.residential?.Country</td>
+                </tr>
+                <tr>
+                    <td>State</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.residential?.State</td>
+                </tr>
+                <tr>
+                    <td>City</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.residential?.City</td>
+                </tr>
+
+                <!-- Office -->
+                <tr class="sub-header">
+                    <td colspan="2">Office Address</td>
+                </tr>
+                <tr>
+                    <td>Company</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.office?.Company</td>
+                </tr>
+                <tr>
+                    <td>Country</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.office?.Country</td>
+                </tr>
+                <tr>
+                    <td>State</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.office?.State</td>
+                </tr>
+                <tr>
+                    <td>City</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.office?.City</td>
+                </tr>
+
+                <!-- Permanent -->
+                <tr class="sub-header">
+                    <td colspan="2">Permanent Address</td>
+                </tr>
+                <tr>
+                    <td>Country</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.permanent?.Country</td>
+                </tr>
+                <tr>
+                    <td>State</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.permanent?.State</td>
+                </tr>
+                <tr>
+                    <td>City</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.permanent?.City</td>
+                </tr>
+            </table>
+
+        </section>
+        <section>
+            <h3>1.2 Spouse Details</h3>
+            @{
+                var spouse = Model.Awaken.Awareness.maritalDetails?.spouseDetails;
+            }
+
+            @if (spouse != null)
+            {
+                <table class="details-table">
+                    <tr>
+                        <th colspan="2">Details of @spouse.SpouseName</th>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>@spouse.SpouseName</td>
+                    </tr>
+                    <tr>
+                        <td>Gender</td>
+                        <td>@spouse.SpouseGender</td>
+                    </tr>
+                    <tr>
+                        <td>Date of Birth</td>
+                        <td>@spouse.SpouseDob</td>
+                    </tr>
+                    <tr>
+                        <td>Mobile number</td>
+                        <td>@spouse.SpousePhone</td>
+                    </tr>
+                    <tr>
+                        <td>Alternate Mobile</td>
+                        <td>@spouse.SpouseAltPhone</td>
+                    </tr>
+                    <tr>
+                        <td>Primary E-mail</td>
+                        <td>@spouse.SpouseEmail</td>
+                    </tr>
+                    <tr>
+                        <td>Secondary E-mail</td>
+                        <td>@spouse.SpouseSecEmail</td>
+                    </tr>
+                    <tr>
+                        <td>PAN Number</td>
+                        <td>@spouse.SpousePan</td>
+                    </tr>
+                    <tr>
+                        <td>Occupation</td>
+                        <td>@spouse.SpouseOccupation</td>
+                    </tr>
+                </table>
+            }
+            else
+            {
+                <p><i>No spouse details available.</i></p>
+            }
+
+            <!-- 🧒 1.3 Children Details -->
+            <h3>1.3 Children Details</h3>
+            @{
+                var children = Model.Awaken.Awareness.maritalDetails?.childrenDetails;
+            }
+
+            @if (children != null && children.Any())
+            {
+                @foreach (var child in children)
+                {
+                    <table class="details-table">
+                        <tr>
+                            <th colspan="2">Details of @child.ChildName</th>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td>@child.ChildName</td>
+                        </tr>
+                        <tr>
+                            <td>Gender</td>
+                            <td>@child.ChildGender</td>
+                        </tr>
+                        <tr>
+                            <td>Date of Birth</td>
+                            <td>@child.ChildDob</td>
+                        </tr>
+
+                    </table>
+                }
+            }
+            else
+            {
+                <p><i>No children details available.</i></p>
+            }
+        </section>
+
+        <section>
+            <h3>1.4 Assumptions</h3>
+            @{
+                var assumptions = Model.Awaken.Awareness.assumptions;
+            }
+
+            @if (assumptions != null)
+            {
+                <table class="details-table">
+                    <tr>
+                        <th colspan="2">Assumptions</th>
+                    </tr>
+                    <tr>
+                        <td>Return from shares and Equity funds</td>
+                        <td>@assumptions.Equity %</td>
+                    </tr>
+                    <tr>
+                        <td>Return from Debt (income) funds</td>
+                        <td>@assumptions.Debt %</td>
+                    </tr>
+                    <tr>
+                        <td>Return from Gold</td>
+                        <td>@assumptions.Gold %</td>
+                    </tr>
+                    <tr>
+                        <td>Return from Real Estate</td>
+                        <td>@assumptions.RealEstateReturn %</td>
+                    </tr>
+                    <tr>
+                        <td>Return from Liquid funds</td>
+                        <td>@assumptions.LiquidFunds %</td>
+                    </tr>
+                    <tr>
+                        <td>Rate of inflation</td>
+                        <td>@assumptions.InflationRates %</td>
+                    </tr>
+                    <tr>
+                        <td>Rate of inflation for higher Education</td>
+                        <td>@assumptions.EducationInflation %</td>
+                    </tr>
+                    <tr>
+                        <td>Assumed Retirement Age for Applicant</td>
+                        <td>@assumptions.ApplicantRetirement</td>
+                    </tr>
+                    <tr>
+                        <td>Assumed Retirement Age for Applicant’s Spouse</td>
+                        <td>@assumptions.SpouseRetirement</td>
+                    </tr>
+                    <tr>
+                        <td>Assumed Life Expectancy of Applicant</td>
+                        <td>@assumptions.ApplicantLifeExpectancy</td>
+                    </tr>
+                    <tr>
+                        <td>Assumed Life Expectancy of Applicant’s Spouse</td>
+                        <td>@assumptions.SpouseLifeExpectancy</td>
+                    </tr>
+                </table>
+            }
+            else
+            {
+                <p><i>No assumption data available.</i></p>
+            }
+        </section>
+
+
+        <section>
+            <h2>2. Wings</h2>
+            <p>
+                Goals drive us, goals motivate us and goals make us enthusiastic. Setting goals is an art. Goals are most effective when they are not for ego satisfaction. Choose your goals accordingly to your values. We suggest to discuss with your family members especially with your spouse. Setting goals and aligning your investments with your goals has been proven as one of the best way of developing a robust portfolio.
+            </p>
+
+        </section>
+
+
+        <section>
+            <h3>2.1 Selected Goals</h3>
+
+            @{
+                var selectedGoals = Model.Awaken.Wings?.SelectedForms;
+            }
+
+            @if (selectedGoals != null && selectedGoals.Any())
+            {
+                <table class="details-table">
+                    <tr>
+                        <th>Goal Priority</th>
+                        <th>Goal Name</th>
+                        <th>Goal Plan Year</th>
+                        <th>Goal Start Year</th>
+                        <th>Time Horizon</th>
+                        <th>Goal End Year</th>
+                    </tr>
+
+                    @foreach (var goal in selectedGoals)
+                    {
+                        <tr>
+                            <td style="width:13%">@goal.Priority</td>
+                            <td>@goal.Goal</td>
+                            <td>@goal.GoalPlanYear</td>
+                            <td>@goal.GoalStartYear</td>
+                            <td>@goal.TimeHorizon</td>
+                            <td>@goal.GoalEndYear</td>
+                        </tr>
+                    }
+                </table>
+            }
+            else
+            {
+                <p><i>No goals have been selected yet.</i></p>
+            }
+
+        </section>
+
+        <section>
+            <h2>
+                3. Alertness
+            </h2>
+            <p>
+                Building wealth requires continuous savings and savings requires you to always remain vigilant towards your income and expenses. Taking stock of your money inflows and outflows magically improves your saving potential and your goals give you enough passion to complete your saving targets.
+
+
+
+            </p>
+
+
+        </section>
+
+        <section class="Number">
+
+
+            <h3>3.1 Budgeting</h3>
+            <h4>3.1.1 Income</h4>
+
+            @{
+                var applicantIncome = Model.Awaken.Alertness.alertness?.incomeDetail?.income;
+                var spouseIncome = Model.Awaken.Alertness.alertness?.incomeDetail?.spouseIncome;
+                var applicantName = Model.Awaken.Awareness.personalDetails?.Name ?? "Applicant";
+                var spouseName = Model.Awaken.Awareness.maritalDetails?.spouseDetails?.SpouseName ?? "Spouse";
+            }
+
+            @if (applicantIncome != null || spouseIncome != null)
+            {
+                <table class="details-table-1">
+                    <tr>
+                        <th colspan="4" style="text-align:center" class="heading12">Income Details</th>
+                    </tr>
+                    <tr>
+                        <th>@applicantName</th>
+                        <th></th>
+                        <th>@spouseName</th>
+                        <th></th>
+                    </tr>
+
+                    <tr>
+                        <td>Basic</td>
+                        <td>@applicantIncome?.basic</td>
+                        <td>Basic</td>
+                        <td>@spouseIncome?.spouseBasic</td>
+                    </tr>
+                    <tr>
+                        <td>HRA</td>
+                        <td>@applicantIncome?.HRA</td>
+                        <td>HRA</td>
+                        <td>@spouseIncome?.spouseHRA</td>
+                    </tr>
+                    <tr>
+                        <td>Education allowance</td>
+                        <td>@applicantIncome?.educationAllowance</td>
+                        <td>Education allowance</td>
+                        <td>@spouseIncome?.spouseEducationAllowance</td>
+                    </tr>
+                    <tr>
+                        <td>Medical allowance</td>
+                        <td>@applicantIncome?.medicalAllowance</td>
+                        <td>Medical allowance</td>
+                        <td>@spouseIncome?.spouseMedicalAllowance</td>
+                    </tr>
+                    <tr>
+                        <td>LTA</td>
+                        <td>@applicantIncome?.LTA</td>
+                        <td>LTA</td>
+                        <td>@spouseIncome?.spouseLTA</td>
+                    </tr>
+                    <tr>
+                        <td>Conveyance</td>
+                        <td>@applicantIncome?.conveyance</td>
+                        <td>Conveyance</td>
+                        <td>@spouseIncome?.spouseConveyance</td>
+                    </tr>
+                    <tr>
+                        <td>Other allowance</td>
+                        <td>@applicantIncome?.otherAllowance</td>
+                        <td>Other allowance</td>
+                        <td>@spouseIncome?.spouseOtherAllowance</td>
+                    </tr>
+                    <tr>
+                        <td>PF</td>
+                        <td>@applicantIncome?.PF</td>
+                        <td>PF</td>
+                        <td>@spouseIncome?.spousePF</td>
+                    </tr>
+                    <tr>
+                        <td>Gratuity</td>
+                        <td>@applicantIncome?.gratuity</td>
+                        <td>Gratuity</td>
+                        <td>@spouseIncome?.spouseGratuity</td>
+                    </tr>
+                    <tr>
+                        <td>Reimbursement</td>
+                        <td>@applicantIncome?.reimbursement</td>
+                        <td>Reimbursement</td>
+                        <td>@spouseIncome?.spouseReimbursement</td>
+                    </tr>
+                    <tr>
+                        <td>Business & Other Income</td>
+                        <td>@applicantIncome?.businessIncome</td>
+                        <td>Business & Other Income</td>
+                        <td>@spouseIncome?.spouseBusinessIncome</td>
+                    </tr>
+                    <tr>
+                        <td>Interest income from Bank SB/AC</td>
+                        <td>@applicantIncome?.interestIncome</td>
+                        <td>Interest income from Bank SB/AC</td>
+                        <td>@spouseIncome?.spouseInterestIncome</td>
+                    </tr>
+                    <tr>
+                        <td>Food Coupon</td>
+                        <td>@applicantIncome?.foodCoupon</td>
+                        <td>Food Coupon</td>
+                        <td>@spouseIncome?.spouseFoodCoupon</td>
+                    </tr>
+                    <tr>
+                        <td>Monthly Pension</td>
+                        <td>@applicantIncome?.monthlyPension</td>
+                        <td>Monthly Pension</td>
+                        <td>@spouseIncome?.spouseMonthlyPension</td>
+                    </tr>
+
+                    @{
+                        var applicantCount = applicantIncome?.newIncomes?.Count ?? 0;
+                        var spouseCount = spouseIncome?.newSpouseIncomes?.Count ?? 0;
+                        var maxCount = Math.Max(applicantCount, spouseCount);
+                    }
+
+                    @for (int i = 0; i < maxCount; i++)
+                    {
+                        var applicantDict = (i < applicantCount)
+                        ? applicantIncome.newIncomes[i]
+                        : new Dictionary<string, double?>();
+
+                        var spouseDict = (i < spouseCount)
+                        ? spouseIncome.newSpouseIncomes[i]
+                        : new Dictionary<string, double?>();
+
+                        string applicantKey = applicantDict.Keys.FirstOrDefault() ?? "";
+                        double? applicantVal = (applicantKey != "" && applicantDict.ContainsKey(applicantKey))
+                        ? applicantDict[applicantKey]
+                        : null;
+
+                        string spouseKey = spouseDict.Keys.FirstOrDefault() ?? "";
+                        double? spouseVal = (spouseKey != "" && spouseDict.ContainsKey(spouseKey))
+                        ? spouseDict[spouseKey]
+                        : null;
+
+
+
+                        <tr>
+                            <td>@applicantKey</td>
+                            <td>@applicantVal</td>
+                            <td>@spouseKey</td>
+                            <td>@spouseVal</td>
+                        </tr>
+                    }
+
+
+
+                    <tr style="color: green; font-weight: bold;">
+                        <td>Monthly Total Income</td>
+                        <td>
+                            @(
+                                            (applicantIncome?.basic ?? 0)
+                                            + (applicantIncome?.HRA ?? 0)
+                                            + (applicantIncome?.educationAllowance ?? 0)
+                                            + (applicantIncome?.medicalAllowance ?? 0)
+                                            + (applicantIncome?.LTA ?? 0)
+                                            + (applicantIncome?.conveyance ?? 0)
+                                            + (applicantIncome?.otherAllowance ?? 0)
+                                            + (applicantIncome?.PF ?? 0)
+                                            + (applicantIncome?.gratuity ?? 0)
+                                            + (applicantIncome?.reimbursement ?? 0)
+                                            + (applicantIncome?.businessIncome ?? 0)
+                                            + (applicantIncome?.interestIncome ?? 0)
+                                            + (applicantIncome?.foodCoupon ?? 0)
+                                            + (applicantIncome?.monthlyPension??0)
+                                            + (applicantIncome?.newIncomes?.Sum(d => d.Values.Sum()) ?? 0)
+                                            )
+                        </td>
+
+                        <td>Monthly Total Income</td>
+                        <td>
+                            @((spouseIncome?.spouseBasic ?? 0)
+                                            + (spouseIncome?.spouseHRA ?? 0)
+                                            + (spouseIncome?.spouseEducationAllowance ?? 0)
+                                            + (spouseIncome?.spouseMedicalAllowance ?? 0)
+                                            + (spouseIncome?.spouseLTA ?? 0)
+                                            + (spouseIncome?.spouseConveyance ?? 0)
+                                            + (spouseIncome?.spouseOtherAllowance ?? 0)
+                                            + (spouseIncome?.spousePF ?? 0)
+                                            + (spouseIncome?.spouseGratuity ?? 0)
+                                            + (spouseIncome?.spouseReimbursement ?? 0)
+                                            + (spouseIncome?.spouseBusinessIncome ?? 0)
+                                            + (spouseIncome?.spouseInterestIncome ?? 0)
+                                            + (spouseIncome?.spouseFoodCoupon ?? 0)
+                                            + (spouseIncome?.spouseMonthlyPension ?? 0)
+                                            + (spouseIncome?.newSpouseIncomes?.Sum(d => d.Values.Sum()) ?? 0)
+                                                    )
+                        </td>
+                    </tr>
+                </table>
+            }
+            else
+            {
+                <p><i>No income data available.</i></p>
+            }
+
+
+
+        </section>
+        <section class="Number">
+            <h3>3.1.1.1 Annual Incomes</h3>
+
+            @{
+                // 🧍 Applicant & Spouse Info
+                var appName_Annual = Model.Awaken.Awareness.personalDetails?.Name ?? "Applicant";
+                var spouseName_Annual = Model.Awaken.Awareness.maritalDetails?.spouseDetails?.SpouseName ?? "Spouse";
+
+                var applicantIncome_Annual = Model.Awaken.Alertness.alertness?.incomeDetail?.income;
+                var spouseIncome_Annual = Model.Awaken.Alertness.alertness?.incomeDetail?.spouseIncome;
+
+                // Applicant calculations
+                var applicantMonthlyTotal_Annual =
+                ((applicantIncome?.basic ?? 0)
+                + (applicantIncome?.HRA ?? 0)
+                + (applicantIncome?.educationAllowance ?? 0)
+                + (applicantIncome?.medicalAllowance ?? 0)
+                + (applicantIncome?.LTA ?? 0)
+                + (applicantIncome?.conveyance ?? 0)
+                + (applicantIncome?.otherAllowance ?? 0)
+                + (applicantIncome?.PF ?? 0)
+                + (applicantIncome?.gratuity ?? 0)
+                + (applicantIncome?.reimbursement ?? 0)
+                + (applicantIncome?.businessIncome ?? 0)
+                + (applicantIncome?.interestIncome ?? 0)
+                + (applicantIncome?.foodCoupon ?? 0)
+                + (applicantIncome?.monthlyPension ?? 0)
+                + (applicantIncome?.newIncomes?.Sum(d => d.Values.Sum()) ?? 0));
+
+                // 🟢 Include dynamic annualIncome array
+                double annualIncomeTotal_Applicant = 0;
+                if (applicantIncome_Annual?.annualIncome != null)
+                {
+                    foreach (var item in applicantIncome_Annual.annualIncome)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            if (double.TryParse(kvp.Value?.ToString(), out double val))
+                            {
+                                annualIncomeTotal_Applicant += val;
+                            }
+                        }
+                    }
+                }
+
+                var applicantAnnualTotal_Annual = (applicantMonthlyTotal_Annual * 12) +
+                (applicantIncome_Annual?.annualBonus ?? 0) +
+                (applicantIncome_Annual?.performanceLinked ?? 0) +
+                annualIncomeTotal_Applicant; // ✅ add dynamic incomes
+
+                var applicantMonthlyAvg_Annual = applicantAnnualTotal_Annual / 12;
+
+
+
+                // Spouse calculations
+                var spouseMonthlyTotal_Annual =
+                ((spouseIncome?.spouseBasic ?? 0)
+                + (spouseIncome?.spouseHRA ?? 0)
+                + (spouseIncome?.spouseEducationAllowance ?? 0)
+                + (spouseIncome?.spouseMedicalAllowance ?? 0)
+                + (spouseIncome?.spouseLTA ?? 0)
+                + (spouseIncome?.spouseConveyance ?? 0)
+                + (spouseIncome?.spouseOtherAllowance ?? 0)
+                + (spouseIncome?.spousePF ?? 0)
+                + (spouseIncome?.spouseGratuity ?? 0)
+                + (spouseIncome?.spouseReimbursement ?? 0)
+                + (spouseIncome?.spouseBusinessIncome ?? 0)
+                + (spouseIncome?.spouseInterestIncome ?? 0)
+                + (spouseIncome?.spouseFoodCoupon ?? 0)
+                + (spouseIncome?.spouseMonthlyPension ?? 0)
+                + (spouseIncome?.newSpouseIncomes?.Sum(d => d.Values.Sum()) ?? 0));
+
+                // 🟢 Include spouse dynamic annualSpouseIncome (if present)
+                double annualIncomeTotal_Spouse = 0;
+                if (spouseIncome_Annual?.annualSpouseIncome != null)
+                {
+                    foreach (var item in spouseIncome_Annual.annualSpouseIncome)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            if (double.TryParse(kvp.Value?.ToString(), out double val))
+                            {
+                                annualIncomeTotal_Spouse += val;
+                            }
+                        }
+                    }
+                }
+
+                var spouseAnnualTotal_Annual = (spouseMonthlyTotal_Annual * 12) +
+                (spouseIncome_Annual?.spouseAnnualBonus ?? 0) +
+                (spouseIncome_Annual?.spousePerformanceLinked ?? 0) +
+                annualIncomeTotal_Spouse;
+
+                var spouseMonthlyAvg_Annual = spouseAnnualTotal_Annual / 12;
+
+                var totalPostITOld_Annual =
+                (spouseIncome_Annual?.spousePostITIncomeOld ?? 0) +
+                (applicantIncome_Annual?.monthlyPension ?? 0);
+
+                var totalPostITNew_Annual =
+                (spouseIncome_Annual?.spousePostITIncomeNew ?? 0) +
+                (applicantIncome_Annual?.monthlyPension ?? 0);
+
+
+
+
+
+            }
+
+            <!-- 🧍 Applicant Annual Income Table -->
+            <table class="details-table">
+                <tr>
+                    <th colspan="2">Annual Income details of @appName_Annual</th>
+                </tr>
+                <tr><td>Performance Linked</td><td>@(applicantIncome_Annual?.performanceLinked ?? 0)</td></tr>
+                <tr><td>Annual Bonus</td><td>@(applicantIncome_Annual?.annualBonus ?? 0)</td></tr>
+
+                <!-- ✅ Dynamic Annual Incomes -->
+                @if (applicantIncome_Annual?.annualIncome != null)
+                {
+                    foreach (var item in applicantIncome_Annual.annualIncome)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString() ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total (monthly * 12 + annual incomes)</td>
+                    <td>
+                        @applicantAnnualTotal_Annual.ToString()
+                    </td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Monthly Total (annual / 12)</td>
+                    <td>@applicantMonthlyAvg_Annual.ToString()</td>
+                </tr>
+            </table>
+
+            <!-- 👩‍❤️‍👨 Spouse Annual Income Table -->
+            <table class="details-table">
+                <tr>
+                    <th colspan="2">Annual Income details of @spouseName_Annual</th>
+                </tr>
+                <tr><td>Performance Linked</td><td>@(spouseIncome_Annual?.spousePerformanceLinked ?? 0)</td></tr>
+                <tr><td>Annual Bonus</td><td>@(spouseIncome_Annual?.spouseAnnualBonus ?? 0)</td></tr>
+
+                <!-- ✅ Dynamic Annual Incomes -->
+                @if (spouseIncome_Annual?.annualSpouseIncome != null)
+                {
+                    foreach (var item in spouseIncome_Annual.annualSpouseIncome)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString() ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total (monthly * 12 + annual incomes)</td>
+                    <td>@spouseAnnualTotal_Annual.ToString("N2")</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Monthly Total (annual / 12)</td>
+                    <td>@spouseMonthlyAvg_Annual.ToString("N2")</td>
+                </tr>
+
+                @*    <tr style="color: green; font-weight: bold;">
+                    <td>Total Post IT income (Old regime)</td>
+                    <td>@totalPostITOld_Annual.ToString("N2")</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Total Post IT income (New regime)</td>
+                    <td>@totalPostITNew_Annual.ToString("N2")</td>
+                </tr> *@
+            </table>
+        </section>
+
+
+        <section class="Number">
+            <h3>3.1.2 Expenses</h3>
+
+            @{
+                var expenses = Model.Awaken.Alertness.alertness?.expenses;
+
+                // 🏠 Home Expenses
+                var home = expenses?.homeExpenses;
+                var homeTotal = (home?.groceryProvisionMilk ?? 0)
+                + (home?.domesticHelp ?? 0)
+                + (home?.ironLaundry ?? 0);
+
+                // ✅ Include newAdd (dynamic items)
+                if (home?.newAdd != null)
+                {
+                    foreach (var item in home.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            homeTotal += kvp.Value ?? 0;
+                        }
+                    }
+                }
+
+                var homeAnnual = homeTotal * 12;
+
+                // 🚗 Conveyance Expenses
+                var conveyance = expenses?.conveyance;
+                var conveyanceTotal = (conveyance?.driver ?? 0)
+                + (conveyance?.fuel ?? 0)
+                + (conveyance?.carCleaning ?? 0)
+                + (conveyance?.maintenance ?? 0)
+                + (conveyance?.taxiPublicTransport ?? 0)
+                + (conveyance?.airTrainTravel ?? 0);
+
+                // ✅ Include newAdd
+                if (conveyance?.newAdd != null)
+                {
+                    foreach (var item in conveyance.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            conveyanceTotal += kvp.Value ?? 0;
+                        }
+                    }
+                }
+
+                var conveyanceAnnual = conveyanceTotal * 12;
+
+                // 📞 Communication Expenses
+                var comm = expenses?.communication;
+                var commTotal = (comm?.mobile ?? 0)
+                + (comm?.landlineBroadband ?? 0)
+                + (comm?.dataCard ?? 0);
+
+                // ✅ Include newAdd
+                if (comm?.newAdd != null)
+                {
+                    foreach (var item in comm.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            commTotal += kvp.Value ?? 0;
+                        }
+                    }
+                }
+
+                var commAnnual = commTotal * 12;
+            }
+
+
+            <!-- 🏠 Home Expenses -->
+            <table class="details-table">
+                <tr><th colspan="2">Home Expenses</th></tr>
+                <tr><td>Groceries</td><td>@home?.groceryProvisionMilk.ToString()</td></tr>
+                <tr><td>Domestic Help</td><td>@home?.domesticHelp.ToString()</td></tr>
+                <tr><td>Iron/Laundry</td><td>@home?.ironLaundry.ToString()</td></tr>
+                @if (home?.newAdd != null)
+                {
+                    foreach (var item in home.newAdd)
+                    {
+                        // Each "item" is a Dictionary<string, double?>
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString() ?? "0")</td>
+                            </tr>
+                        }
+                    }
+
+
+                }
+                <tr style="color: green; font-weight: bold;">
+                    <td>Total for one month</td>
+                    <td>@homeTotal.ToString()</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@homeAnnual.ToString()</td>
+                </tr>
+
+
+            </table>
+
+            <!-- 🚗 Conveyance Expenses -->
+            <table class="details-table">
+                <tr><th colspan="2">Conveyance Expenses</th></tr>
+
+                <!-- Fixed rows -->
+                <tr><td>Driver</td><td>@(conveyance?.driver ?? 0)</td></tr>
+                <tr><td>Fuel</td><td>@(conveyance?.fuel ?? 0)</td></tr>
+                <tr><td>Car Cleaning</td><td>@(conveyance?.carCleaning ?? 0)</td></tr>
+                <tr><td>Maintenance</td><td>@(conveyance?.maintenance ?? 0)</td></tr>
+                <tr><td>Taxi/Public transport</td><td>@(conveyance?.taxiPublicTransport ?? 0)</td></tr>
+                <tr><td>Air/Train Travel</td><td>@(conveyance?.airTrainTravel ?? 0)</td></tr>
+
+                <!-- ✅ Dynamic newAdd items -->
+                @if (conveyance?.newAdd != null)
+                {
+                    foreach (var item in conveyance.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString() ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                <!-- Totals -->
+                <tr style="color: green; font-weight: bold;">
+                    <td>Total for one month</td>
+                    <td>@conveyanceTotal.ToString()</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@conveyanceAnnual.ToString()</td>
+                </tr>
+            </table>
+
+
+            <!-- 📞 Communication Expenses -->
+            <table class="details-table">
+                <tr><th colspan="2">Communication Expenses</th></tr>
+
+                <!-- Fixed rows -->
+                <tr><td>Mobile</td><td>@(comm?.mobile ?? 0)</td></tr>
+                <tr><td>Landline/Broadband</td><td>@(comm?.landlineBroadband ?? 0)</td></tr>
+                <tr><td>Data Card</td><td>@(comm?.dataCard ?? 0)</td></tr>
+
+                <!-- ✅ Dynamic newAdd items -->
+                @if (comm?.newAdd != null)
+                {
+                    foreach (var item in comm.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString() ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                <!-- Totals -->
+                <tr style="color: green; font-weight: bold;">
+                    <td>Total for one month</td>
+                    <td>@commTotal.ToString()</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@commAnnual.ToString()</td>
+                </tr>
+            </table>
+
+        </section>
+
+
+        <section class="Number">
+            @{
+                // ✅ Use unique variable names
+                var expensesUE = Model.Awaken.Alertness.alertness?.expenses;
+
+                // ⚡ Utility Expenses
+                var utilitiesUE = expensesUE?.utilities;
+                var totalUtilityMonthlyUE =
+                (utilitiesUE?.electricity ?? 0) +
+                (utilitiesUE?.houseTax ?? 0) +
+                (utilitiesUE?.societyCharge ?? 0) +
+                (utilitiesUE?.rents ?? 0) +
+                (utilitiesUE?.cable ?? 0) +
+                (utilitiesUE?.LPG ?? 0) +
+                (utilitiesUE?.waterBill ?? 0) +
+                (utilitiesUE?.newsPaper ?? 0);
+
+                // ✅ Include dynamic "newAdd" items
+                if (utilitiesUE?.newAdd != null)
+                {
+                    foreach (var item in utilitiesUE.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            totalUtilityMonthlyUE += kvp.Value ?? 0;
+                        }
+                    }
+                }
+
+                var totalUtilityAnnualUE = totalUtilityMonthlyUE * 12;
+
+                // 🎓 Educational Expenses
+                var educationUE = expensesUE?.educationalExpenses;
+                var totalEducationMonthlyUE =
+                (educationUE?.schoolFees ?? 0) +
+                (educationUE?.tuitions ?? 0) +
+                (educationUE?.uniformsAccessories ?? 0) +
+                (educationUE?.booksStationery ?? 0) +
+                (educationUE?.picnicsActivities ?? 0);
+
+                // ✅ Include dynamic "newAdd" items
+                if (educationUE?.newAdd != null)
+                {
+                    foreach (var item in educationUE.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            totalEducationMonthlyUE += kvp.Value ?? 0;
+                        }
+                    }
+                }
+
+                var totalEducationAnnualUE = totalEducationMonthlyUE * 12;
+            }
+
+            <!-- ⚡ Utility Expenses -->
+            <table class="details-table">
+                <tr><th colspan="2">Utility Expenses</th></tr>
+                <tr><td>Electricity</td><td>@(utilitiesUE?.electricity ?? 0)</td></tr>
+                <tr><td>House Tax</td><td>@(utilitiesUE?.houseTax ?? 0)</td></tr>
+                <tr><td>Society Charge</td><td>@(utilitiesUE?.societyCharge ?? 0)</td></tr>
+                <tr><td>Rents</td><td>@(utilitiesUE?.rents ?? 0)</td></tr>
+                <tr><td>Cable</td><td>@(utilitiesUE?.cable ?? 0)</td></tr>
+                <tr><td>LPG</td><td>@(utilitiesUE?.LPG ?? 0)</td></tr>
+                <tr><td>Water Bill</td><td>@(utilitiesUE?.waterBill ?? 0)</td></tr>
+                <tr><td>Newspaper</td><td>@(utilitiesUE?.newsPaper ?? 0)</td></tr>
+
+                <!-- ✅ Dynamic newAdd -->
+                @if (utilitiesUE?.newAdd != null)
+                {
+                    foreach (var item in utilitiesUE.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString() ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                <tr style="color: green; font-weight: bold;">
+                    <td>Total for one month</td>
+                    <td>@totalUtilityMonthlyUE.ToString()</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@totalUtilityAnnualUE.ToString()</td>
+                </tr>
+            </table>
+
+
+            <!-- 🎓 Educational Expenses -->
+            <table class="details-table">
+                <tr><th colspan="2">Educational Expenses</th></tr>
+                <tr><td>School Fee</td><td>@(educationUE?.schoolFees ?? 0)</td></tr>
+                <tr><td>Tuition Fee</td><td>@(educationUE?.tuitions ?? 0)</td></tr>
+                <tr><td>Uniform & Accessories</td><td>@(educationUE?.uniformsAccessories ?? 0)</td></tr>
+                <tr><td>Books & Stationery</td><td>@(educationUE?.booksStationery ?? 0)</td></tr>
+                <tr><td>Picnics & Activities</td><td>@(educationUE?.picnicsActivities ?? 0)</td></tr>
+
+                <!-- ✅ Dynamic newAdd -->
+                @if (educationUE?.newAdd != null)
+                {
+                    foreach (var item in educationUE.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString() ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                <tr style="color: green; font-weight: bold;">
+                    <td>Total for one month</td>
+                    <td>@totalEducationMonthlyUE.ToString()</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@totalEducationAnnualUE.ToString()</td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="Number">
+            @{
+                var expenses1 = Model.Awaken.Alertness.alertness?.expenses;
+                var entertainmentExp = expenses1?.entertainmentRecreation;
+                var medicalExp = expenses1?.medical;
+            }
+
+            <!-- 🎭 Entertainment Expenses -->
+            <table class="details-table">
+                <tr><th colspan="2">Entertainment Expenses</th></tr>
+                <tr><td>Movies & Theatre</td><td>@(entertainmentExp?.MoviesTheatre ?? 0)</td></tr>
+                <tr><td>Dining Out</td><td>@(entertainmentExp?.DiningOut ?? 0)</td></tr>
+                <tr><td>Club House Expenses</td><td>@(entertainmentExp?.ClubhouseExpenses ?? 0)</td></tr>
+                <tr><td>Parties at Home</td><td>@(entertainmentExp?.PartiesAtHome ?? 0)</td></tr>
+                <tr><td>Clothing / Grooming</td><td>@(entertainmentExp?.ClothingGrooming ?? 0)</td></tr>
+                <tr><td>Vacations & Travel</td><td>@(entertainmentExp?.VacationTravel ?? 0)</td></tr>
+                <tr><td>Festivals</td><td>@(entertainmentExp?.Festivals ?? 0)</td></tr>
+                <tr><td>Kids Parties</td><td>@(entertainmentExp?.KidsBirthdays ?? 0)</td></tr>
+                <tr><td>Family Functions & Weddings</td><td>@(entertainmentExp?.FamilyFunctions ?? 0)</td></tr>
+
+                <!-- ✅ Dynamic newAdd items -->
+                @if (entertainmentExp?.newAdd != null)
+                {
+                    foreach (var item in entertainmentExp.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString("N2") ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                @* Totals *@
+                @{
+                    var monthlyEntertainmentTotal =
+                    (entertainmentExp?.MoviesTheatre ?? 0) +
+                    (entertainmentExp?.DiningOut ?? 0) +
+                    (entertainmentExp?.ClubhouseExpenses ?? 0) +
+                    (entertainmentExp?.PartiesAtHome ?? 0) +
+                    (entertainmentExp?.ClothingGrooming ?? 0) +
+                    (entertainmentExp?.VacationTravel ?? 0) +
+                    (entertainmentExp?.Festivals ?? 0) +
+                    (entertainmentExp?.KidsBirthdays ?? 0) +
+                    (entertainmentExp?.FamilyFunctions ?? 0);
+
+                    // ✅ Include newAdd totals
+                    if (entertainmentExp?.newAdd != null)
+                    {
+                        foreach (var item in entertainmentExp.newAdd)
+                        {
+                            foreach (var kvp in item)
+                            {
+                                monthlyEntertainmentTotal += kvp.Value ?? 0;
+                            }
+                        }
+                    }
+
+                    var annualEntertainmentTotal = monthlyEntertainmentTotal * 12;
+                }
+
+                <tr style="color: green; font-weight: bold;">
+                    <td>Total for one month</td>
+                    <td>@monthlyEntertainmentTotal.ToString("N2")</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@annualEntertainmentTotal.ToString("N2")</td>
+                </tr>
+            </table>
+
+            <!-- 🏥 Medical Expenses -->
+            <table class="details-table">
+                <tr><th colspan="2">Medical Expenses</th></tr>
+                <tr><td>Medical</td><td>@(medicalExp?.medical ?? 0)</td></tr>
+
+                <!-- ✅ Dynamic newAdd items -->
+                @if (medicalExp?.newAdd != null)
+                {
+                    foreach (var item in medicalExp.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString("N2") ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                @* Totals *@
+                @{
+                    var monthlyMedicalTotal = (medicalExp?.medical ?? 0);
+
+                    // ✅ Include newAdd totals
+                    if (medicalExp?.newAdd != null)
+                    {
+                        foreach (var item in medicalExp.newAdd)
+                        {
+                            foreach (var kvp in item)
+                            {
+                                monthlyMedicalTotal += kvp.Value ?? 0;
+                            }
+                        }
+                    }
+
+                    var annualMedicalTotal = monthlyMedicalTotal * 12;
+                }
+
+                <tr style="color: green; font-weight: bold;">
+                    <td>Total for one month</td>
+                    <td>@monthlyMedicalTotal.ToString("N2")</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@annualMedicalTotal.ToString("N2")</td>
+                </tr>
+
+                <tr style="background-color:#f5fff5; color:green; font-weight:bold;">
+                    <td>Total Monthly Expenses (All Categories)</td>
+                    <td>
+                        @(homeTotal +
+                                conveyanceTotal +
+                                commTotal +
+                                totalUtilityMonthlyUE +
+                                totalEducationMonthlyUE +
+                                monthlyEntertainmentTotal +
+                                monthlyMedicalTotal)
+                    </td>
+                </tr>
+
+            </table>
+
+
+
+
+
+
+        </section>
+
+
+        <section class="Number">
+
+            @{
+                var newReplaceExp = Model.Awaken.Alertness.alertness?.expenses?.newReplacementItems;
+                var insuranceExp = Model.Awaken.Alertness.alertness?.expenses?.insurance;
+            }
+            <h3>Annual Expenses</h3>
+
+            <!-- New / Replacement Items -->
+            <h3>New / Replacement Items Expenses</h3>
+            <table class="details-table">
+                <tr>
+                    <th colspan="2">New / Replacement Items</th>
+                </tr>
+                <tr>
+                    <td>Vehicle Servicing & Repair</td>
+                    <td>@newReplaceExp?.VehicleServicing.ToString()</td>
+                </tr>
+                <tr>
+                    <td>Home Repair</td>
+                    <td>@newReplaceExp?.HomeRepair.ToString()</td>
+                </tr>
+                <tr>
+                    <td>New Home Appliances</td>
+                    <td>@newReplaceExp?.NewHomeAppliances.ToString()</td>
+                </tr>
+                @if (newReplaceExp?.newAdd != null)
+                {
+                    foreach (var item in newReplaceExp.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString("N2") ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                @{
+                    double? annualReplacementTotal = 0;
+
+                    // 1️⃣ Add values from medicalExp.newAdd
+                    if (newReplaceExp?.newAdd != null)
+                    {
+                        foreach (var item in newReplaceExp.newAdd)
+                        {
+                            foreach (var kvp in item)
+                            {
+                                annualReplacementTotal += kvp.Value ?? 0;
+                            }
+                        }
+                    }
+
+                    // 2️⃣ Add the additional replacement expenses
+                    annualReplacementTotal = (annualReplacementTotal ?? 0) +
+                    (newReplaceExp?.VehicleServicing ?? 0) +
+                    (newReplaceExp?.HomeRepair ?? 0) +
+                    (newReplaceExp?.NewHomeAppliances ?? 0);
+
+                }
+
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@annualReplacementTotal.ToString()</td>
+                </tr>
+            </table>
+            <h3>Insurance Expenses</h3>
+            <table class="details-table">
+                <tr>
+                    <th colspan="2">Insurance</th>
+                </tr>
+                <tr>
+                    <td>Life Insurance</td>
+                    <td>@insuranceExp?.LifeInsurance.ToString()</td>
+                </tr>
+                <tr>
+                    <td>Home Insurance</td>
+                    <td>@insuranceExp?.HomeInsurance.ToString()</td>
+                </tr>
+                <tr>
+                    <td>Medical Insurance</td>
+                    <td>@insuranceExp?.MedicalInsurance.ToString()</td>
+                </tr>
+                <tr>
+                    <td>Car Insurance</td>
+                    <td>@insuranceExp?.CarInsurance.ToString()</td>
+                </tr>
+
+                @* Dynamically display items from newAdd, if any *@
+                @if (insuranceExp?.newAdd != null)
+                {
+                    foreach (var item in insuranceExp.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString() ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                @* Calculate the total *@
+                @{
+                    double? annualInsuranceTotal = 0;
+
+                    // Add base insurance values
+                    annualInsuranceTotal =
+                    (insuranceExp?.LifeInsurance ?? 0) +
+                    (insuranceExp?.HomeInsurance ?? 0) +
+                    (insuranceExp?.MedicalInsurance ?? 0) +
+                    (insuranceExp?.CarInsurance ?? 0);
+
+                    // Add dynamic newAdd entries
+                    if (insuranceExp?.newAdd != null)
+                    {
+                        foreach (var item in insuranceExp.newAdd)
+                        {
+                            foreach (var kvp in item)
+                            {
+                                annualInsuranceTotal += kvp.Value ?? 0;
+                            }
+                        }
+                    }
+                }
+
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@annualInsuranceTotal.ToString()</td>
+                </tr>
+            </table>
+
+
+        </section>
+
+
+        @{
+            var otherExp = Model.Awaken.Alertness.alertness?.expenses?.otherExpenses;
+
+            // Annual totals for "Other Expenses"
+            var annualOtherTotal1 =
+            (otherExp?.feeToCA ?? 0) +
+            (otherExp?.otherConsultant ?? 0) +
+            (otherExp?.donations ?? 0);
+
+            // Suppose you already have totals from previous sections:
+            var annualReplacementTotal1 =
+            (Model.Awaken.Alertness.alertness?.expenses?.newReplacementItems?.VehicleServicing ?? 0) +
+            (Model.Awaken.Alertness.alertness?.expenses?.newReplacementItems?.HomeRepair ?? 0) +
+            (Model.Awaken.Alertness.alertness?.expenses?.newReplacementItems?.NewHomeAppliances ?? 0);
+
+            var annualInsuranceTotal1 =
+            (Model.Awaken.Alertness.alertness?.expenses?.insurance?.LifeInsurance ?? 0) +
+            (Model.Awaken.Alertness.alertness?.expenses?.insurance?.HomeInsurance ?? 0) +
+            (Model.Awaken.Alertness.alertness?.expenses?.insurance?.MedicalInsurance ?? 0) +
+            (Model.Awaken.Alertness.alertness?.expenses?.insurance?.CarInsurance ?? 0);
+
+            // Section total (Replacement + Insurance + Other)
+            var annualExpensesSectionTotal = annualReplacementTotal + annualInsuranceTotal1 + annualOtherTotal1;
+
+            // Gross monthly (approx)
+            var grossMonthlyExpenses = annualExpensesSectionTotal / 12;
+
+            // Annual total = monthly * 12 (for simplicity; if you had monthly sections, you’d add them here)
+            var annualOverallTotal = annualExpensesSectionTotal;
+        }
+
+        <section class="Number">
+            <h3>Other Expenses</h3>
+
+            <table class="details-table">
+                <tr>
+                    <th colspan="2">Other Expenses</th>
+                </tr>
+                <tr>
+                    <td>Fee to CA & Financial Planner</td>
+                    <td>@otherExp?.feeToCA.ToString()</td>
+                </tr>
+                <tr>
+                    <td>Other Consultant</td>
+                    <td>@otherExp?.otherConsultant.ToString()</td>
+                </tr>
+                <tr>
+                    <td>Donations</td>
+                    <td>@otherExp?.donations.ToString()</td>
+                </tr>
+
+                @* Optional: Add dynamic fields from newAdd *@
+                @if (otherExp?.newAdd != null)
+                {
+                    foreach (var item in otherExp.newAdd)
+                    {
+                        foreach (var kvp in item)
+                        {
+                            <tr>
+                                <td>@kvp.Key</td>
+                                <td>@(kvp.Value?.ToString() ?? "0")</td>
+                            </tr>
+                        }
+                    }
+                }
+
+                @* Calculate total for this section *@
+                @{
+                    double? annualOtherTotal = 0;
+
+                    // Base expenses
+                    annualOtherTotal =
+                    (otherExp?.feeToCA ?? 0) +
+                    (otherExp?.otherConsultant ?? 0) +
+                    (otherExp?.donations ?? 0);
+
+                    // Add any dynamic "newAdd" values
+                    if (otherExp?.newAdd != null)
+                    {
+                        foreach (var item in otherExp.newAdd)
+                        {
+                            foreach (var kvp in item)
+                            {
+                                annualOtherTotal += kvp.Value ?? 0;
+                            }
+                        }
+                    }
+                }
+
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@annualOtherTotal.ToString()</td>
+                </tr>
+
+                @* Grand Total from All Categories *@
+                <tr style="background-color:#f5fff5; color:green; font-weight:bold;">
+                    <td>Total Annual Expenses (All Categories)</td>
+                    <td>
+                        @((annualReplacementTotal ?? 0)
+                            + (annualInsuranceTotal ?? 0)
+                            + (annualOtherTotal))
+                    </td>
+                </tr>
+            </table>
+        </section>
+
+        @{
+    // ✅ Step 1 — Monthly totals (sum of all monthly categories)
+    var totalMonthlyExpenses =
+        homeTotal +
+        conveyanceTotal +
+        commTotal +
+        totalUtilityMonthlyUE +
+        totalEducationMonthlyUE +
+        monthlyEntertainmentTotal +
+        monthlyMedicalTotal;
+
+    // ✅ Step 2 — Annual-only totals (sum of non-monthly annual categories)
+    var totalAnnualOnlyExpenses =
+        annualReplacementTotal +
+        annualInsuranceTotal +
+        annualOtherTotal;
+
+    // ✅ Step 3 — Convert monthly to annual
+    var monthlyTimes12 = totalMonthlyExpenses * 12;
+
+    // ✅ Step 4 — Grand Total (Monthly × 12 + Annual)
+    var grandTotalExpenses = monthlyTimes12 + totalAnnualOnlyExpenses;
+
+    // ✅ Step 5 — Average monthly equivalent
+    var avgMonthlyTotal = grandTotalExpenses / 12;
+}
+
+        <section class="Number">
+            <h3>3.1.12 Total Expenses Summary</h3>
+
+            <table class="details-table">
+                <tr>
+                    <th>Description</th>
+                    <th>Amount (₹)</th>
+                </tr>
+
+                <tr><td><strong>Monthly Total</strong></td><td>@totalMonthlyExpenses.ToString()</td></tr>
+                <tr><td><strong>Monthly × 12</strong></td><td>@monthlyTimes12.ToString()</td></tr>
+                <tr><td><strong>Annual Total (Non-Monthly)</strong></td><td>@totalAnnualOnlyExpenses.ToString()</td></tr>
+
+                <tr style="background-color:#e8f5e9;font-weight:bold;color:green;">
+                    <td>Grand Total (Monthly × 12 + Annual)</td>
+                    <td>@grandTotalExpenses.ToString()</td>
+                </tr>
+
+                <tr style="font-weight:bold;color:#1565c0;">
+                    <td>Average Monthly Total (Grand Total ÷ 12)</td>
+                    <td>@avgMonthlyTotal.ToString()</td>
+                </tr>
+            </table>
+
+            <p style="font-size:12px;color:gray;">
+                <em>Note: Grand Total = (Monthly Expenses × 12) + Annual Expenses</em>
+            </p>
+        </section>
+
+
+        @{
+            var savingsData = Model.Awaken.Alertness.alertness?.savings;
+            var emiData = Model.Awaken.Alertness.alertness?.emi;
+
+            var committedSavings = savingsData?.committedSavings ?? new List<CommittedSaving>();
+            var newSavings = savingsData?.newAdd ?? new List<CommittedSaving>();
+
+            var emiDetails = emiData?.details ?? new List<EmiDetail1>();
+
+            double totalCommittedSavings = savingsData?.totalCommittedSavings ?? 0;
+            double totalEMI = emiData?.totalEMI ?? 0;
+            double oneTimeLoanRepay = emiData?.oneTimeLoanRepay ?? 0;
+        }
+
+        <section class="Number">
+            <h3>3.2 Savings & EMI</h3>
+
+            <!-- SAVINGS SECTION -->
+            <h3>Savings</h3>
+            <table class="details-table-1">
+                <tr>
+                    <th>Saving Name</th>
+                    <th>Current Value (₹)</th>
+                    <th>Monthly Contribution (₹)</th>
+                    <th>Till When</th>
+                    <th>Follow Up</th>
+                </tr>
+
+                @if (committedSavings.Any())
+                {
+                    foreach (var item in committedSavings)
+                    {
+                        <tr>
+                            <td>@item.name</td>
+                            <td>@item.currentValue.ToString()</td>
+                            <td>@item.monthlyContribution.ToString()</td>
+                            <td>
+                                @{
+                                    string formattedDate = "-";
+                                    if (!string.IsNullOrWhiteSpace(Convert.ToString(item.tillWhen)))
+                                    {
+                                        if (DateTime.TryParse(item.tillWhen.ToString(), out DateTime parsedDate))
+                                        {
+                                            formattedDate = parsedDate.ToString("dd/MM/yyyy");
+                                        }
+                                    }
+                                }
+                                @formattedDate
+                            </td>
+                            <td>@item.followUp</td>
+                        </tr>
+                    }
+                }
+
+                @if (newSavings.Any())
+                {
+                    foreach (var item in newSavings)
+                    {
+                        <tr>
+                            <td>@item.name</td>
+                            <td>@item.currentValue.ToString()</td>
+                            <td>@item.monthlyContribution.ToString()</td>
+                            <td>
+                                @{
+                                    string formattedDate = "-";
+                                    if (!string.IsNullOrWhiteSpace(Convert.ToString(item.tillWhen)))
+                                    {
+                                        if (DateTime.TryParse(item.tillWhen.ToString(), out DateTime parsedDate))
+                                        {
+                                            formattedDate = parsedDate.ToString("dd/MM/yyyy");
+                                        }
+                                    }
+                                }
+                                @formattedDate
+                            </td>
+                            <td>@item.followUp</td>
+                        </tr>
+                    }
+                }
+            </table>
+
+            @{
+                var totalSavings = committedSavings.Sum(x => (double?)x.currentValue ?? 0) +
+                newSavings.Sum(x => (double?)x.currentValue ?? 0);
+            }
+
+            <p style="font-weight:bold; color:green;">
+                Total Committed Savings: ₹@totalSavings.ToString()
+            </p>
+
+            <!-- EMI SECTION -->
+            <h3>EMI Details</h3>
+            <table class="details-table-1">
+                <tr>
+                    <th>Loan Name</th>
+                    <th>Outstanding (₹)</th>
+                    <th>Interest (%)</th>
+                    <th>Principal (₹)</th>
+                    <th>Monthly (₹)</th>
+                    <th>Till</th>
+                    <th>Follow Up</th>
+                </tr>
+
+                @if (emiDetails.Any())
+                {
+                    foreach (var loan in emiDetails)
+                    {
+                        <tr>
+                            <td>@loan.Name</td>
+                            <td>@loan.Outstanding.ToString()</td>
+                            <td>@loan.Interest.ToString()</td>
+                            <td>@loan.Principal.ToString()</td>
+                            <td>@loan.Monthly.ToString()</td>
+                            <td>@Convert.ToDateTime(loan.Till).ToString("dd/MM/yyyy")</td>
+                            <td>@(loan.FollowUp == "1" ? "Yes" : "No")</td>
+                        </tr>
+                    }
+                }
+            </table>
+
+            @{
+                var totalMonthlyEMI = emiDetails?.Sum(x => (double?)x.Monthly ?? 0) ?? 0;
+                var totalAnnualEMI = totalMonthlyEMI * 12;
+            }
+
+            <p style="font-weight:bold; color:green;">
+                Total Monthly EMI: ₹@totalMonthlyEMI.ToString()<br />
+                Total Annual EMI: ₹@totalAnnualEMI.ToString()<br />
+                One-Time Loan Repayment: ₹@oneTimeLoanRepay.ToString()
+            </p>
+        </section>
+        @{
+            var postIncome = Model.Awaken.Alertness.alertness?.postIncomeDetails;
+
+            double mustHavePercent = postIncome?.MustHaveExpensesPercent ?? 0;
+            double optionalPercent = postIncome?.OptionalExpensesPercent ?? 0;
+            double savingsPercent = postIncome?.SavingsPercent ?? 0;
+
+            double totalPercent = mustHavePercent + optionalPercent + savingsPercent;
+
+            double projectedGrowth5 = postIncome?.ProjectedGrowthRateNext5Years ?? 0;
+            double projectedGrowth6To10 = postIncome?.ProjectedGrowthRate6To10Years ?? 0;
+            double inflationRate = postIncome?.InflationRate ?? 0;
+        }
+        <section class="Number">
+            <h3>3.3 Suggested Modified Budget</h3>
+
+            <!-- Budget Percentages Table -->
+            <table class="details-table-1">
+                <tr>
+                    <th>Must-Have Expenses (%)</th>
+                    <th>Optional Expenses (%)</th>
+                    <th>Savings (%)</th>
+                </tr>
+                <tr>
+                    <td>@mustHavePercent.ToString("N2")</td>
+                    <td>@optionalPercent.ToString("N2")</td>
+                    <td>@savingsPercent.ToString("N2")</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td colspan="3" style="text-align: right;">Total Percent: @totalPercent.ToString("N2")%</td>
+                </tr>
+            </table>
+
+            <!-- Projected Growth Table -->
+            <table class="details-table-1">
+                <tr>
+                    <th>Projected Growth Rate (Next 5 Years) (%)</th>
+                    <th>Projected Growth Rate (6 to 10 Years) (%)</th>
+                    <th>Inflation Rate (%)</th>
+                </tr>
+                <tr>
+                    <td>@projectedGrowth5.ToString("N2")</td>
+                    <td>@projectedGrowth6To10.ToString("N2")</td>
+                    <td>@inflationRate.ToString("N2")</td>
+                </tr>
+            </table>
+        </section>
+
+
+        @{
+            var netWorth = Model.Awaken.Alertness.alertness?.netWorth;
+            var investments = netWorth?.investments;
+            var newInvestments = netWorth?.newInvestments ?? new List<NewInvestment>();
+
+            double totalInvestments = 0;
+        }
+
+        <section class="Number">
+            <h3>3.4 Net Worth</h3>
+            <h4>Investments</h4>
+
+            <table class="details-table">
+                <tr>
+                    <th>Investment Type</th>
+                    <th>Amount (Rs.)</th>
+                </tr>
+
+                @if (investments != null)
+                {
+                    <tr>
+                        <td>Cash In Hand</td>
+                        <td>@investments.CashInHand.ToString()</td>
+                    </tr>
+                    <tr>
+                        <td>Employee Provident Fund</td>
+                        <td>@investments.EmployeeProvidendFund.ToString()</td>
+                    </tr>
+                    <tr>
+                        <td>PPF</td>
+                        <td>@investments.PPF.ToString()</td>
+                    </tr>
+                    <tr>
+                        <td>Fixed Deposits</td>
+                        <td>@investments.FixedDeposits.ToString()</td>
+                    </tr>
+                    <tr>
+                        <td>Mutual Funds / Shares</td>
+                        <td>@investments.MutualFundsShares.ToString()</td>
+                    </tr>
+                    <tr>
+                        <td>Paid-Up Insurance Policies</td>
+                        <td>@investments.PaidUpValueOfInsurancePolicies.ToString()</td>
+                    </tr>
+                    <tr>
+                        <td>Others (e.g. Gratuity)</td>
+                        <td>@investments.OthersGratuity.ToString()</td>
+                    </tr>
+
+                    {
+                        totalInvestments += (investments.CashInHand ?? 0)
+                        + (investments.EmployeeProvidendFund ?? 0)
+                        + (investments.PPF ?? 0)
+                        + (investments.FixedDeposits ?? 0)
+                        + (investments.MutualFundsShares ?? 0)
+                        + (investments.PaidUpValueOfInsurancePolicies ?? 0)
+                        + (investments.OthersGratuity ?? 0);
+
+
+                    }
+                }
+
+                @if (newInvestments.Any())
+                {
+                    foreach (var item in newInvestments)
+                    {
+                        <tr>
+                            <td>@item.InvestmentName</td>
+                            <td>@item.Amount.ToString()</td>
+                        </tr>
+                        totalInvestments += item.Amount??0;
+                    }
+        }
+
+        <tr style="color:green; font-weight:bold;">
+            <td>Total Investment</td>
+            <td>@totalInvestments.ToString()</td>
+        </tr>
+    </table>
+</section>
+
+
+        @{
+    var netWorth1 = Model.Awaken.Alertness.alertness?.netWorth;
+            var otherAssets = netWorth1?.otherAssets;
+            var newOtherAssets = netWorth?.newOtherAssets ?? new List<NewOtherAsset>();
+
+    double totalOtherAssets = 0;
+}
+
+        <section class="Number">
+    <h3>Other Assets</h3>
+
+    <table class="details-table">
+        <tr>
+            <th>Asset Type</th>
+            <th>Amount (Rs.)</th>
+        </tr>
+
+        @if (otherAssets != null)
+        {
+            <tr>
+                <td>Home1</td>
+                <td>@otherAssets.Home1</td>
+            </tr>
+            <tr>
+                <td>Home2</td>
+                <td>@otherAssets.Home2</td>
+            </tr>
+            <tr>
+                <td>Land</td>
+                <td>@otherAssets.Land</td>
+            </tr>
+            <tr>
+                <td>Car</td>
+                <td>@otherAssets.Car</td>
+            </tr>
+            <tr>
+                <td>Commercial Property</td>
+                <td>@otherAssets.CommercialProperty</td>
+            </tr>
+            <tr>
+                <td>Jewellery</td>
+                <td>@otherAssets.Jewellery</td>
+            </tr>
+            <tr>
+                <td>Value Of Business</td>
+                <td>@otherAssets.ValueOfBusiness</td>
+            </tr>
+            <tr>
+                <td>Other</td>
+                <td>@(otherAssets.Other )</td>
+            </tr>
+
+            {
+                        totalOtherAssets += (otherAssets.Home1 ?? 0)
+                        + (otherAssets.Home2 ?? 0)
+                        + (otherAssets.Land ?? 0)
+                        + (otherAssets.Car ?? 0)
+                        + (otherAssets.CommercialProperty ?? 0)
+                        + (otherAssets.Jewellery ?? 0)
+                        + (otherAssets.ValueOfBusiness ?? 0)
+                        + (otherAssets.Other ?? 0);
+            }
+        }
+
+        @if (newOtherAssets.Any())
+        {
+            foreach (var asset in newOtherAssets)
+            {
+                <tr>
+                    <td>@asset.AssetName</td>
+                    <td>@asset.Amount</td>
+                </tr>
+                        totalOtherAssets += asset.Amount??0 ;
+            }
+        }
+
+        <tr style="color:green; font-weight:bold;">
+            <td>Total Other Assets</td>
+            <td>@totalOtherAssets</td>
+        </tr>
+    </table>
+</section>
+
+@{
+    var liabilities = Model.Awaken.Alertness.alertness.netWorth.liabilities;
+    var newLiabilities = Model.Awaken.Alertness.alertness.netWorth.newLiabilities;
+}
+
+<section class="Number">
+    <h3>Liabilities</h3>
+
+    <table class="details-table">
+        <tr>
+            <th>Loan Type</th>
+            <th>Amount (Rs.)</th>
+        </tr>
+
+        <tr><td>Home 1 Loan</td><td>@(liabilities?.Home1Loan ?? 0)</td></tr>
+        <tr><td>Home 2 Loan</td><td>@(liabilities?.Home2Loan ?? 0)</td></tr>
+        <tr><td>Land Loan</td><td>@(liabilities?.LandLoan ?? 0)</td></tr>
+        <tr><td>Car Loan</td><td>@(liabilities?.CarLoan ?? 0)</td></tr>
+        <tr><td>Commercial Property Loan</td><td>@(liabilities?.CommercialPropertyLoan ?? 0)</td></tr>
+        <tr><td>Jewellery Loan</td><td>@(liabilities?.JewelleryLoan ?? 0)</td></tr>
+        <tr><td>Business Loan</td><td>@(liabilities?.BusinessLoan ?? 0)</td></tr>
+        <tr><td>Other Loan</td><td>@(liabilities?.OtherLoan ?? 0)</td></tr>
+
+        <!-- ✅ Add newLiabilities dynamically -->
+        @if (newLiabilities != null && newLiabilities.Any())
+        {
+            foreach (var liab in newLiabilities)
+            {
+                <tr>
+                    <td>@liab.LiabilityName</td>
+                    <td>@(liab.Amount?.ToString("N2") ?? "0")</td>
+                </tr>
+            }
+        }
+
+        <!-- ✅ Total Calculation -->
+        @{
+            var totalLiabilities = 
+                (liabilities?.Home1Loan ?? 0) +
+                (liabilities?.Home2Loan ?? 0) +
+                (liabilities?.LandLoan ?? 0) +
+                (liabilities?.CarLoan ?? 0) +
+                (liabilities?.CommercialPropertyLoan ?? 0) +
+                (liabilities?.JewelleryLoan ?? 0) +
+                (liabilities?.BusinessLoan ?? 0) +
+                (liabilities?.OtherLoan ?? 0);
+
+            if (newLiabilities != null && newLiabilities.Any())
+            {
+                foreach (var liab in newLiabilities)
+                {
+                    totalLiabilities += liab.Amount ?? 0;
+                }
+            }
+        }
+
+        <tr style="color: green; font-weight: bold; background-color: #f9f9f9;">
+            <td>Total Liabilities</td>
+            <td>@totalLiabilities.ToString("N2")</td>
+        </tr>
+    </table>
+</section>
+
+
+
+        @{
+            var badLoans = Model.Awaken.Alertness.alertness.debt.BadLoans;
+            var goodLoans = Model.Awaken.Alertness.alertness.debt.GoodLoans;
+        }
+
+        <section class="Number">
+            <h3>3.5 Debt</h3>
+
+            <!-- Bad Loans Table -->
+            <h4>Bad Loans</h4>
+            <table class="details-table">
+                <tr>
+                    <th>Loan Type</th>
+                    <th>Amount (Rs.)</th>
+                </tr>
+                <tr>
+                    <td>Gold Loan</td>
+                    <td>@(badLoans?.GoldLoan ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Credit Card</td>
+                    <td>@(badLoans?.CreditCard ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Personal Loan</td>
+                    <td>@(badLoans?.PersonalLoan ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Bad Loan (Others)</td>
+                    <td>@(badLoans?.BadLoanOthers ?? 0)</td>
+                </tr>
+
+                @* ✅ Calculate Total *@
+                @{
+                    var totalBadLoans =
+                    (badLoans?.GoldLoan ?? 0) +
+                    (badLoans?.CreditCard ?? 0) +
+                    (badLoans?.PersonalLoan ?? 0) +
+                    (badLoans?.BadLoanOthers ?? 0);
+                }
+
+                <tr style="color: green; font-weight: bold; background-color: #f9f9f9;">
+                    <td>Total Bad Loans</td>
+                    <td>@totalBadLoans.ToString("N2")</td>
+                </tr>
+            </table>
+
+            <!-- Good Loans Table -->
+            <h4>Good Loans</h4>
+            <table class="details-table">
+                <tr>
+                    <th>Loan Type</th>
+                    <th>Amount (Rs.)</th>
+                </tr>
+                <tr>
+                    <td>Home Loan</td>
+                    <td>@(goodLoans?.HomeLoan ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Education Loan</td>
+                    <td>@(goodLoans?.educationLoan ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Business Loan</td>
+                    <td>@(goodLoans?.businessLoan ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Good Loan (Others)</td>
+                    <td>@(goodLoans?.goodLoanOthers ?? 0)</td>
+                </tr>
+
+                @* ✅ Calculate Total *@
+                @{
+                    var totalGoodLoans =
+                    (goodLoans?.HomeLoan ?? 0) +
+                    (goodLoans?.educationLoan ?? 0) +
+                    (goodLoans?.businessLoan ?? 0) +
+                    (goodLoans?.goodLoanOthers ?? 0);
+                }
+
+                <tr style="color: green; font-weight: bold; background-color: #f9f9f9;">
+                    <td>Total Good Loans</td>
+                    <td>@totalGoodLoans.ToString("N2")</td>
+                </tr>
+            </table>
+
+        </section>
+
+
+        @{
+            var lifeInsurances = Model?.Awaken?.Alertness?.alertness?.lifeInsurance?.insurance;
+        }
+
+        <section class="Number">
+            <h3>3.6 Insurance</h3>
+            <h4>Life Insurance Policies</h4>
+
+            <table class="details-table-1">
+                <tr>
+                    <th>Policy Type</th>
+                    <th>Policy Name</th>
+                    <th>Coverage Amount (Rs.)</th>
+                    <th>Premium Due Date</th>
+                    <th>Maturity Date</th>
+                </tr>
+
+                @if (lifeInsurances != null && lifeInsurances.Any())
+                {
+                    foreach (var policy in lifeInsurances)
+                    {
+                        <tr>
+                            <td>@policy.insuranceType</td>
+                            <td>@policy.name</td>
+                            <td>@policy.amountOfCoverage</td>
+                            <td>@policy.premiumDueDate</td>
+                            <td>@policy.maturityDate</td>
+                        </tr>
+                    }
+
+                    // ✅ Totals (if needed)
+                    var totalCoverage = lifeInsurances.Sum(p => p.amountOfCoverage );
+                    <tr style="color: green; font-weight: bold;">
+                        <td>Total Life Insurance Coverage</td>
+                        <td>-</td>
+                        <td>@totalCoverage</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" style="text-align:center; color: gray;">No life insurance records available</td>
+                    </tr>
+                }
+            </table>
+        </section>
+
+
+        @{
+            var generalInsurances = Model?.Awaken?.Alertness?.alertness?.generalInsurance?.insurance;
+        }
+
+        <section class="Number">
+            <h4>General Insurance Policies</h4>
+
+            <table class="details-table-1">
+                <tr>
+                    <th>Insurance Type</th>
+                    <th>Coverage Amount (Rs.)</th>
+                    <th>Premium Due Date</th>
+                    <th>Maturity Date</th>
+                </tr>
+
+                @if (generalInsurances != null && generalInsurances.Any())
+                {
+                    foreach (var policy in generalInsurances)
+                    {
+                        <tr>
+                            <td>@policy.insuranceType</td>
+                            <td>@policy.amountOfCoverage</td>
+                            <td>@policy.premiumDueDate</td>
+                            <td>@policy.maturityDate</td>
+                        </tr>
+                    }
+
+                    var totalCoverage = generalInsurances.Sum(p => p.amountOfCoverage );
+                    <tr style="color: green; font-weight: bold;">
+                        <td>Total General Insurance Coverage</td>
+                        <td>@totalCoverage</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" style="text-align:center; color:gray;">
+                            No general insurance policies found
+                        </td>
+                    </tr>
+                }
+            </table>
+        </section>
+
+
+        <section>
+            <h3>4. Knowledge That Matters</h3>
+
+            <p>
+                Not every knowledge is power. You have to determine which knowledge is useful and which is simply waste of time and energy. The good news is that for being a successful investor, you don’t need to know a mountain of knowledge. And whatever you need to know is only about yourself and your goals. Isn’t it liberating to know that self-knowledge is all that you need to become a successful investor.
+
+            </p>
+
+            <ol type="I">
+                <li>Your risk tolerance</li>
+                <li>Goal’s time horizon</li>
+                <li>Your risk capacity</li>
+                <li>Your risk requirement</li>
+            </ol>
+
+            <p>
+                With these feedback, we can develop right asset allocation (allocation betweek Equity and Debt) for
+                each goals.
+            </p>
+
+        </section>
+
+        @{
+            var knowledge = Model?.Awaken?.Knowledge?.Knowledge;
+            var selectedRiskProfile = Model?.Awaken?.Invest?.Knowledge?.SelectedRiskProfile;
+        }
+
+        <section>
+            <h3>Risk Review</h3>
+
+            <table class="details-table">
+                <tr>
+                    <th colspan="2">Risk Review</th>
+                </tr>
+                <tr>
+                    <td>Your Risk Tolerance</td>
+                    <td>@(knowledge?.RiskTolerance ?? "-")</td>
+                </tr>
+                <tr>
+                    <td>Your Risk Capacity</td>
+                    <td>@(knowledge?.RiskCapacity ?? "-")</td>
+                </tr>
+              
+                <tr>
+                    <td>Your Risk Requirement</td>
+                    <td>@(knowledge?.RiskRequirement ?? "-")</td>
+                </tr>
+               
+            </table>
+        </section>
+
+
+        <section>
+ <h2>5. Execution With Precision</h2>
+
+            <p>Clearly defined goals needs careful and precise execution. Not every goal may be worth pursuing. You need to define the priority of your goals and deploy the resources carefully. Your goals need constant monitoring and take the timely decision so that you remain ready for any positive or negative surprise of the market. A clear cut execution road map makes your financial journey fruitful and enjoyable. </p>
+
+<h3>Action Plan for Financial Goals</h3>
+
+
+            @{
+                var allGoals = Model?.Awaken?.ExecutePlan?.FormData?.GoalData;
+            }
+
+            <section>
+           
+
+                @if (allGoals != null && allGoals.Any())
+                {
+                    foreach (var goal in allGoals)
+                    {
+                       
+                        <table class="details-table">
+                            <tr><th colspan="2">
+                                    @goal.Name
+                            </th></tr>
+                            @if (goal.Values != null && goal.Values.Any())
+                            {
+                                foreach (var item in goal.Values)
+                                {
+                                    <tr>
+                                        <td>@item.Key</td>
+                                        <td>@item.Value</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2" style="text-align:center;color:gray;">No data available for this goal.</td>
+                                </tr>
+                            }
+                        </table>
+                    }
+                }
+                else
+                {
+                    <p style="color: gray;">No goal data available.</p>
+                }
+            </section>
+
+        </section>
+
+
+        <section class="Number">
+            <h2>6. Invest In The Now</h2>
+            <p>
+                Financial plans are nothing if you fail to invest properly. And there is no point thinking about too long. Once you make the plan, all you need to do is to make a diversified portfolio and do the necessary investments. Make the most out of saving potential and commit to invest NOW. Any delay is only going to rob the power of compounding. Just do the investment NOW.
+
+            </p>
+            <h3>Total Available Savings for Investments</h3>
+
+            <table class="details-table-1">
+                <tr>
+                    <th>Monthly Savings</th>
+                    <th>Intended SIP Monthly</th>
+                    <th>Available Lumpsum (if any)</th>
+                </tr>
+                <tr>
+                    <td>
+                        @((Model?.Awaken?.Invest?.ActNow?.SavingsForInvestments?.MonthlySavings ?? 0))
+                           
+                    </td>
+                    <td>@(Model?.Awaken?.Invest?.ActNow?.SavingsForInvestments?.IntendedSipMonthly ?? 0)</td>
+                    <td>@(Model?.Awaken?.Invest?.ActNow?.SavingsForInvestments?.AvailableLumpsum ?? 0)</td>
+                </tr>
+            </table>
+
+            <h3>Action Plan for Financial Goals</h3>
+
+            <table class="details-table-1">
+                <tr>
+                    <th>Name of the Goal</th>
+                    <th>Lumpsum Amount Intended for this Goal</th>
+                    <th>SIP Amount Intended for this Goal</th>
+                </tr>
+
+                @if (Model?.Awaken?.Invest?.ActNow?.Earmarked != null && Model.Awaken.Invest.ActNow.Earmarked.Any())
+                {
+                    double totalLumpsum = 0;
+                    double totalSip = 0;
+
+                    foreach (var goal in Model.Awaken.Invest.ActNow.Earmarked)
+                    {
+                        totalLumpsum += (double)goal.LumpSum;
+                        totalSip += (double)goal.SIP;
+                        <tr>
+                            <td>@goal.EarmarkedForGoal</td>
+                            <td>@goal.LumpSum</td>
+                            <td>@goal.SIP</td>
+                        </tr>
+                    }
+
+                    <tr style="font-weight: bold; color: green;">
+                        <td>Total</td>
+                        <td>@totalLumpsum</td>
+                        <td>@totalSip</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" style="text-align:center;">No goals found.</td>
+                    </tr>
+                }
+            </table>
+        </section>
+        <section>
+            <br />  <br />
+            <b>Disclaimer-</b>
+
+           <p> 1)	Mainstream Investments Services Pvt Ltd is an AMFI registered MFD (Mutual Fund Distributor). The financial planning process through this Fact finder is incidental to the task of choosing the right mutual funds for the investors.</p>
+          <p>    2)	  The information gathered through fact finder is only to develop incidental investment advisory for you and it is strictly confidential.</p>
+           <p>   3)	Preparing this plan is in no way a compulsion for you to invest through us. We always respect your decision in this regard.</p>
+           <p>   4)	AWAKEN is the acronym of the six steps of the incidental planning we do for selecting the suitable investment avenues for you. It suggests a certain way of realising abundance without guaranteeing a fixed return on your investments.</p>
+            <p>  Any terminology such as financial planning, investment advisory, portfolio management, wealth management and other such phrases are incidental while choosing the right mutual funds for you. We hereby declare that we are not the RIA (Registered Investment Adviser). We are the AMFI registered MFD and as such allowed to provide the incidental investment advisory only.</p>
+        </section>
+    </div>
+   
+    <script>
+             window.addEventListener("load", async function () {
+
+
+                if (!window.html2pdf) {
+                  alert('PDF library failed to load.');
+                  return;
+                }
+
+                const element = document.getElementById('page1');
+
+                     const opt = {
+                margin: [25, 10, 15, 10],
+          filename: 'AWAKEN_Financial_Plan.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // <== important
+        };
+
+                try {
+                  const pdf = await html2pdf().set(opt).from(element).toPdf().get('pdf');
+
+                  const totalPages = pdf.internal.getNumberOfPages();
+                  const pageWidth = pdf.internal.pageSize.getWidth();
+                  const pageHeight = pdf.internal.pageSize.getHeight();
+
+
+
+                  // Image loader helper
+                  const loadImage = (src) =>
+                    new Promise((resolve, reject) => {
+                      const img = new Image();
+                      img.crossOrigin = 'Anonymous';
+                      img.src = src;
+                      img.onload = () => resolve(img);
+                      img.onerror = () => reject(`Failed to load image: ${src}`);
+                    });
+
+                  // Preload images
+                          const base = window.location.origin;
+              const [logo, phoneIcon, emailIcon, webIcon] = await Promise.all([
+                loadImage(base + '/images/logopdf.jpg'),
+                        loadImage(base + '/images/icons/phone.png'),
+               loadImage(base + '/images/icons/email.png'),
+                 loadImage(base + '/images/icons/web.png'),
+              ]);
+
+
+                  // Layout settings
+                const logoHeight = (102 / 988) * pageWidth;
+                  const logoY = 0;
+                  const iconSize = 3.5;
+
+                  // Loop pages
+                  for (let i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+
+                   
+                    const watermarkImg = await loadImage(base + '/images/watermarklpdf.jpg');
+             // === WATERMARK ===
+          try {
+            // 0.9 = 90% opacity (nearly full but slightly soft)
+            if (pdf.setGState) {
+                              const gs = pdf.GState({ opacity: 0.05  });
+              pdf.setGState(gs);
+            }
+
+            const wmWidth = pageWidth * 0.6;
+            const wmHeight = wmWidth * (watermarkImg.height / watermarkImg.width);
+            const wmX = (pageWidth - wmWidth) / 2;
+            const wmY = (pageHeight - wmHeight) / 2;
+
+            // Draw watermark centered and diagonal
+            pdf.addImage(watermarkImg, "PNG", wmX, wmY, wmWidth, wmHeight, "", "FAST", 45);
+
+            // Reset opacity back to 1 for header/footer
+            if (pdf.setGState) {
+              const gsNormal = pdf.GState({ opacity: 1 });
+              pdf.setGState(gsNormal);
+            }
+          } catch (wmError) {
+            console.warn("⚠️ Watermark not loaded:", wmError);
+          }
+
+
+                    // HEADER
+                    pdf.addImage(logo, 'JPEG', 0, logoY, pageWidth, logoHeight);
+                    pdf.setDrawColor(200);
+                 //   pdf.line(10, logoY + logoHeight + 2, pageWidth - 10, logoY + logoHeight + 2);
+
+        // === FOOTER (Left-Aligned) ===
+        // === FOOTER BACKGROUND (Light Blue, No Top Padding / Flush Bottom) ===
+           const footerHeight = 16; // footer bar height
+        const footerY = pageHeight; // align flush to bottom edge
+
+        // Very light blue gradient background
+        const gradientSteps = 20;
+        for (let i = 0; i < gradientSteps; i++) {
+          const ratio = i / gradientSteps;
+          const r = 245 - ratio * 3;  // soft tone variation
+          const g = 250 - ratio * 3;
+          const b = 255 - ratio * 2;
+          pdf.setFillColor(r, g, b);
+          pdf.rect(
+            0,
+            footerY - footerHeight + i * (footerHeight / gradientSteps),
+            pageWidth,
+            footerHeight / gradientSteps,
+            'F'
+          );
+        }
+
+        // === Footer text color and style ===
+        pdf.setTextColor(0, 0, 0); // black text for readability
+
+
+
+        // === Company Name + Address (Left-Aligned) ===
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(0, 0, 0);
+
+        const companyName = 'Mainstream Investments Services Pvt. Ltd.';
+        const companyAddress = ', Unit No-1003, 10th Floor, Noida One, Sector-62 Noida-201306';
+        const leftMargin = 15; // left padding
+
+        // Bold company name + normal address (same line)
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(companyName, leftMargin, footerY - 10);
+        const companyNameWidth = pdf.getTextWidth(companyName);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(companyAddress, leftMargin + companyNameWidth, footerY - 10);
+
+        // === Contact Info (Left-Aligned) ===
+        const iconSize = 4;
+        const contactY = footerY - 3.5;
+        let contactX = leftMargin;
+
+        // Phone
+        pdf.addImage(phoneIcon, 'PNG', contactX, contactY - 2.2, iconSize, iconSize);
+        contactX += iconSize + 2;
+        pdf.text('+91-93542 68360, 98113 33637', contactX, contactY);
+
+        // Email
+        contactX += pdf.getTextWidth('+91-93542 68360, 98113 33637  |  ');
+        pdf.addImage(emailIcon, 'PNG', contactX, contactY - 2.2, iconSize, iconSize);
+        contactX += iconSize + 2;
+        pdf.text('advisor@mainstream.co.in', contactX, contactY);
+
+        // Web
+        contactX += pdf.getTextWidth('advisor@mainstream.co.in  |  ');
+        pdf.addImage(webIcon, 'PNG', contactX, contactY - 2.2, iconSize, iconSize);
+        contactX += iconSize + 2;
+        pdf.text('www.mainstream.co.in', contactX, contactY);
+
+        // === Page Number (Right-Aligned, Same Line) ===
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(9);
+        pdf.setTextColor(50);
+        pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 20, contactY, { align: 'right' });
+
+                  }
+
+                  //pdf.save('User-Summary.pdf');
+                  debugger;
+                   //        const element1 = document.getElementById('body');
+
+        // 1️⃣ Make visible
+    //    element1.style.removeProperty('display');
+          //      element1.style.visibility = 'visible';
+
+        // 2️⃣ Force a reflow/repaint before html2pdf runs
+        await new Promise(requestAnimationFrame);
+
+                      const pdfBlob = pdf.output('blob');
+                                
+                    // Send to server via FormData
+                    const formData = new FormData();
+                    debugger;
+    // === Build the dynamic filename from Razor variables ===
+        const planType = "@(Model.Awaken.Awareness.planDetails?.PlanType)";
+    const clientName = "@(Model.Awaken?.Awareness?.personalDetails?.Name ?? "Client")";
+                  const ProfileId = "@(Model.Awaken?.ProfileId.ToString() ?? "0")";
+                  debugger;
+debugger;
+    // Generate a short unique code (timestamp-based)
+    const uniqueCode = Date.now().toString().slice(-6);
+
+    // Build final filename
+        const fileName = `FF_${planType}_${clientName}_${ProfileId}.pdf`;
+
+                        formData.append("pdfFile", pdfBlob, fileName);
+
+                    // Upload to controller
+                     const response = await fetch(`/pdf/SaveGeneratedPdf/${ProfileId}`, {
+                      method: "POST",
+                      body: formData
+                    });
+                    debugger;
+                        const result = await response.json();
+
+                    if (result.success && result.url) {
+                      console.log("✅ PDF saved successfully:", result.url);
+
+                      // ✅ Open PDF in new browser tab
+                      const pdfUrl = window.location.origin + result.url;
+                    //  window.open(pdfUrl, "_blank"); // opens the saved PDF file
+
+                      // Optional redirect after open
+                             window.location.href = pdfUrl;
+                    } else {
+                      console.error("❌ Failed to save PDF:", result.message);
+                      alert("Failed to save PDF. Please check console.");
+                    }
+
+
+
+                } catch (error) {
+                  console.error('❌ PDF Generation Failed:', error);
+                  alert('Failed to load one or more images. Please verify your image paths.');
+                }
+              });
+
+
+
+    </script>
+
+    <script>
+        // ✅ Convert numeric string → formatted Indian style with .00
+        function formatNumberWithCommas(num) {
+            if (num == null || num === "") return num;
+            num = num.toString().trim().replace(/,/g, "");
+
+            // Skip if not numeric
+            if (isNaN(num)) return num;
+
+            const [intPart, decPart] = num.split(".");
+            const formattedInt = parseInt(intPart, 10).toLocaleString("en-IN");
+
+            // Always keep two decimal places
+            let decimal = decPart ? decPart.padEnd(2, "0") : "00";
+
+            return `${formattedInt}`;
+        }
+
+        // ✅ Format all <td> inside <section class="Number">
+        function applyNumberFormatting() {
+            document.querySelectorAll("section.Number td").forEach(td => {
+                const text = td.textContent.trim();
+
+                // Skip non-numeric or empty
+                if (!text || !/^\d+(\.\d+)?$/.test(text)) return;
+
+                // Skip long numbers (e.g., mobile numbers)
+                if (text.length >= 10 && text.length <= 12) return;
+
+                // Replace with formatted value
+                td.textContent = formatNumberWithCommas(text);
+            });
+        }
+
+        // ✅ Run when DOM is ready
+        document.addEventListener("DOMContentLoaded", applyNumberFormatting);
+
+        // ✅ Reapply before PDF generation (important)
+        document.getElementById('btn-generate').addEventListener('click', async () => {
+            applyNumberFormatting(); // make sure values are formatted before PDF
+            // then continue with your PDF creation logic...
+        });
+    </script>
+
+</body>
+</html>

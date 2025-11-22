@@ -1,0 +1,478 @@
+﻿@using FactFinderWeb.ModelsView
+@model AwarenessViewModel
+@{
+    ViewData["Title"] = "Awareness";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+<style>
+    .text-truncate-3 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+    }
+</style>
+
+
+
+
+
+<div class="mt-4 ">
+    @await Html.PartialAsync("_StepProgress", 1)
+    <div style="background-color: 	#E6E6FA" class="px-4  py-2 g-4 rounded d-flex flex-column gap-3">
+        <div style="color:#006400" class="d-flex justify-content-between align-items-center ">
+            <h3 class="mb-0">1. Awareness</h3>
+            <a href="javascript:void(0);" id="toggleBtn" class="btn btn-link p-0">View more info</a>
+        </div>
+        <div class="more-less-section">
+            <p id="infoPara" class="text-truncate-3">
+                Goals drive us, goals motivate us and goals make us enthusiastic. Setting goals is an art.
+                Goals are most effective when they are not for ego satisfaction. Rather, they are to be set
+                keeping others' benefit in mind. You are at your best when you have others' interest in mind
+                more than your own.
+            </p>
+        </div>
+    </div>
+    <!-- form -->
+    
+</div>
+
+
+
+@section Scripts {
+
+    <script>
+        let childIndex = 0;
+
+        function addChild(name = '', age = '') {
+            const container = document.getElementById("childrenContainer");
+
+            const childHtml = `
+                 <div style="color:#006400" class="row g-3 child-item border-bottom border-4 mb-2 pb-2" data-index="${childIndex}">
+                                  <input id="ChildrenDetails[${childIndex}].Id" name="ChildrenDetails[${childIndex}].Id" required type="hidden" value="0" class="form-control">
+                <div class="col-12 col-md-3">
+                        <label asp-for="ChildrenDetails[${childIndex}].ChildName" class="form-label gap-1 d-flex">
+                               <strong> Child Name ${childIndex + 1} </strong><span class="text-danger fw-bold ">*</span>
+                </label>
+                <input id="ChildrenDetails[${childIndex}].ChildName" name="ChildrenDetails[${childIndex}].ChildName" required type="text" class="form-control">
+                </div>
+
+                <div class="col-12 col-md-3">
+                                <label class="form-label d-flex gap-1" asp-for="ChildrenDetails[${childIndex}].childGender"> Gender<span class="text-danger fw-bold ">*</span></label>
+                   <select class="form-select" required id="ChildrenDetails[${childIndex}].childGender" name="ChildrenDetails[${childIndex}].childGender"  >
+                <option selected>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                </select>
+                </div>
+
+                <div class="col-12 col-md-3">
+                                <label asp-for="ChildrenDetails[${childIndex}].childDob" class="form-label d-flex gap-1">Date of birth<span class="text-danger fw-bold ">*</span></label>
+                              <input class="form-control mydateformat" required id="ChildrenDetails[${childIndex}].childDob" name="ChildrenDetails[${childIndex}].childDob"  type="text"  />
+                </div>
+                <div class="col-12 col-md-3">
+                                <label asp-for="ChildrenDetails[${childIndex}].childPhone" class="form-label">Mobile No.</label>
+                                        <input id="ChildrenDetails[${childIndex}].childPhone" name="ChildrenDetails[${childIndex}].childPhone"  maxlength="10"  type="text"  class="form-control" minlength="10">
+                </div>
+
+                <div class="col-12 col-md-3">
+                                <label asp-for="ChildrenDetails[${childIndex}].childAadhaar" class="form-label d-flex gap-1">Aadhaar No.</label>
+                                        <input id="ChildrenDetails[${childIndex}].childAadhaar" name="ChildrenDetails[${childIndex}].childAadhaar"  maxlength="12" minlength="12" type="text" class="form-control">
+                </div>
+                <div class="col-12 col-md-3">
+                                <label asp-for="ChildrenDetails[${childIndex}].childEmail" class="form-label">Primary Email</label>
+                                        <input id="ChildrenDetails[${childIndex}].childEmail" name="ChildrenDetails[${childIndex}].childEmail"   type="text" class="form-control">
+                </div>
+
+                <div class="col-12 col-md-3">
+                        <label asp-for="ChildrenDetails[${childIndex}].childPan" class="form-label">Pan Card No.</label>
+                                <input id="ChildrenDetails[${childIndex}].childPan" name="ChildrenDetails[${childIndex}].childPan"   maxlength="10" minlength="10"  type="text" class="form-control">
+                </div>
+                                        <div class="col-12 col-md-3 d-flex justify-content-center align-items-center">
+                                        <button class="btn btn-danger align-middle" type="button" onclick="removeThisChild(this)">Remove</button></div>
+                </div>
+                 `;
+            container.insertAdjacentHTML('beforeend', childHtml);
+            childIndex++;
+        }
+        /*
+        function removeChild(index) {
+            const childDiv = document.querySelector(`.child-item[data-index="${index}"]`);
+            if (childDiv) {
+                childDiv.remove();
+            }
+        }*/
+        function removeThisChild(button) {
+            const childDiv = button.closest('.child-item');
+            if (!childDiv) return;
+
+            childDiv.remove();
+
+            // Reindex remaining children
+            const items = document.querySelectorAll('.child-item');
+            items.forEach((item, i) => {
+                item.setAttribute('data-index', i);
+                updateChildFields(item, i);
+            });
+        }
+
+        function updateChildFields(container, index) {
+            const inputs = container.querySelectorAll('input, select, label');
+            inputs.forEach(input => {
+                if (input.name) input.name = input.name.replace(/\[\d+\]/g, `[${index}]`);
+                if (input.id) input.id = input.id.replace(/\[\d+\]/g, `[${index}]`);
+                if (input.hasAttribute('asp-for')) {
+                    input.setAttribute('asp-for', input.getAttribute('asp-for').replace(/\[\d+\]/g, `[${index}]`));
+                }
+
+                if (input.tagName === 'LABEL' && input.textContent.includes('Child Name')) {
+                    const strongTag = input.querySelector('strong');
+                    if (strongTag) strongTag.textContent = `Child Name ${index + 1}`;
+                }
+            });
+        }
+
+
+
+
+
+        function removeChild(index) {
+            const childDiv = document.querySelector(`.child-item[data-index="${index}"]`);
+            if (!childDiv) {
+                console.warn(`No child with data-index="${index}" found.`);
+                return;
+            }
+
+            childDiv.remove(); // ✅ removes the block
+
+            // 🔁 Reindex remaining .child-item blocks
+            const items = document.querySelectorAll('.child-item');
+            items.forEach((item, i) => {
+                item.setAttribute('data-index', i);
+                updateChildFields(item, i);
+            });
+        }
+        /*
+        function updateChildFields(container, index) {
+            const inputs = container.querySelectorAll('input, select, label');
+            inputs.forEach(input => {
+                // Update id, name, and asp-for (if used)
+                if (input.name) input.name = input.name.replace(/\[\d+\]/g, `[${index}]`);
+                if (input.id) input.id = input.id.replace(/\[\d+\]/g, `[${index}]`);
+                if (input.hasAttribute('asp-for')) {
+                    input.setAttribute('asp-for', input.getAttribute('asp-for').replace(/\[\d+\]/g, `[${index}]`));
+                }
+
+                // Update label text like "Child Name 1", "Child Name 2", etc.
+                if (input.tagName === 'LABEL' && input.textContent.includes('Child Name')) {
+                    input.querySelector('strong').textContent = `Child Name ${index + 1}`;
+                }
+            });
+        }
+        */
+ 
+        document.querySelectorAll('.btn-group-toggle input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.btn-group-toggle .btn').forEach(btn => btn.classList.remove('active'));
+                this.closest('label').classList.add('active');
+            });
+        });
+
+        $(document).ready(function () {
+
+
+            $('#ProfileDetail_Address_IsSameAddress').change(function () {
+                if ($(this).is(':checked')) { // Copy values
+                    $('#ProfileDetail_Address_Permanent_Address').val($('#ProfileDetail_Address_Residential_Address').val()).prop('readonly', true);
+                    $('#ProfileDetail_Address_Permanent_City').val($('#ProfileDetail_Address_Residential_City').val()).prop('readonly', true);
+                    $('#ProfileDetail_Address_Permanent_State').val($('#ProfileDetail_Address_Residential_State').val()).prop('readonly', true);
+                    $('#ProfileDetail_Address_Permanent_Country').val($('#ProfileDetail_Address_Residential_Country').val()).prop('readonly', true);
+                    $('#ProfileDetail_Address_Permanent_PinCode').val($('#ProfileDetail_Address_Residential_PinCode').val()).prop('readonly', true);
+                } else {// Enable editing
+                    $('#ProfileDetail_Address_Permanent_Address').prop('readonly', false);
+                    $('#ProfileDetail_Address_Permanent_City').prop('readonly', false);
+                    $('#ProfileDetail_Address_Permanent_State').prop('readonly', false);
+                    $('#ProfileDetail_Address_Permanent_Country').prop('readonly', false);
+                    $('#ProfileDetail_Address_Permanent_PinCode').prop('readonly', false);
+                }
+            }); 
+
+
+
+
+            $('#spouseDetailsSection').hide(); // Initially hide the spouse details section
+            $('#dvchildrenDetailsSection').hide(); // Initially hide the spouse details section
+            $('#childrenDetailsSection').hide();
+
+            var MaritalStatuscheckboxValue = $('input[name="ProfileDetail.MaritalStatus"]:checked').val();
+
+            if (MaritalStatuscheckboxValue === "Married") {
+                $('#spouseDetailsSection').show();
+                $('#childrenDetailsSection').show();
+            } else {
+                $('#spouseDetailsSection').hide();
+                $('#childrenDetailsSection').hide();
+            }
+
+
+            //$('.marital-option').click(function (e) {
+            $('input[name="ProfileDetail.MaritalStatus"]').change(function () {
+                // e.preventDefault();
+                var maritalStatus = $(this).val();
+
+                // List of marital statuses that imply having children
+                var hasChildrenStatuses = ["Married", "Divorced", "Single Parent"];
+
+                // Check if the status implies children
+                if (hasChildrenStatuses.includes(maritalStatus)) {
+                    if (maritalStatus === "Married") {
+                        $('#spouseDetailsSection').show();
+                        $('.clsSpouse').show();
+                    }
+                    else {
+                        $('#spouseDetailsSection').hide();
+                        $('.clsSpouse').hide();
+                    }
+                    $('input[name="ProfileDetail.HaveChildren"][value="Yes"]').prop('checked', true).closest('label').addClass('active');
+                    $('input[name="ProfileDetail.HaveChildren"][value="No"]').prop('checked', false).closest('label').removeClass('active');
+                    $('#childrenDetailsSection').show();
+                    $('#dvchildrenDetailsSection').show();
+
+                } else {
+                    $('input[name="ProfileDetail.HaveChildren"][value="No"]').prop('checked', true).closest('label').addClass('active');
+                    $('input[name="ProfileDetail.HaveChildren"][value="Yes"]').prop('checked', false).closest('label').removeClass('active');
+
+                    $('#childrenDetailsSection').hide();
+                    $('#spouseDetailsSection').hide();
+                    $('#dvchildrenDetailsSection').hide();
+                        $('.clsSpouse').hide();
+                }
+
+                //var status = $(this).data('status');
+                $('#maritalStatus').val(maritalStatus);
+                /*
+                if (maritalStatus === "Married") {
+                    $('#spouseDetailsSection').show();
+                    $('#childrenDetailsSection').show();
+                } else {
+                    if (maritalStatus !== "Un-Married") {
+                        $('#childrenDetailsSection').show();
+                    }
+                    else {
+                        $('#childrenDetailsSection').hide();
+                    }
+
+                    $('#spouseDetailsSection').hide();
+                }*/
+            });
+          
+
+            $('input[name="ProfileDetail.HaveChildren"]').change(function () {
+
+                var MaritalStatusvalue = $('input[name="ProfileDetail.MaritalStatus"]').val();
+                var HaveChildrenValue = $(this).val();
+
+                if (HaveChildrenValue === "Yes" && MaritalStatusvalue !== "Un-Married") {
+                    $('#dvchildrenDetailsSection').show();
+                } else {
+                    $('#dvchildrenDetailsSection').hide();
+                }
+            });
+
+
+
+            const $input = $('.inputper');
+
+            $input.focus(function () {
+                let inputperval = $(this).val();
+                if (inputperval.endsWith('%')) {
+                    $(this).val(inputperval.slice(0, -1)); // Remove %
+                }
+            });
+
+            $input.blur(function () {
+                let inputperval = $(this).val().trim(); 
+                // Check if the input is a valid number (and not empty)
+                if (inputperval === '' || !/^\d+(\.\d+)?$/.test(inputperval)) {// not a valid number, reset to blank
+                    $(this).val('0%');
+                } else {  // If it's a valid number, append '%' if it doesn't already have it
+                    if (!inputperval.endsWith('%')) {
+                        $(this).val(inputperval + '%');
+                    }
+                }
+            });
+
+
+            $('form').submit(function () {
+                $('.inputper').each(function () {
+                    let val = $(this).val();
+                    if (val.includes('%')) {
+                        $(this).val(val.replace('%', '').trim());
+                    }
+                });
+            });
+
+
+            $('.inputnumage , .inputnumnumyr').on('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            $('#toggleBtn').click(function () {
+                $('#infoPara').toggleClass('text-truncate-3');
+
+                if ($('#infoPara').hasClass('text-truncate-3')) {
+                    $(this).text('View More');
+                } else {
+                    $(this).text('View Less');
+                }
+            });
+
+        }); 
+
+
+
+
+        // Optional: Add an initial empty child row //  addChild("Model.ChildrenDetails[i].ChildName", "Model.ChildrenDetails[i].ChildGender");
+        window.onload = () => {
+            console.log("onload triggered");
+        @if (Model.ChildrenDetails == null || Model.ChildrenDetails.Count == 0)
+            {
+                <text>
+                        addChild(); // add one empty child input
+                </text>
+            }
+            else
+            {
+                for (int i = 0; i < Model.ChildrenDetails.Count; i++)
+                {
+                    var child = Model.ChildrenDetails[i];
+                    <text>
+                            addChild("@child.ChildName", "@child.ChildGender");
+                    </text>
+                }
+            }
+        };
+
+        
+        $(function () {
+            $(".mydateformat").datepicker({
+                dateFormat: "dd/mm/yy",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1997:2025"
+            });
+        });
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/js/countries.json')
+                .then(response => response.json())
+                .then(data => {
+                    const countrySelects = document.querySelectorAll(".bindAddressCountry");
+
+                    countrySelects.forEach(countrySelect => {
+                        // Populate country dropdown
+                        for (const code in data) {
+                            const option = document.createElement("option");
+                            option.value = code;
+                            option.textContent = data[code].name;
+                            countrySelect.appendChild(option.cloneNode(true));
+                        }
+
+                        // Find the paired state select — assumes it's the next sibling
+                        //const stateSelect = countrySelect.parentElement.querySelector(".bindAddressState");
+
+                        const addressBlock = countrySelect.closest(".address-block");
+                        const stateSelect = addressBlock.querySelector(".bindAddressState");
+                        countrySelect.addEventListener("change", function () {
+                            const selected = this.value;
+                            stateSelect.innerHTML = '<option value="">Select State</option>';
+                            if (data[selected]) {
+                                data[selected].states.forEach(state => {
+                                    const option = document.createElement("option");
+                                    option.value = state.code;
+                                    option.textContent = state.name;
+                                    stateSelect.appendChild(option);
+                                });
+                            }
+                        });
+                    });
+                })
+                .catch(err => console.error("Error loading countries:", err));
+        });
+
+
+ 
+</script>
+    <partial name="_ValidationScriptsPartial" />
+
+}
+
+
+
+@{/*
+<div class="child-item" data-index="${childIndex}">
+    <input type="text" name="ChildrenDetails[${childIndex}].ChildName" placeholder="Child Name" value="${name}" />
+    <input type="number" name="ChildrenDetails[${childIndex}].ChildGender" placeholder="Age" value="${age}" />
+    <button type="button" onclick="removeChild(${childIndex})">Remove</button>
+</div>
+*/} 
+
+                
+                    @{
+            /*
+             * 
+        <div style="color:	#006400" class="row g-3">
+
+        <div class="col-12 col-md-4">
+        <label asp-for="ProfileDetail.ChildrenDetails[1].ChildName" class="form-label gap-1 d-flex">
+        Name<span class="text-danger fw-bold ">*</span>
+        </label>
+        <input asp-for="ProfileDetail.ChildrenDetails[1].ChildName" required type="text"
+        class="form-control">
+        </div>
+
+        <div class="col-12 col-md-4">
+        <label class="form-label d-flex gap-1" for="selectChildGen">
+        Gender<span class="text-danger fw-bold ">*</span>
+        </label>
+        <select class="form-select" required id="selectChildGen" >
+        <option selected>Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        </select>
+        </div>
+
+        <div class="col-12 col-md-4">
+        <label for="txtChildDob" class="form-label d-flex gap-1">
+        Date of birth<span class="text-danger fw-bold ">*</span>
+        </label>
+        <input class="form-control" id="txtChildDob" required name="txtChildDob" type="date" min="1997-01-01"
+        max="2025-3-31" />
+        </div>
+        <div class="col-12 col-md-4">
+        <label for="txtChildMob" class="form-label">Mobile No.</label>
+        <input id="txtChildMob" maxlength="10"  type="text"
+        class="form-control" minlength="10">
+        </div>
+
+        <div class="col-12 col-md-4">
+        <label for="txtChildAddhar" class="form-label d-flex gap-1">Aadhaar No.</label>
+        <input id="txtChildAddhar" maxlength="12" minlength="12"
+        type="text" class="form-control">
+        </div>
+        <div class="col-12 col-md-4">
+        <label for="txtChildPrimMail" class="form-label">Primary Email</label>
+        <input id="txtChildPrimMail"  type="text"
+        class="form-control">
+        </div>
+
+        <div class="col-12 col-md-4">
+        <label for="txtChildPAN" class="form-label">Pan Card No.</label>
+        <input id="txtChildPAN" maxlength="10" minlength="10"  type="text"
+        class="form-control">
+        </div>
+
+        </div> <p class="fw-bold" style="color:  #1E3A8A">➕ Add another Children details</p>
+                        */}

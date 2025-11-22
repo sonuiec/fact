@@ -1,0 +1,166 @@
+﻿@using FactFinderWeb.ModelsView
+@removeTagHelper "Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers"
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@{
+    ViewData["Title"] = "User List";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var currentSort = Context.Request.Query["sortOrder"];
+
+    int currentPage = (int)(ViewData["CurrentPage"] ?? 1);
+    int totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    string search = ViewData["Search"]?.ToString() ?? "";
+    int serialNo = ((currentPage - 1) * 20) + 1;
+
+    <script>
+        $(document).on("change", ".manageby-dropdown", function () {
+        
+            var profileId = $(this).data("profileid");
+            var advisorid = $(this).val();
+
+            $.ajax({
+                url: '/admin/UpdateAdvisor',
+                type: 'POST',
+                data: { id: profileId, advisorid: advisorid },
+                success: function (res) {
+                    if (res.success) {
+                        alert("ManageBy updated successfully!");
+                    } else {
+                        alert("Error updating ManageBy.");
+                    }
+                },
+                error: function () {
+                    alert("Server error while updating.");
+                }
+            });
+        });
+    </script>
+}
+
+
+<style> 
+    .formfield {
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+        color: #333;
+        text-align: left;
+    }
+</style> 
+
+<div class=" bg-primary text-white px-5 py-2 text-center"><h2>User List</h2></div>
+<form method="get" asp-action="Users" class="d-none">
+    <input type="text" name="search" placeholder="Search by name or email" value="@Context.Request.Query["search"]" />
+    <button type="submit">Search</button>
+</form>
+<form method="get" asp-action="Dashboard" class="mb-3 d-none">
+    <input type="text" name="search" class="form-control d-inline w-25" placeholder="Search..." value="@search" />
+    <button type="submit" class="btn btn-primary ms-2">Search</button>
+</form>
+<div class="table-responsive">
+    <a target="_blank" href="/admin/register">Add User</a>
+    <table class="table table-striped mt-3 table-bordered">
+    <thead class="table-primary">
+        <tr>
+            <th class="text-center"> <a> S. No. </a> </th>
+            <th><a asp-route-sortOrder="@(currentSort == "" ? "name_desc" : "")"> Name  </a> </th>
+            <th> <a  asp-route-sortOrder="@(currentSort == "email" ? "email_desc" : "email")"> Email </a> </th>
+            <th> Plan Type  </th>
+            <th> Advisor / ManageBy </th>
+            <th> Profile Status</th>            
+            <th class="text-center">Registration Date</th>
+                <th> Status  </th>
+                <th style="width:220px !important"> Action  </th>
+           @*      <th>Edit</th>
+            <th> View Detail </th>
+            <th  class="text-center">  Download PDF  </th> *@
+        </tr>
+    </thead>
+    <tbody>
+            @{
+                // @model MVADUserDetails   <th>Email Verified</th><td> @user.mobile</td><a href="/admin/UserProfileJSON?id=@user.ProfileId">Download PDF</a>
+                //var hasRows = Model != null && Model.Any();
+                var users = Model as List<FactFinderWeb.ModelsView.AdminMV.MVADUserDetails>;
+                var hasRows = users != null && users.Count > 0;
+            
+            @if (!hasRows)
+            {
+                <tr><td colspan="10" class="text-center text-muted py-4">No records found</td></tr>
+            }
+            else
+            {
+            foreach (var user in Model){                    
+            <tr>
+                        <td class="text-center">@serialNo</td>
+                <td> @user.Name</td>
+                <td> @user.email</td>
+                <td> @user.planType</td>
+          <td>
+    <select class="form-control manageby-dropdown" data-profileid="@user.ProfileId">
+        <option value="0">-- Select --</option>
+        @foreach (var admin in (IEnumerable<dynamic>)ViewData["AdminUsersDropdown"])
+        {
+                                        <option value="@admin.Id"
+                                        @Html.Raw(user.advisorid == admin.Id ? "selected=\"selected\"" : "")>
+            @admin.Name
+</option>
+        }
+                                </select>  
+</td>
+                            <td>@(user.ProfileStatus == "Pending" ? "Submitted to Awaken" : user.ProfileStatus)</td>
+
+
+                              
+                <td  class="text-center"> @user.createddate.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center"> @user.activestatus </td>
+                            <td class="text-left">
+                                <a href="/admin/editUserPlan/@user.ProfileId" target="_blank">  Edit FactFinder       </a> |
+                <a href="/admin/UserDetails/@user.ProfileId" target="_blank">View Detail</a><br />
+
+                    <a target="_blank" href="/admin/UserProfilepdf?id=@user.ProfileId" >Download PDF</a>
+                        
+</td>
+            </tr>
+                    serialNo++;
+            }
+            }
+        }
+    </tbody>
+        
+</table>
+<div class="text-end d-none">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" href="?page=1&search=@search">First</a>
+                </li>
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" href="?page=@(currentPage - 1)&search=@search">Previous</a>
+                </li>
+
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link" href="?page=@i&search=@search">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" href="?page=@(currentPage + 1)&search=@search">Next</a>
+                </li>
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" href="?page=@totalPages&search=@search">Last</a>
+                </li>
+            </ul>
+        </nav>
+</div>
+</div>
+
+@section Scripts {
+    <script>
+        let goals = JSON.parse(localStorage.getItem("test")) || [];
+        
+    </script>
+}

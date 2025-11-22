@@ -1,0 +1,275 @@
+﻿@using Microsoft.AspNetCore.Mvc
+@model TblFfAdminUser
+
+@{
+    ViewData["Title"] = "Security — Change Password";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var statusText = string.Equals(Model?.AccountStatus, "Active", StringComparison.OrdinalIgnoreCase) ? "Active" : "Deactive";
+    var statusClass = statusText == "Active" ? "badge-active" : "badge-deactive";
+}
+
+<style>
+    .page-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 1rem 0 1.5rem
+    }
+
+    .avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 22px;
+        background: #101357;
+        color: #fff;
+        box-shadow: 0 8px 24px rgba(16,19,87,.25)
+    }
+
+    .badge-pill {
+        border-radius: 999px;
+        padding: .35rem .7rem
+    }
+
+    .badge-active {
+        background: #e8fff3;
+        color: #0f7a43;
+        border: 1px solid #b7efcf
+    }
+
+    .badge-deactive {
+        background: #fff3f2;
+        color: #a32020;
+        border: 1px solid #f5c0bd
+    }
+
+    .card + .card {
+        margin-top: 1rem
+    }
+
+    .strength {
+        height: 8px;
+        border-radius: 8px;
+        background: #e9ecef;
+        overflow: hidden
+    }
+
+        .strength > div {
+            height: 100%;
+            width: 0%;
+            transition: width .25s ease
+        }
+
+    .strength-weak {
+        background: #dc3545
+    }
+
+    .strength-fair {
+        background: #fd7e14
+    }
+
+    .strength-good {
+        background: #ffc107
+    }
+
+    .strength-strong {
+        background: #28a745
+    }
+
+    .form-hint {
+        font-size: .85rem;
+        color: #6c757d
+    }
+</style>
+
+<div class="container py-4">
+
+   
+
+    <div class="page-head" style="margin:0">
+        <div>
+            <h1 class="page-title">Dashboard</h1>
+            <div class="text-muted">Change your account password</div>
+        </div>
+        <div class="avatar" aria-hidden="true">
+            @((Model?.Name ?? "U").Trim().Substring(0, 1).ToUpper())
+        </div>
+    </div>
+
+    @if (TempData["msg"] != null)
+    {
+        <div class="alert alert-info">@TempData["msg"]</div>
+    }
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-danger">@ViewData["Error"]</div>
+    }
+
+    <div class="row g-3">
+        <!-- Left: Profile summary (read-only) -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="mb-3">Profile</h5>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <tbody>
+                                <tr>
+                                    <th scope="row" style="width:35%;">Name</th>
+                                    <td>@Model?.Name</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Email</th>
+                                    <td>@Model?.Email</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Mobile</th>
+                                    <td>@Model?.Mobile</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Status</th>
+                                    <td><span class="">@statusText</span></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Registered</th>
+                                    <td>@Model?.CreateDate?.ToString("dd-MMM-yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Role</th>
+                                    <td><span>@Model?.AdminRole</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Change Password only -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="mb-3">Change Password</h5>
+
+                    <form asp-action="ProfileDashboard" asp-controller="Admin" method="post" id="changePasswordForm" class="needs-validation" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input asp-for="Id" type="hidden" />
+
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="CurrentPassword" class="form-label">Current Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="CurrentPassword" id="CurrentPassword" autocomplete="current-password" required />
+                                    <button class="btn btn-outline-secondary" type="button" data-toggle-visibility="#CurrentPassword">Show</button>
+                                </div>
+                                <div class="invalid-feedback">Enter your current password.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="NewPassword" class="form-label">New Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="NewPassword" id="NewPassword"
+                                           autocomplete="new-password" required minlength="8"
+                                           pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$" />
+                                    <button class="btn btn-outline-secondary" type="button" data-toggle-visibility="#NewPassword">Show</button>
+                                </div>
+                                <div class="strength mt-2" aria-hidden="true"><div id="pwdMeterBar"></div></div>
+                                <div class="form-hint mt-1">8+ chars with uppercase, lowercase, number & symbol.</div>
+                                <div class="invalid-feedback">Use a stronger password (see hint).</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="ConfirmPassword" class="form-label">Confirm New Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="ConfirmPassword" id="ConfirmPassword" autocomplete="new-password" required />
+                                    <button class="btn btn-outline-secondary" type="button" data-toggle-visibility="#ConfirmPassword">Show</button>
+                                </div>
+                                <div class="invalid-feedback">Passwords must match.</div>
+                            </div>
+
+                            <div class="col-12 d-flex gap-2 justify-content-end">
+                                <div>	
+                                    @if (ViewData["msg"] != null)
+						            {
+							            <p style="color: dodgerblue;">@ViewData["msg"]</p>
+						            }
+                                </div>
+                                <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                                <button type="submit" class="btn btn-primary">Update Password</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2">
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Client validation
+        (function () {
+          'use strict';
+          const forms = document.querySelectorAll('.needs-validation');
+          Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+              const p1 = document.getElementById('NewPassword');
+              const p2 = document.getElementById('ConfirmPassword');
+              if (p1 && p2 && p1.value !== p2.value) {
+                event.preventDefault(); event.stopPropagation();
+                p2.setCustomValidity('Passwords do not match');
+                p2.reportValidity();
+              } else if (p2) {
+                p2.setCustomValidity('');
+              }
+              if (!form.checkValidity()) {
+                event.preventDefault(); event.stopPropagation();
+              }
+              form.classList.add('was-validated');
+            }, false);
+          });
+        })();
+
+        // Toggle password visibility
+        document.querySelectorAll('[data-toggle-visibility]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            const target = document.querySelector(this.getAttribute('data-toggle-visibility'));
+            if (!target) return;
+            target.type = target.type === 'password' ? 'text' : 'password';
+            this.textContent = target.type === 'password' ? 'Show' : 'Hide';
+          });
+        });
+
+        // Strength meter
+        const newPwd = document.getElementById('NewPassword');
+        const meterBar = document.getElementById('pwdMeterBar');
+
+        function scorePassword(pwd) {
+          if (!pwd) return 0;
+          let s = 0;
+          if (pwd.length >= 8) s++;
+          if (/[A-Z]/.test(pwd)) s++;
+          if (/[a-z]/.test(pwd)) s++;
+          if (/\d/.test(pwd)) s++;
+          if (/[^A-Za-z0-9]/.test(pwd)) s++;
+          return Math.min(s, 4);
+        }
+        function renderStrength(score) {
+          if (!meterBar) return;
+          const widths = ['10%','35%','60%','80%','100%'];
+          const classes = ['strength-weak','strength-fair','strength-good','strength-strong','strength-strong'];
+          meterBar.className = classes[score];
+          meterBar.style.width = widths[score];
+        }
+        if (newPwd) newPwd.addEventListener('input', () => renderStrength(scorePassword(newPwd.value)));
+    </script>
+}

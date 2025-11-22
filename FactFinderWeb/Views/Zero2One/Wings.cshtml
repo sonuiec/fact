@@ -1,0 +1,621 @@
+﻿@using FactFinderWeb.ModelsView
+@model WingsViewModel
+@{
+    ViewData["Title"] = "Knowledge that matters";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+
+}
+
+<style>
+    .text-truncate-3 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+    }
+
+    .help-section h1.hlp {
+        color: #007bff;
+        margin-bottom: 15px;
+    }
+
+    .help-section h1 {
+        color: #007bff;
+        margin-bottom: 15px;
+        float: left;
+        width: 100%;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+    }
+
+    .help-section p.parax span {
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    .riskk {
+        color: #FF1D58;
+    }
+
+    .formfield {
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+        color: #333;
+        text-align: left;
+    }
+</style>
+
+<div class="mt-4 ">
+    @await Html.PartialAsync("_StepProgress", 2)
+    <div style="background-color: 	#E6E6FA" class="px-4  py-2 g-4 rounded d-flex flex-column gap-3">
+
+
+        <div style="color:#006400" class="d-flex justify-content-between align-items-center ">
+            <h2 class="mb-0">2. Wings of Empowerment</h2>
+        </div>
+
+    </div>
+    <!-- form -->
+    <form style="background-color: #F5F5F5" class="mt-3 p-3 d-flex flex-column gap-4  rounded">
+        <!--plan details -->
+        <fieldset class="d-flex flex-column gap-2">
+            <legend style="color: #3B3737" class="fw-bold">Plan Details</legend>
+            <div style="color:	#006400" class="row g-3">
+                <div class="col-1 col-md-1 formfield">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.GoalPriority"  >Priority</label>
+                    <input id="UserWings.GoalPriority" name="UserWings.GoalPriority" type="text" readonly="readonly" class="form-control text-center inputnumyr " maxlength="2">
+                    <input id="UserWings.NewGoals" name="UserWings.NewGoals" type="hidden" value="0" readonly="readonly" maxlength="2">
+                </div>
+                <div class="col-12 col-md-3 formfield">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.GoalName">
+                        Your Goal<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <select name="UserWings.GoalName" id="UserWings.GoalName" class="form-select outline-none w-fit rounded-lg mx-[10%] float-end peer focus:outline-secondary">
+                        <option value="" >Select Your Goals</option>
+                        <option value="Emergency Fund">Emergency Fund</option>
+                        <option value="Retirement - Accumulation">Retirement - Accumulation</option>
+                        <option value="Purchase of Dream Car">Purchase of Dream Car</option>
+                        <option value="World Tour">World Tour</option>
+                        <option value="Purchase of Dream Home">Purchase of Dream Home</option>
+                        <option value="Seed Capital for Business">Seed Capital for Business</option>
+                        <option value="Charity">Charity</option>
+                    </select> 
+                    <input id="UserWings.GoalNamecustom" name="UserWings.GoalNamecustom"
+                           type="text" class="form-control mt-2 d-none" placeholder="Enter your custom goal">
+                </div>
+                <div class="col-12 col-md-2 formfield">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.GoalPlanYear">
+                        Goal Plan Year<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input id="UserWings.GoalPlanYear" name="UserWings.GoalPlanYear" type="text" class="form-control inputnumyr" maxlength="4" value="2025">
+                     
+                </div>
+
+                <div class="col-12 col-md-2 formfield">
+
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.GoalStartYear" >
+                        Goal Start Year<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input id="UserWings.GoalStartYear" name="UserWings.GoalStartYear" type="text" class="form-control inputnumyr" maxlength="4" value="2025">
+                </div>
+                <div class="col-12 col-md-2 formfield">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.TimeHorizon">
+                        Time Horizon<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input  id="UserWings.TimeHorizon" name="UserWings.TimeHorizon" type="text" class="form-control inputnumyr" maxlength="4" value="2025">
+
+                </div>
+
+                <div class="col-12 col-md-2 formfield">
+
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.GoalEndYear">
+                        <span> Goal End Year</span> <br /><span style="font-size:12px;">(if applicable)</span>
+                    </label>
+                    <input id="UserWings.GoalEndYear" name="UserWings.GoalEndYear" type="text" class="form-control inputnumyr" maxlength="4" value="2025">
+                </div>
+                <div class="col-9 col-md-9 formfield  text-center">
+                    <button type="button" class="btn btn-success w-25  my-2" onclick="addGoal()" id="btnaddgoal" value="Add Goal">Add Goal</button>
+                </div>
+
+                <div class="col-3 col-md-3 formfield  text-center">
+                    <button type="button" id="customGoalBtn" class="btn btn-outline-success my-2">
+                    Add Custom Goal
+                </button>
+                </div>
+            </div>
+        </fieldset>
+
+        <!--Goal List details end -->
+        <section>
+            <div id="goalList"> </div>
+             
+        </section>
+
+        <div class="d-flex justify-content-end mt-3 mx-5 ">
+            <button name="btnSubmit" id="btnSubmit" class="btn btn-primary px-5 py-1 rounded " asp-controller="Comprehensive" asp-action="Awareness">Prev</button>
+            <button type="button" name="saveGoalsBtn" id="saveGoalsBtn" class="btn btn-primary px-5 py-1 rounded ">Save Goal</button>
+            <button name="btnSubmit" id="btnSubmit" class="btn btn-primary px-5 py-1 rounded " asp-controller="Comprehensive" asp-action="Wings">Next</button>
+            @Html.AntiForgeryToken()
+        </div>
+
+
+         
+
+    </form>
+     
+</div>
+@using System.Text.Json
+@{
+    var goalsJson =   JsonSerializer.Serialize(Model.WingsGoalSelect) ;
+}
+
+@section Scripts { 
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const goalDropdown = document.getElementById("goalName");
+            const endGoalContainer = document.getElementById("endGoalContainer");
+            const endGoalInput = document.getElementById("UserWings_EndGoal");
+
+            function toggleEndGoalInput() {
+                const selectedValue = goalDropdown.value;
+                if (selectedValue === "Retirement - Accumulation" || selectedValue === "World Tour") {
+                    endGoalContainer.style.display = "block";
+                    endGoalInput.value = ""; // Allow user to enter
+                } else {
+                    endGoalContainer.style.display = "none";
+                    endGoalInput.value = "0"; // Auto-set to 0
+                }
+            }
+
+            // Trigger on page load in case of form re-post
+            toggleEndGoalInput();
+
+            // Bind on dropdown change
+            goalDropdown.addEventListener("change", toggleEndGoalInput);
+        });
+
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const childrenItems = document.querySelectorAll("#childrenList ul li");
+            const selectElement = document.getElementById("UserWings.GoalName");
+
+            // For each <li>, add "Child - Marriage" and "Child - Education" options
+            childrenItems.forEach(function (li) {
+                const childName = li.textContent.trim();
+
+                if (childName !== "") {
+                    const goals = ["Marriage", "Education"];
+
+                    goals.forEach(function (goal) {
+                        const option = document.createElement("option");
+                        option.value = `${childName} - ${goal}`;
+                        option.textContent = `${childName} - ${goal}`;
+                        selectElement.appendChild(option);
+                    });
+                }
+            });
+        });
+
+
+    // Convert the C# model to JSON
+        let goals = @Html.Raw(goalsJson);
+
+    // Save it to localStorage
+        localStorage.setItem("userWingsList", JSON.stringify(goals));
+ 
+
+          goals = JSON.parse(localStorage.getItem("goals")) || [];
+        currentEditingIndex = null;
+
+        if (goals.length > 0) {
+            document.getElementById("UserWings.GoalPriority").value = goals.length + 1;
+
+        } else {
+            document.getElementById("UserWings.GoalPriority").value = "1";
+        }
+        /*  document.getElementById("goalForm").addEventListener("submit", function (e) {
+            e.preventDefault(); // ⛔ stop form from reloading page
+
+            addGoal(); // your function to save and render
+        });*/
+        function renderGoals() {
+
+        let goals = JSON.parse(localStorage.getItem("goals")) || [];
+
+            
+
+        const container = document.getElementById("goalList");
+        container.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center"><h3>Goals List</h3>  </div>
+                             <div  style="background-color: #75bda2; color: #000000;" class="row fw-bold border-bottom py-2">
+                                        <div class="col-1 col-md-1">Priority</div>
+                                <div class="col-1 col-md-2">Goal Name</div>
+                                <div class="col-1 col-md-2">Goal Plan Year</div>
+                                <div class="col-1 col-md-2">Goal Start Year</div>
+                                <div class="col-1 col-md-1">Time Horizon</div>
+                                        <div class="col-1 col-md-2">Goal End Year</div>
+                                        <div class="col-1 col-md-2">Action</div>
+                            </div>
+                    `;
+       
+           
+            
+           // goals.sort((a, b) => a.priority - b.priority).forEach((goal, index) => {
+            // Sort the goals based on current priority
+            goals.sort((a, b) => a.priority - b.priority);
+
+            // Reassign correct priorities based on array index
+            goals.forEach((goal, index) => {
+                goal.priority = index + 1; // start from 1 or use index if you want 0-based
+                const div = document.createElement("div");
+                div.className = "goal-card row g-3  py-2 border-bottom";
+
+                div.innerHTML = `<div class="col-1 col-md-1">${goal.priority}</div>
+                        <div class="col-1 col-md-2">${goal.goal}</div>
+                        <div class="col-1 col-md-2">${goal.planYear}</div>
+                        <div class="col-1 col-md-2">${goal.startYear}</div>
+                        <div class="col-1 col-md-1">${goal.timeHorizon}</div>
+                        <div class="col-1 col-md-1">${goal.goalEndYear}</div>
+                        <div class="col-1 col-md-2 text-center">
+                                    <button class="btn btn-sm btn-secondary" onclick="moveUp(${index})">↑</button>
+                                            <button class="btn btn-sm btn-secondary" onclick="moveDown(${index})">↓</button>
+                            <button class="btn btn-sm btn-info" onclick="editGoal(${index})">Edit</button>
+                            <button class="btn btn-sm btn-info" onclick="deleteGoal(${index})">Delete</button>
+                        </div>
+                        `;
+                container.appendChild(div);
+            });
+
+            goals = goals.map((goal, index) => ({
+                ...goal,
+                priority: index + 1
+            }));
+            localStorage.setItem("goals", JSON.stringify(goals));
+        }
+
+        function addGoal() {
+            var priority = parseInt(document.getElementById("UserWings.GoalPriority").value);
+            var NewGoals = parseInt(document.getElementById("UserWings.NewGoals").value) || 0;
+            var goal = document.getElementById("UserWings.GoalName").value;
+            var goalcustom = document.getElementById("UserWings.GoalNamecustom").value;
+            var planYear = document.getElementById("UserWings.GoalPlanYear").value;
+            var startYear = document.getElementById("UserWings.GoalStartYear").value;
+            var timeHorizon = document.getElementById("UserWings.TimeHorizon").value;
+            var goalEndYear = document.getElementById("UserWings.GoalEndYear").value;
+
+            //var NewGoals;
+            if (goalcustom === "") {
+                //NewGoals = 0;
+                var a = 0;
+            }else{
+                goal = goalcustom;
+                //NewGoals = 1;
+            }
+
+
+
+            if (!goal || !priority || !planYear || !startYear || !timeHorizon) {
+                alert("Please fill all fields");
+                return;
+            }
+
+            const exists = goals.some(g => g.goal.toLowerCase() === goal.toLowerCase());
+            const match = goals.find(g => g.goal.toLowerCase() === goal.toLowerCase());
+            if (exists) {
+                if (document.getElementById("btnaddgoal").textContent == "Add Goal" ) {
+                    alert("You can't add duplicate goals, as it is already selected.");
+                    return;
+                }
+                else if (document.getElementById("btnaddgoal").textContent == "Update Goal") {
+                    if (match.priority !== priority) {
+                        alert("You can't add duplicate goals, as it is already selected.");
+                        return;
+                    }
+                }
+            }
+
+            const newGoal = { priority, goal, planYear, startYear, timeHorizon, goalEndYear, NewGoals };
+
+            if (document.getElementById("btnaddgoal").textContent === "Update Goal" && currentEditingIndex !== null) {
+                // 🔄 Update existing goal
+                newGoal.priority = goals[currentEditingIndex].priority; // Maintain the same priority
+                goals[currentEditingIndex ] = newGoal;
+                document.getElementById("btnaddgoal").textContent = "Add Goal";
+                currentEditingIndex = null;
+            } else {
+                // ➕ Add new goal
+                goals.push(newGoal);
+                //goals.push({ priority, goal, planYear, startYear, timeHorizon, goalEndYear });
+            }
+
+            localStorage.setItem("goals", JSON.stringify(goals));
+
+            // Reset
+            //document.getElementById("goalPriority").value = "";
+            document.getElementById("btnaddgoal").textContent = "Add Goal";
+            document.getElementById("UserWings.GoalName").value = "";
+            document.getElementById("UserWings.GoalPlanYear").value = "";
+            document.getElementById("UserWings.GoalStartYear").value = "";
+            document.getElementById("UserWings.TimeHorizon").value = "";
+            document.getElementById("UserWings.GoalEndYear").value = "";
+            if (goals.length > 0) {
+                document.getElementById("UserWings.GoalPriority").value = goals.length + 1;
+
+            } else {
+                document.getElementById("UserWings.GoalPriority").value = "1";
+            }
+
+            renderGoals();
+        }
+
+        function editGoal(index) {
+            const g = goals[index];
+            document.getElementById("UserWings.GoalPriority").value = g.priority;
+
+
+            const inputBox = document.getElementById("UserWings.GoalNamecustom");
+
+            if (g.NewGoals == 1) { // for custom goal going to edit or add
+                inputBox.classList.remove("d-none");
+                document.getElementById("UserWings.GoalName").classList.add("d-none");
+                document.getElementById("customGoalBtn").textContent = "Select From List";
+            } else {
+                inputBox.classList.add("d-none");
+                document.getElementById("UserWings.GoalName").classList.remove("d-none");
+                document.getElementById("customGoalBtn").textContent = "Add Custom Goal";
+            }
+            const isInputVisible = !inputBox.classList.contains("d-none");
+            if (isInputVisible) {   // Switch to input
+                document.getElementById("UserWings.GoalNamecustom").value = g.goal;
+            }
+            else { // Switch to select
+            document.getElementById("UserWings.GoalName").value = g.goal;
+            }
+
+            
+            document.getElementById("UserWings.GoalPlanYear").value = g.planYear;
+            document.getElementById("UserWings.GoalStartYear").value = g.startYear;
+            document.getElementById("UserWings.NewGoals").value = g.NewGoals;
+            document.getElementById("UserWings.TimeHorizon").value = g.timeHorizon;
+            document.getElementById("UserWings.GoalEndYear").value = g.goalEndYear;
+            document.getElementById("btnaddgoal").textContent = "Update Goal";
+            currentEditingIndex = index;
+            document.getElementById("UserWings.GoalPriority").value = index + 1;
+
+            //goals.splice(index, 1);
+
+            localStorage.setItem("goals", JSON.stringify(goals));
+            renderGoals();
+        }
+
+        function deleteGoal(index) {
+            if (confirm("Are you sure to delete this goal?")) {
+                goals.splice(index, 1);
+                goals = goals.map((goal, index) => ({
+                    ...goal,
+                    priority: index + 1
+                }));
+                localStorage.setItem("goals", JSON.stringify(goals));
+                renderGoals();
+            }
+        }
+
+        function moveUp(index) {
+            if (index === 0) return;
+            // Swap in array
+            [goals[index - 1], goals[index]] = [goals[index], goals[index - 1]];
+            // Swap priority values
+            const temp = goals[index - 1].priority;
+            goals[index - 1].priority = goals[index].priority;
+            goals[index].priority = temp;
+
+
+            goals = goals.map((goal, index) => ({
+                ...goal,
+                priority: index + 1
+            }));
+            localStorage.setItem("goals", JSON.stringify(goals));
+            renderGoals();
+        }
+
+        function moveDown(index) {
+            if (index === goals.length - 1) return;
+            // Swap the goal objects in the array
+            [goals[index + 1], goals[index]] = [goals[index], goals[index + 1]];
+            // Swap their priority values
+            const temp = goals[index + 1].priority;
+            goals[index + 1].priority = goals[index].priority;
+            goals[index].priority = temp;
+            // Save and re-render
+
+
+            goals = goals.map((goal, index) => ({
+                ...goal,
+                priority: index + 1
+            }));
+            localStorage.setItem("goals", JSON.stringify(goals));
+            renderGoals();
+        }
+
+        renderGoals();
+
+/*
+        document.getElementById("customGoalBtn").addEventListener("click", function () {
+            document.getElementById("UserWings.GoalName").classList.add("d-none");
+            document.getElementById("UserWings.GoalNamecustom").classList.remove("d-none");
+        });
+
+        */
+        
+
+        const toggleBtn = document.getElementById("customGoalBtn");
+        const selectBox = document.getElementById("UserWings.GoalName");
+        const inputBox = document.getElementById("UserWings.GoalNamecustom");
+
+        toggleBtn.addEventListener("click", function () {
+            const isInputVisible = !inputBox.classList.contains("d-none");
+
+            if (isInputVisible) {   // Switch to select
+                inputBox.value = "";
+                inputBox.classList.add("d-none");
+                selectBox.classList.remove("d-none");
+                toggleBtn.textContent = "Add Custom Goal";
+                document.getElementById("UserWings.NewGoals").value =0;
+
+            } else { // Switch to input
+                selectBox.classList.add("d-none");
+                inputBox.classList.remove("d-none");
+                toggleBtn.textContent = "Select From List";
+                document.getElementById("UserWings.NewGoals").value = 1;
+            }
+        });
+
+
+        document.getElementById("saveGoalsBtn").addEventListener("click", function (e) {
+            const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+            e.preventDefault();
+            fetch('/Comprehensive/SaveGoals', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() // if needed
+                    },
+                    body: JSON.stringify(goals)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) alert(data.message);
+                        else alert("Failed to save goals.");
+                    })
+                    .catch(error => console.error("Error:", error));
+            });
+        /* let goals = JSON.parse(localStorage.getItem("goals")) || [];
+         document.getElementById("goalForm").addEventListener("submit", function (e) {
+             e.preventDefault(); // ⛔ stop form from reloading page
+
+             addGoal(); // your function to save and render
+         });
+
+         let container = document.getElementById("goalList");
+
+
+         function addGoal() {
+             const priority = parseInt(document.getElementById("goalPriority").value);
+             const goal = document.getElementById("goalName").value;
+             const planYear = document.getElementById("goalPlanYear").value;
+             const startYear = document.getElementById("goalStartYear").value;
+             const timeHorizon = document.getElementById("timeHorizon").value;
+             const goalEndYear = document.getElementById("goalEndYear").value;
+
+             if (!goal || !priority || !planYear || !startYear ||  !timeHorizon) {
+                 alert("Please fill all fields");
+                 return;
+             }
+
+             goals.push({ priority, goal, planYear, startYear, timeHorizon, goalEndYear });
+             renderGoals();
+
+             // Reset
+             document.getElementById("priority").value = "";
+             document.getElementById("goal").value = "";
+             document.getElementById("planYear").value = "";
+             document.getElementById("startYear").value = "";
+             document.getElementById("timeHorizon").value = "";
+             document.getElementById("goalEndYear").value = "";
+         }
+         function renderGoals() {
+             container.innerHTML = ""; // Clear previous entries
+             goals.forEach(renderGoal);
+         }
+         function renderGoal(goal) {
+             let div = document.createElement("div");
+             div.className = "goal-entry border rounded p-2 mb-2 bg-light";
+             localStorage.setItem("goals", JSON.stringify(goals));
+             const div = document.createElement("div");
+             div.className = "goal-card";
+             div.innerHTML = `
+                 <div class="d-flex justify-content-between align-items-center"><h3>Goals List</h3>  </div>
+                     <div style="color:	#006400" class="row g-3">
+                         <div style="color:	#006400" class="row g-3">
+                         <div class="col-1 col-md-1">Priority</div>
+                         <div class="col-1 col-md-3">Goal Name</div>
+                         <div class="col-1 col-md-2">Goal Plan Year</div>
+                         <div class="col-1 col-md-2">Goal Start Year</div>
+                         <div class="col-1 col-md-2">Time Horizon</div>
+                         <div class="col-1 col-md-2">Goal End Year</div>
+                     </div>
+             `;
+             container.appendChild(div);
+
+             goals.sort((a, b) => a.priority - b.priority).forEach((goal, index) => {
+
+                 div.innerHTML = ` <div style="color:#006400" class="row g-3">
+                         <div class="col-1 col-md-1">${goal.priority}</div>
+                         <div class="col-1 col-md-3">${goal.goal}</div>
+                         <div class="col-1 col-md-2">${goal.planYear}</div>
+                         <div class="col-1 col-md-1">${goal.startYear}</div>
+                         <div class="col-1 col-md-1">${goal.timeHorizon}</div>
+                         <div class="col-1 col-md-1">${goal.goalEndYear}</div>
+                         <div class="col-1 col-md-2">
+                                 <button id="btnUpEmergncy" name="btnUpEmergncy" class="border-0 bg-transparent">
+                           <i class="fa-solid fa-angle-up fs-5 p-1 border rounded-pill"></i>
+                         </button>
+                             <button class="btn btn-sm btn-warning" onclick="moveUp(${index})">↑</button>
+                             <button class="btn btn-sm btn-warning" onclick="moveDown(${index})">↓</button>
+                             <button class="btn btn-sm btn-primary" onclick="editGoal(${index})">Edit</button>
+                             <button class="btn btn-sm btn-danger" onclick="deleteGoal(${index})">Delete</button>
+                         </div>
+                         </div>
+                         `;
+                 container.appendChild(div);
+             });
+
+            // localStorage.setItem("goals", JSON.stringify(goals));
+         }
+
+
+         function editGoal(index) {
+             const g = goals[index];
+             document.getElementById("priority").value = g.priority;
+             document.getElementById("goal").value = g.goal;
+             document.getElementById("planYear").value = g.planYear;
+             document.getElementById("startYear").value = g.startYear;
+
+             document.getElementById("timeHorizon").value = g.timeHorizon;
+             document.getElementById("goalEndYear").value = g.goalEndYear;
+
+             goals.splice(index, 1);
+             renderGoals();
+         }
+
+         function deleteGoal(index) {
+             if (confirm("Are you sure to delete this goal?")) {
+                 goals.splice(index, 1);
+                 renderGoals();
+             }
+         }
+
+         function moveUp(index) {
+             if (index === 0) return;
+             [goals[index - 1], goals[index]] = [goals[index], goals[index - 1]];
+             renderGoals();
+         }
+
+         function moveDown(index) {
+             if (index === goals.length - 1) return;
+             [goals[index + 1], goals[index]] = [goals[index], goals[index + 1]];
+             renderGoals();
+         }
+
+         renderGoals();
+          */
+    </script>
+
+}

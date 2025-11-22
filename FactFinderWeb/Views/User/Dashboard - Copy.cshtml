@@ -1,0 +1,234 @@
+﻿@using FactFinderWeb.ModelsView
+@model DashboardViewModel
+@{
+	ViewData["Title"] = "Dashboard";
+	Layout = "~/Views/Shared/_LayoutUser.cshtml";
+}
+
+
+<style>
+	.form-wrap {
+		background: rgba(255,255,255,1);
+		width: 100%;
+		max-width: 850px;
+		padding: 50px;
+		margin: 0 auto;
+		position: relative;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+		-webkit-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		-moz-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		margin-top: 10px;
+		margin-bottom: 80px;
+	}
+
+		.form-wrap:before {
+			content: "";
+			width: 90%;
+			height: calc(100% + 60px);
+			left: 0;
+			right: 0;
+			margin: 0 auto;
+			position: absolute;
+			top: -30px;
+			background: #101357;
+			z-index: -1;
+			opacity: 0.8;
+			-webkit-border-radius: 10px;
+			-moz-border-radius: 10px;
+			border-radius: 10px;
+			-webkit-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+			-moz-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+			box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		}
+
+	.form-group {
+		margin-bottom: 25px;
+	}
+
+		.form-group > label {
+			display: block;
+			font-size: 18px;
+			color: #000;
+			letter-spacing: 1px;
+		}
+
+	.custom-control-label {
+		color: #000;
+		font-size: 16px;
+	}
+
+	.form-control {
+		height: 50px;
+		background: #ecf0f4;
+		border-color: transparent;
+		padding: 0 15px;
+		font-size: 16px;
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+	}
+
+		.form-control:focus {
+			border-color: #00bcd9;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+	textarea.form-control {
+		height: 51px;
+		padding-top: 15px;
+		resize: none;
+	}
+
+	.btn {
+		padding: .657rem .75rem;
+		font-size: 18px;
+		letter-spacing: 0.050em;
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+		width: 48%;
+	}
+
+	.btn-primary {
+		color: #fff;
+		background-color: #FF1D58;
+		border-color: #FF1D58;
+	}
+
+		.btn-primary:hover {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+		.btn-primary:focus, .btn-primary.focus {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+		.btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
+		.show > .btn-primary.dropdown-toggle {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+		}
+
+			.btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus,
+			.show > .btn-primary.dropdown-toggle:focus {
+				-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+				-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+				box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			}
+
+	.imgh {
+		width: 300px;
+		height: 200px;
+		object-fit: contain;
+	}
+
+</style>
+
+
+
+ 
+<div class="container py-5">
+
+	<!-- Profile Section -->
+	<h2 class="mb-4">Welcome, @Model.UserFullName!</h2>
+
+	<div class="card shadow-sm">
+		<div class="card-header bg-primary text-white">
+			<h5 class="mb-0">Profile Overview</h5>
+		</div>
+		<div class="card-body">
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<strong>Email:</strong> @Model.UserEmail
+				</div>
+				<div class="col-md-6">
+					<strong>Mobile:</strong> @Model.UserMobile
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<strong>Plan Type:</strong> @Model.UserPlan
+				</div>
+				<div class="col-md-6">
+					<strong>Plan Year:</strong> @Model.UserPlanYear
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<strong>Email Verified:</strong> @Model.UserEmailVerification
+				</div>
+				<div class="col-md-6">
+					<strong>Active Status:</strong>
+					@(string.IsNullOrEmpty(Model.UserActiveStatus) || Model.UserActiveStatus == "0" ? "Inactive" : "Active")
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<strong>Registered Date:</strong> @Model.UserRegisterDate?.ToString("dd-MM-yyyy")
+				</div>
+				<div class="col-md-6">
+					<strong>Advisor Name:</strong> 
+					@(string.IsNullOrEmpty(Model.AdvisorName) ? "Mainstream" : Model.AdvisorName)
+				</div>
+			</div> 
+		</div>
+	</div>
+
+
+	<!-- Plans Section -->
+	<div class="card">
+		<div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+			<h5 class="mb-0">Your Plans</h5>
+			<a  class="text-white" href="/@Model.UserPlan.Trim().ToLower()/awareness" >Add New Plan</a>
+		</div>
+		<div class="card-body">
+			<table class="table table-bordered">
+				<thead class="table-light">
+					<tr>
+						<th>Plan Name</th>
+						<th>Plan Type</th>
+						<th>Plan Year</th>
+						<th>Advisor Name</th>
+						<th> Created Date</th>
+						<th> Updated Date</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>@Model.UserPlan</td>
+						<td>@Model.UserPlanYear</td>
+						<td>@Model.UserPlanYear</td>
+							<td>@Model.UserPlanYear</td>
+						<td>@Model.UserPlanYear</td>
+						<td>
+							<a href="/@Model.UserPlan.Trim().ToLower()/awareness" class="text-primary mx-2">
+								Edit your fact finder
+							</a>
+							<a href="/userprofile" class="text-primary mx-2 " target="_blank">Download PDF</a>
+						</td>
+					</tr> 
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+</div>

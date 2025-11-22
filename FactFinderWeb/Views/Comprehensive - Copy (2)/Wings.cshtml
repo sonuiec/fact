@@ -1,0 +1,673 @@
+﻿@using FactFinderWeb.ModelsView
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Http;
+
+@model WingsViewModel
+@{
+    ViewData["Title"] = "Wings";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+    var userPlan = HttpContextAccessor.HttpContext.Session.GetString("UserPlan") ?? "Comprehensive";
+    var _profileId = HttpContextAccessor.HttpContext.Request.RouteValues["pid"]?.ToString();
+}
+
+<style>
+    .text-truncate-3 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+    }
+
+    .help-section h1.hlp {
+        color: #007bff;
+        margin-bottom: 15px;
+    }
+
+    .help-section h1 {
+        color: #007bff;
+        margin-bottom: 15px;
+        float: left;
+        width: 100%;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+    }
+
+    .help-section p.parax span {
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    .riskk {
+        color: #FF1D58;
+    }
+
+    .formfield {
+        background-color: #f9f9f9;
+        padding: 10px;
+        box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+        color: #333;
+        text-align: left;
+    }
+</style>
+
+<div class="mt-4 ">
+    @await Html.PartialAsync("_StepProgress", 2)
+    <div style="background-color: 	#E6E6FA" class="px-4  py-2 g-4 rounded d-flex flex-column gap-3">
+        <div style="color:#006400" class="d-flex justify-content-between align-items-center ">
+            <h2 class="mb-0" style="width: 80%;">2. Wings</h2>
+            <a id="saveGoalsLink" href="javascript:void(0);" class="btn btn-primary px-3 py-1 rounded ">Save</a>
+        </div>
+    </div>
+
+    <div style="background-color: 	#fcfcff" class="px-4  py-2 g-4 rounded d-flex flex-column gap-3">
+        <div class="d-flex justify-content-end mt-3 mx-3 bg-light ">
+          <span id="spmsgtop" class=""></span>
+        </div>
+    </div>
+    <!-- form -->
+    <form id="mainForm" style="background-color: #F5F5F5" class="mt-3 p-3 d-flex flex-column gap-4  rounded">
+        <!--plan details -->
+        <fieldset class="d-flex flex-column gap-2">
+            <legend style="color: #3B3737" class="fw-bold">Plan Details</legend>
+            <div style="color:	#006400" class="row g-3">
+                <div class="col-12 col-md-1  formfield col-sm">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.GoalPriority"  >Priority</label>
+                    <input id="UserWings.GoalPriority" name="UserWings.GoalPriority" type="text" readonly="readonly" class="form-control text-center inputnumyr " maxlength="2">
+                    <input id="UserWings.NewGoals" name="UserWings.NewGoals" type="hidden" value="0" readonly="readonly" maxlength="2">
+                    <span id="goalPriorityError" class="text-danger field-error"></span>
+                </div>
+                <div class="col-12 col-md-3  formfield">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.GoalName">
+                        Your Goal<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    @Html.DropDownListFor(model => model.UserWings.GoalName,  Model.GoalOptions,
+                     new { @class = "form-select outline-none w-fit rounded-lg mx-[10%] float-end peer focus:outline-secondary" })
+                    @* <select name="UserWings.GoalName" id="UserWings.GoalName" class="form-select outline-none w-fit rounded-lg mx-[10%] float-end peer focus:outline-secondary">
+                        <option value="" >Select Your Goals</option>
+                        <option value="Emergency Fund">Emergency Fund</option>
+                        <option value="Retirement - Accumulation">Retirement - Accumulation</option>
+                        <option value="Purchase of Dream Car">Purchase of Dream Car</option>
+                        <option value="World Tour">World Tour</option>
+                        <option value="Purchase of Dream Home">Purchase of Dream Home</option>
+                        <option value="Seed Capital for Business">Seed Capital for Business</option>
+                        <option value="Charity">Charity</option>
+                    </select>  *@
+                    <input id="UserWings.GoalNamecustom" name="UserWings.GoalNamecustom"
+                           type="text" class="form-control mt-2 d-none" placeholder="Enter your custom goal">
+                    <span id="goalNameError" class="text-danger field-error"></span>
+                </div>
+                <div class="col-12 col-md-2   formfield">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.GoalPlanYear">
+                        Plan Year<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input id="UserWings.GoalPlanYear" name="UserWings.GoalPlanYear" type="text" class="form-control inputnumyr" maxlength="4" value=""  >
+                    <span id="goalPlanYearError" class="text-danger field-error"></span>
+                </div> 
+
+                <div class="col-12 col-md-2   formfield">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.GoalStartYear" >
+                        Goal Start Year<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input id="UserWings.GoalStartYear" name="UserWings.GoalStartYear" type="text" class="form-control inputnumyr" maxlength="4" value="">
+                    <span id="goalStartYearError" class="text-danger field-error"></span>
+                </div>
+                <div class="col-12 col-md-2   formfield">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.TimeHorizon">
+                        Time Horizon<span class="text-danger fw-bold ">*</span>
+                    </label>
+                    <input id="UserWings.TimeHorizon" name="UserWings.TimeHorizon" type="text" class="form-control inputnumyr" maxlength="2" value="" readonly="readonly">
+                </div>
+
+                <div class="col-12 col-md-2   formfield" id="endGoalContainer">
+                    <label class="form-label d-flex align-items-center gap-1" asp-for="UserWings.GoalEndYear">
+                        <span> Goal End Year</span> 
+                    </label>
+                    <input id="UserWings.GoalEndYear" name="UserWings.GoalEndYear" type="text" class="form-control inputnumyr" maxlength="4" value="2025">
+                    <span style="font-size:12px;">(if applicable)</span>
+                </div>
+                <div class="col-12 col-md-9 formfield  text-center">
+                    <button type="button" class="btn btn-success w-25  my-2" onclick="addGoal()" id="btnaddgoal" value="Add Goal">Add Goal</button>
+                </div>
+
+                <div class="col-12 col-md-3 formfield  text-center">
+                    <button type="button" id="customGoalBtn" class="btn btn-outline-success my-2">
+                    Add Custom Goal
+                </button>
+                </div>
+            </div>
+        </fieldset>
+
+        <!--Goal List details end -->
+        <section>
+            <div id="goalList"> </div>             
+        </section>
+
+        <div class="d-flex justify-content-end mt-3 mx-2 ">
+            <a asp-action="Awareness" asp-controller="@userPlan" asp-route-id="@_profileId" class="btn btn-secondary  px-4 py-1 rounded mx-3">Previous</a>
+
+            <button type="button" name="saveGoalsBtn" asp-route-id="@_profileId" id="saveGoalsBtn" asp-controller="@userPlan" class="btn btn-primary px-4 py-1 rounded mx-3 ">Next</button>
+
+            <button name="btnSubmit" id="btnSubmit" asp-route-id="@_profileId" class="d-none btn btn-primary px-5 py-1 rounded mx-3" asp-controller="@userPlan" asp-action="Wings" type="submit">Next</button>
+            @Html.AntiForgeryToken()
+        </div>
+        <div class="d-flex justify-content-end mt-3 mx-5">
+            <span id="spmsg" class="d-none"></span>
+        </div>
+
+    </form>
+</div>
+@using System.Text.Json
+@{
+    var usergoalsJson = JsonSerializer.Serialize(Model.goalList);
+    var ApplicantDataDto = JsonSerializer.Serialize(Model.ApplicantDataDto);
+}
+
+@section Scripts {
+
+    <script>
+        const currentYear = new Date().getFullYear();
+
+        function isValidYear(year) {
+          return /^\d{4}$/.test(year) && parseInt(year) >= currentYear;
+        }
+
+        function updateTimeHorizon(blurredInput) {
+          const startYearEl = document.getElementById('UserWings.GoalStartYear');
+          const planYearEl = document.getElementById('UserWings.GoalPlanYear');
+          const timeHorizonEl = document.getElementById('UserWings.TimeHorizon');
+          
+        document.getElementById("goalPlanYearError").textContent = "";
+        document.getElementById("goalStartYearError").textContent = "";
+
+          const startYear = startYearEl.value.trim();
+          const planYear = planYearEl.value.trim();
+            var hasError=false;
+          // Only validate the field that triggered blur
+          if (blurredInput === startYearEl) {
+            if (!isValidYear(startYear)) {
+               document.getElementById("goalStartYearError").textContent ="Enter a valid 4-digit year ≥ " + currentYear;
+               return;
+              //startYearEl.setCustomValidity('Enter a valid 4-digit year ≥ ' + currentYear);
+            } else {
+              startYearEl.setCustomValidity('');
+            }
+          }
+
+          if (blurredInput === planYearEl) {
+            if (!isValidYear(planYear)) {
+               document.getElementById("goalPlanYearError").textContent = "Enter a valid 4-digit year ≥ " + currentYear; 
+                    return;
+              //planYearEl.setCustomValidity('Enter a valid 4-digit year ≥ ' + currentYear);
+            } else {
+              planYearEl.setCustomValidity('');
+            }
+          }
+
+          
+           if (!startYear) {
+               document.getElementById("goalStartYearError").textContent = "Start year is required.";
+               hasError = true;return;
+           } else if (startYear < currentYear) {
+               document.getElementById("goalStartYearError").textContent = `Start year must be greater than or equal  ${currentYear}.`;
+               hasError = true;return;
+           }
+
+           if (startYear < planYear  ) {
+               document.getElementById("goalPlanYearError").textContent = "Start year must be greater than or equal plan year.";
+               hasError = true;
+           }
+
+           if (hasError) {
+               return; // stop execution
+           }
+
+            // Don't update TimeHorizon unless both are valid
+            const startYearValid = isValidYear(startYear);
+            const planYearValid = isValidYear(planYear);
+
+            if (startYearValid && planYearValid) {
+              const diff = parseInt(startYear) - parseInt(planYear);
+              timeHorizonEl.value = diff >= 0 ? diff : 0;
+            }
+        }
+
+        document.getElementById('UserWings.GoalStartYear').addEventListener('blur', function () {
+          updateTimeHorizon(this);
+        });
+
+        document.getElementById('UserWings.GoalPlanYear').addEventListener('blur', function () {
+          updateTimeHorizon(this);
+        });
+
+        // Initial calculation on load
+        //updateTimeHorizon(document.getElementById('UserWings.GoalStartYear'));
+
+        document.addEventListener("DOMContentLoaded", function () {
+                            document.getElementById("UserWings.GoalPlanYear").value = currentYear;
+
+
+            const goalDropdown = document.getElementById("UserWings_GoalName");
+            const endGoalContainer = document.getElementById("endGoalContainer");
+            const endGoalInput = document.getElementById("UserWings.GoalEndYear");
+  
+            function toggleEndGoalInput() {
+                const selectedValue = goalDropdown.value;
+                if (selectedValue === "Retirement - Accumulation") {// || selectedValue === "World Tour"
+                    ///endGoalContainer.style.display = "block";
+                      endGoalInput.disabled = true;
+                   // endGoalInput.value = ""; // Allow user to enter
+                } else {
+                   endGoalInput.disabled = false;
+                    endGoalInput.value = ""; // Auto-set to 0
+                            ///endGoalContainer.style.display = "none";
+                }
+            }
+
+            // Trigger on page load in case of form re-post
+            toggleEndGoalInput();
+
+            // Bind on dropdown change
+            goalDropdown.addEventListener("change", toggleEndGoalInput);
+        });
+
+        // document.addEventListener("DOMContentLoaded", function () {
+        //     const childrenItems = document.querySelectorAll("#childrenList ul li");
+        //     const selectElement = document.getElementById("UserWings_GoalName");
+
+        //     // For each <li>, add "Child - Marriage" and "Child - Education" options
+        //     childrenItems.forEach(function (li) {
+        //         const childName = li.textContent.trim();
+
+        //         if (childName !== "") {
+        //             const goals = ["Marriage", "Education"];
+
+        //             goals.forEach(function (goal) {
+        //                 const option = document.createElement("option");
+        //                 option.value = `${childName} - ${goal}`;
+        //                 option.textContent = `${childName} - ${goal}`;
+        //                 selectElement.appendChild(option);
+        //             });
+        //         }
+        //     });
+        // });
+
+
+        // Convert the C# model to JSON
+            let goalsdata = @Html.Raw(usergoalsJson);
+            let ApplicantData = @Html.Raw(ApplicantDataDto); 
+
+
+             // Get select and input elements
+            const goalSelect = document.getElementById('UserWings_GoalName');
+                    const planYearInput = document.getElementById('UserWings.GoalPlanYear');
+            const startYearInput = document.getElementById('UserWings.GoalStartYear');
+            const endYearInput = document.getElementById('UserWings.GoalEndYear');
+            const TimeHorizonInput = document.getElementById('UserWings.TimeHorizon');
+
+            // Handle select change
+            goalSelect.addEventListener('change', function () {
+                const selectedGoal = this.value;
+
+                if ( selectedGoal === 'Retirement - Accumulation') {
+                    startYearInput.value = ApplicantData.goalStartYear;
+                    endYearInput.value = ApplicantData.goalEndYear;
+                    TimeHorizonInput.value = startYearInput.value  - planYearInput.value ;
+                } 
+                    else  {
+                    startYearInput.value = '';
+                    endYearInput.value = '';
+                    TimeHorizonInput.value = '';
+                }
+            });
+
+
+        // Save it to localStorage
+        localStorage.setItem("goals", JSON.stringify(goalsdata));
+
+        goals = JSON.parse(localStorage.getItem("goals")) || [];
+        currentEditingIndex = null;
+
+        if (goals.length > 0) {
+            document.getElementById("UserWings.GoalPriority").value = goals.length + 1;
+
+        } else {
+            document.getElementById("UserWings.GoalPriority").value = "1";
+        }
+
+        function renderGoals() {
+            let goals = JSON.parse(localStorage.getItem("goals")) || [];
+
+            const container = document.getElementById("goalList");
+                                    container.innerHTML = `<div class="d-flex justify-content-between align-items-center mb-3"><h3>Goals List</h3></div>
+                                           <div  style="background-color: #75bda2; color: #000000;" class="row d-none d-md-flex fw-bold text-white bg-success py-2 border-bottom">
+                                            <div class="col-1 col-md-1  text-center">Priority</div>
+                                            <div class="col-1 col-md-4  ">Goal Name</div>
+                                            <div class="col-1 col-md-1  text-center">Plan Year</div>
+                                            <div class="col-1 col-md-1  text-center">Goal Start Year</div>
+                                            <div class="col-1 col-md-1  text-center">Time Horizon</div>
+                                            <div class="col-1 col-md-1 text-center">Goal End Year</div>
+                                            <div class="col-1 col-md-3 text-center">Action</div>
+                                        </div>
+                                        `;
+
+            // goals.sort((a, b) => a.priority - b.priority).forEach((goal, index) => {
+            goals.sort((a, b) => a.priority - b.priority); // Sort the goals based on current priority
+
+            // Reassign correct priorities based on array index
+            goals.forEach((goal, index) => {
+                goal.priority = index + 1; // start from 1 or use index if you want 0-based
+                const div = document.createElement("div");
+                                        div.className = "d-none d-md-flex align-items-center py-2 border-bottom";
+                div.innerHTML = `<div class="col-1 col-md-1  text-center">${goal.priority}</div>
+                                <div class="col-1 col-md-4">${goal.goal}</div>
+                                <div class="col-1 col-md-1 text-center">${goal.planYear}</div>
+                                <div class="col-1 col-md-1 text-center">${goal.startYear}</div>
+                                <div class="col-1 col-md-1 text-center">${goal.timeHorizon}</div>
+                <div class="col-1 col-md-1 text-center">  ${goal.goalEndYear && goal.goalEndYear !== 0 ? goal.goalEndYear : 'NA'}</div>
+                        <div class="col-1 col-md-3 text-center">
+                        <button type="button" class="btn btn-sm btn-secondary btngoaltblup" data-id="${index}">↑</button>
+                        <button type="button" class="btn btn-sm btn-secondary btngoaltbldown" data-id="${index}">↓</button>
+                        <button type="button" class="btn btn-sm btn-info btngoaltbldelete" data-id="${index}">Delete</button>
+                        </div> `;
+                container.appendChild(div);
+            });
+
+            ///////////////
+                     goals.forEach((goal, index) => {
+                        goal.priority = index + 1; // start from 1 or use index if you want 0-based
+                                const div1 = document.createElement("div");
+                                   div1.className = "d-block d-md-none border rounded mb-3 p-2 shadow-sm bg-light";
+                        div1.innerHTML = `<div><strong>Priority:</strong> ${goal.priority}</div>
+                                        <div><strong>Goal Name:</strong>${goal.goal}</div>
+                                        <div><strong>Plan Year:</strong> ${goal.planYear}</div>
+                                        <div><strong>Start Year:</strong> ${goal.startYear}</div>
+                                        <div><strong>Time Horizon:</strong> ${goal.timeHorizon}</div>
+                                        <div><strong>End Year:</strong>${goal.goalEndYear}</div>
+                                    <div class="mt-2">
+                        <button type="button" class="btn btn-sm btn-secondary btngoaltblup" data-id="${index}">↑</button>
+                        <button type="button" class="btn btn-sm btn-secondary btngoaltbldown" data-id="${index}">↓</button>
+                        <button type="button" class="btn btn-sm btn-info btngoaltbldelete" data-id="${index}">Delete</button>
+                        </div>
+                    </div> `;
+
+                                container.appendChild(div1);
+
+                    });
+
+
+            //<button class="btn btn-sm btn-info" onclick="editGoal(${index})">Edit</button> data-id="${child.id}"
+            goals = goals.map((goal, index) => ({
+                ...goal,
+                priority: index + 1
+            }));
+            localStorage.setItem("goals", JSON.stringify(goals));
+        }
+
+        function sanitizeGoals(goals) {
+            return goals.map(g => ({
+                priority: parseInt(g.priority),
+                goal: g.goal,
+                planYear: g.planYear ? parseInt(g.planYear) : null,
+                startYear: g.startYear ? parseInt(g.startYear) : null,
+                goalEndYear: g.goalEndYear ? parseInt(g.goalEndYear) : null,
+                timeHorizon: g.timeHorizon ? parseInt(g.timeHorizon) : null,
+                NewGoals: parseInt(g.NewGoals)
+            }));
+        }
+
+        function addGoal() {
+            var hasError=false;
+        document.getElementById("goalNameError").textContent = "";
+        document.getElementById("goalPriorityError").textContent = "";
+        document.getElementById("goalPlanYearError").textContent = "";
+        document.getElementById("goalStartYearError").textContent = "";
+
+            var priority = parseInt(document.getElementById("UserWings.GoalPriority").value) || null;
+            var NewGoals = parseInt(document.getElementById("UserWings.NewGoals").value) || null;
+            var goal = document.getElementById("UserWings_GoalName").value;
+            var goalcustom = document.getElementById("UserWings.GoalNamecustom").value;
+            var planYear = parseInt(document.getElementById("UserWings.GoalPlanYear").value) || null;
+            var startYear = parseInt(document.getElementById("UserWings.GoalStartYear").value) || null;
+            var timeHorizon = parseInt(document.getElementById("UserWings.TimeHorizon").value) || 0;
+            var goalEndYear = parseInt(document.getElementById("UserWings.GoalEndYear").value) || 0;
+
+            if (goalcustom === "") {//var NewGoals;
+                var a = 0;//NewGoals = 0;
+            } else {
+                goal = goalcustom;    //NewGoals = 1;
+            }
+
+            //if (!goal || !priority || !planYear || !startYear ) {
+            //    alert("Please fill all fields");
+            //    return;
+            //}
+
+        // Validate required fields
+           if (!goal) {hasError = true;
+               document.getElementById("goalNameError").textContent = "Goal name is required.";
+           }
+           if (!priority) {hasError = true;
+               document.getElementById("goalPriorityError").textContent = "Priority is required.";
+           }
+
+           if (!planYear) {hasError = true;
+               document.getElementById("goalPlanYearError").textContent = "Plan year is required.";               
+           } else if (planYear < currentYear) {hasError = true;
+document.getElementById("goalPlanYearError").textContent = `Plan year must be greater than  or equal ${currentYear}.`;
+return;
+           }
+
+           if (!startYear) {
+               document.getElementById("goalStartYearError").textContent = "Start year is required.";
+               hasError = true;
+           } else if (startYear < currentYear) {
+document.getElementById("goalStartYearError").textContent = `Start year must be greater than or equal ${currentYear}.`;
+               hasError = true;return;
+           }
+
+           if (hasError) {
+               return;  
+           }
+
+           // if (planYear <= startYear) {
+           //     document.getElementById("goalPlanYearError").textContent = "start year must be greater than or equal Plan year.";
+           //     hasError = true;
+           // }
+
+            const exists = goals.some(g => g.goal.toLowerCase() === goal.toLowerCase());
+            const match = goals.find(g => g.goal.toLowerCase() === goal.toLowerCase());
+            if (exists) {
+                if (document.getElementById("btnaddgoal").textContent == "Add Goal") {
+                    alert("You can't add duplicate goals, as it is already selected.");
+                    return;
+                }
+                else if (document.getElementById("btnaddgoal").textContent == "Update Goal") {
+                    if (match.priority !== priority) {
+                        alert("You can't add duplicate goals, as it is already selected.");
+                        return;
+                    }
+                }
+            }
+
+            const newGoal = { priority, goal, planYear, startYear, timeHorizon, goalEndYear, NewGoals };
+
+            if (document.getElementById("btnaddgoal").textContent === "Update Goal" && currentEditingIndex !== null) {
+                // 🔄 Update existing goal
+                newGoal.priority = goals[currentEditingIndex].priority; // Maintain the same priority
+                goals[currentEditingIndex] = newGoal;
+                document.getElementById("btnaddgoal").textContent = "Add Goal";
+                currentEditingIndex = null;
+            } else {
+                goals.push(newGoal);//goals.push({ priority, goal, planYear, startYear, timeHorizon, goalEndYear });
+            }
+
+            localStorage.setItem("goals", JSON.stringify(goals));
+
+            // Reset//document.getElementById("goalPriority").value = "";
+            document.getElementById("btnaddgoal").textContent = "Add Goal";
+            document.getElementById("UserWings_GoalName").value = "";
+            document.getElementById("UserWings.GoalPlanYear").value = currentYear;// "";
+            document.getElementById("UserWings.GoalStartYear").value = "";
+            document.getElementById("UserWings.TimeHorizon").value = "";
+            document.getElementById("UserWings.GoalEndYear").value = "";
+            if (goals.length > 0) {
+                document.getElementById("UserWings.GoalPriority").value = goals.length + 1;
+            } else {
+                document.getElementById("UserWings.GoalPriority").value = "1";
+            }
+            renderGoals();
+        }
+
+
+        // Delegated event bindings for dynamic goal actions
+        $(document).on("click", ".btngoaltblup", (e) => handleGoalReorder(e, "up"));
+        $(document).on("click", ".btngoaltbldown", (e) => handleGoalReorder(e, "down"));
+        $(document).on("click", ".btngoaltbldelete", (e) => handleGoalDelete(e));
+
+        /** Handle deleting a goal from the list ---{Event} e - Click event from delete button */
+        function handleGoalDelete(e) {
+            const index = $(e.currentTarget).data("id");
+            if (!Number.isInteger(index) || index < 0 || index >= goals.length) return;
+
+            if (confirm("Are you sure you want to delete this goal?")) {
+                goals.splice(index, 1);
+                updateGoalPriorities();
+                persistGoals();
+                renderGoals();
+            }
+        }
+
+        /**  * Handle moving a goal up or down*  {Event} e - Click event from up/down button 
+         * *  {string} direction - 'up' or 'down'*/
+        function handleGoalReorder(e, direction) {
+            const index = $(e.currentTarget).data("id");
+
+            if (!Number.isInteger(index)) return;
+            if (direction === "up" && index === 0) return;
+            if (direction === "down" && index >= goals.length - 1) return;
+
+            const swapIndex = direction === "up" ? index - 1 : index + 1;
+
+            // Swap goal objects
+            [goals[index], goals[swapIndex]] = [goals[swapIndex], goals[index]];
+
+            updateGoalPriorities();
+            persistGoals();
+            renderGoals();
+        }
+
+        /**  Recalculate and assign priorities based on order */
+        function updateGoalPriorities() {
+            goals.forEach((goal, idx) => {
+                goal.priority = idx + 1;
+            });
+        }
+
+        /** Persist updated goals to localStorage */
+        function persistGoals() {
+            localStorage.setItem("goals", JSON.stringify(goals));
+        }
+
+        renderGoals();
+
+
+
+        const toggleBtn = document.getElementById("customGoalBtn");
+        const selectBox = document.getElementById("UserWings_GoalName");
+        const inputBox = document.getElementById("UserWings.GoalNamecustom");
+
+        toggleBtn.addEventListener("click", function () {
+            const isInputVisible = !inputBox.classList.contains("d-none");
+
+            if (isInputVisible) {   // Switch to select
+                inputBox.value = "";
+                inputBox.classList.add("d-none");
+                selectBox.classList.remove("d-none");
+                toggleBtn.textContent = "Add Custom Goal";
+                document.getElementById("UserWings.NewGoals").value = 0;
+
+            } else { // Switch to input
+                selectBox.classList.add("d-none");
+                inputBox.classList.remove("d-none");
+                toggleBtn.textContent = "Select From List";
+                document.getElementById("UserWings.NewGoals").value = 1;
+            }
+        });
+
+        //////////// save & redirect on btn click
+        document.getElementById("saveGoalsBtn").addEventListener("click", function (e) {
+            const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+            console.log(goals);
+            e.preventDefault();
+                            fetch('/@userPlan/SaveGoals/@_profileId', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'//,
+                   // 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() // if needed
+                   // , 'X-CSRF-TOKEN': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(goals)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success){ 
+                        //alert(data.message);                        
+                    document.getElementById("spmsg").textContent = "Goals saved successfully.";
+                                    setTimeout(() => { window.location.href = '/@userPlan/Alertness/@_profileId'; }, 2000);
+                            // if (data.success) alert("Goals saved successfully.");
+                    }
+                    else{ alert("Failed to save goals.");}
+                })
+                .catch(error => console.error("Error:", error));
+        });
+
+        ////////////Only save on Link click
+        document.getElementById("saveGoalsLink").addEventListener("click", function (e) {
+                    const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+                    console.log(goals);
+                    document.getElementById("spmsgtop").textContent = "";
+                    e.preventDefault();
+                                            fetch('/@userPlan/SaveGoalsOnLink/@_profileId', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'//,
+                        },
+                        body: JSON.stringify(goals)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success){
+                                //alert(data.message);
+                            document.getElementById("spmsgtop").textContent = "Goals saved successfully.";
+                            //setTimeout(() => { window.location.href = '/Comprehensive/Alertness'; }, 2000);
+                       }
+                            else{ alert("Failed to save goals.");}
+                        })
+                        .catch(error => console.error("Error:", error));
+                });
+ 
+                    //  function submitFormAsSave() {
+                    //     var form = document.getElementById("mainForm");
+                    //     if (!form) {
+                    //         console.error("Form not found");
+                    //         return;
+                    //     }
+
+                    //     var input = document.createElement("input");
+                    //     input.type = "hidden";
+                    //     input.name = "btnSubmit";
+                    //     input.value = "Save";
+                    //     form.appendChild(input);
+
+                    //     var realBtn = document.getElementById("saveGoalsBtn");
+                    //     if (realBtn) {
+                    //         realBtn.click(); // 
+                    //     } else {
+                    //         console.error("Save button (#saveGoalsBtn) not found.");
+                    //     }
+                    // }
+        
+    </script>
+
+}

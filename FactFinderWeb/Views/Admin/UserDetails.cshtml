@@ -1,0 +1,301 @@
+﻿@using FactFinderWeb.ModelsView
+@using Microsoft.AspNetCore.Http
+
+@model UserProfileViewModel
+@{
+	ViewData["Title"] = "User Details";
+	Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+	var AdminUserId = Context.Session.GetString("AdminUserId");
+	var AdminUserRole = Context.Session.GetString("AdminUserRole");
+	AdminUserRole = string.IsNullOrEmpty(AdminUserRole) ? "advisor" : AdminUserRole;
+}
+
+<style>
+	.form-wrap {
+		background: rgba(255,255,255,1);
+		width: 100%;
+		max-width: 850px;
+		padding: 50px;
+		margin: 0 auto;
+		position: relative;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+		-webkit-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		-moz-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		margin-top: 10px;
+		margin-bottom: 80px;
+	}
+
+		.form-wrap:before {
+			content: "";
+			width: 90%;
+			height: calc(100% + 60px);
+			left: 0;
+			right: 0;
+			margin: 0 auto;
+			position: absolute;
+			top: -30px;
+			background: #101357;
+			z-index: -1;
+			opacity: 0.8;
+			-webkit-border-radius: 10px;
+			-moz-border-radius: 10px;
+			border-radius: 10px;
+			-webkit-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+			-moz-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+			box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		}
+
+	.form-group {
+		margin-bottom: 25px;
+	}
+
+		.form-group > label {
+			display: block;
+			font-size: 18px;
+			color: #000;
+			letter-spacing: 1px;
+		}
+
+	.custom-control-label {
+		color: #000;
+		font-size: 16px;
+	}
+
+	.form-control {
+		height: 50px;
+		background: #ecf0f4;
+		border-color: transparent;
+		padding: 0 15px;
+		font-size: 16px;
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+	}
+
+		.form-control:focus {
+			border-color: #00bcd9;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+	textarea.form-control {
+		height: 51px;
+		padding-top: 15px;
+		resize: none;
+	}
+
+	.btn {
+		padding: .657rem .75rem;
+		font-size: 18px;
+		letter-spacing: 0.050em;
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+		width: 48%;
+	}
+
+	.btn-primary {
+		color: #fff;
+		background-color: #FF1D58;
+		border-color: #FF1D58;
+	}
+
+		.btn-primary:hover {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+		.btn-primary:focus, .btn-primary.focus {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+		.btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
+		.show > .btn-primary.dropdown-toggle {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+		}
+
+			.btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus,
+			.show > .btn-primary.dropdown-toggle:focus {
+				-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+				-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+				box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			}
+
+	.imgh {
+		width: 300px;
+		height: 200px;
+		object-fit: contain;
+	}
+
+</style>
+
+
+
+
+<div class="container py-5">
+	<div class="row ">
+		<div class="col-md-5">
+			<h1 class="page-title">Profile Name : @Model.UserFullName!</h1>
+		</div>
+
+		
+	</div>
+
+	<!-- Profile Section -->
+	
+	<form id="survey-form" method="post" asp-action="UserDetails" asp-controller="Admin">
+
+	<div class="card shadow-sm">
+			<div class="card-header bg-primary1 text-white">
+			<h5 class="mb-0">Profile Detail</h5>
+		</div>
+		<div class="card-body">
+			<div class="row mb-3">
+				<div class="col-md-6"><strong>Email:</strong> @Model.UserEmail</div>
+				<div class="col-md-6"><strong>Mobile:</strong> @Model.UserMobile</div>
+			</div>
+		
+			<div class="row mb-3">
+				<div class="col-md-6">
+				@{
+							var verificationStatus = Model.UserEmailVerification?.ToLower() != "yesverified" ? "Pending" : "Verified";
+				}
+				<strong>Email Verified:</strong> @verificationStatus					
+				</div>
+				<div class="col-md-6">
+					<strong>Active Status:</strong>
+					@(string.IsNullOrEmpty(Model.UserActiveStatus) || Model.UserActiveStatus == "0" ? "Inactive" : "Active")
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<strong>Registered Date:</strong> @Model.UserRegisterDate?.ToString("dd-MM-yyyy")
+				</div>
+				<div class="col-md-6">
+					<strong>Advisor Name:</strong>
+					@(string.IsNullOrEmpty(Model.AdvisorName) ? "Not Assign" : Model.AdvisorName)
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+        <!-- Plans Section plan, year, accout status, AdvisorName, profilelock, profilepdfdownload,profilejsondownload-->
+	<div class="card">
+			<div class="card-header bg-primary1 text-white">
+			<h5 class="mb-0">Profile Manager</h5>
+		</div>
+
+		<div class="card-body">
+			<div class="row mb-3 d-none">
+				<div class="col-md-6">
+					<label asp-for="UserPlan" for="UserPlan" class="form-label gap-1 d-flex">Plan Type</label>
+					<input asp-for="UserPlan" type="text"   class="form-control  "   >
+						<input asp-for="UId" type="hidden" class="form-control  ">
+						<input asp-for="UserFullName" type="text" class="form-control  ">
+						<input asp-for="UserEmail" type="text" class="form-control  ">
+						<input asp-for="UserMobile" type="text" class="form-control  ">
+						<input asp-for="UserEmailVerification" type="text" class="form-control  ">
+						<input asp-for="UserRegisterDate" type="text" class="form-control  ">
+					</div>
+				<div class="col-md-6">
+					<strong>:</strong>
+					<label asp-for="UserPlanYear" for="UserPlanYear" class="form-label gap-1 d-flex">Plan Year</label>
+					<input asp-for="UserPlanYear" type="text" class="form-control  ">
+				</div>
+			</div>
+			<div class="row mb-3  @(string.Equals(AdminUserRole, "advisor", StringComparison.OrdinalIgnoreCase) ? "d-none" : "")">
+				<div class="col-md-6">
+						<label class="form-label gap-1 d-flex" asp-for="Advisorid">Advisor Name</label>
+						@Html.DropDownListFor(model => model.Advisorid,  Model.AdvisorListOptions, null,
+						new { @class = "form-select outline-none w-fit rounded-lg mx-[10%] float-end peer focus:outline-secondary" }) 				
+						@Html.ValidationMessageFor(model => model.Advisorid, "", new { @class = "text-danger" })
+					</div>
+				<div class="col-md-6">
+					<label class="form-label gap-1 d-flex" asp-for="UserActiveStatus">Account Status</label>
+					<select class="form-select" asp-for="UserActiveStatus">
+						<option value="">Select</option>
+						<option value="1">Active</option>
+						<option value="0">Deactive</option>
+					</select>
+				@Html.ValidationMessageFor(model => model.UserActiveStatus, "", new { @class = "text-danger" })
+					</div>
+                </div>
+                @{
+                    /*
+                    <select class="form-select" asp-for="Advisorid" id="advisorSelect">
+                    <option value="">Select</option>
+                    <option value="1">Mainstream</option>
+                    <option value="2">Manoj</option>
+                    </select>
+                    <input asp-for="AdvisorName" id="advisorNameHidden" type="hidden" class="form-control  ">
+                    */
+                }
+		@* 	<div class="row mb-3 ">
+				<div class="col-md-6">
+						<label class="form-label gap-1 d-flex" asp-for="ProfileStatus">Profile Locked / Submitted</label>
+						<select class="form-select usercanedit-not" asp-for="ProfileStatus">
+							<option value="">Select</option>
+							<option value="locked">Lock</option>
+							<option value="Pending">Unlock</option>
+						</select>
+						@Html.ValidationMessageFor(model => model.ProfileStatus, "", new { @class = "text-danger" })
+					</div>
+				<div class="col-md-6"> 
+				</div>
+			</div>
+ *@
+				<div class="row mb-3 ">
+					<div class="col-md-6"> 
+						@if (ViewData["msg"] != null)
+						{
+							<p style="color: dodgerblue;">@ViewData["msg"]</p>
+						}
+					</div>
+					<div class="col-md-6">
+						<button type="submit" class="btn btn-primary btn-block">Submit</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+
+
+@section Scripts {
+	<script>
+		let goals = JSON.parse(localStorage.getItem("test")) || [];
+
+
+						 document.getElementById('advisorSelect').addEventListener('change', function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const advisorName = selectedOption.text;
+
+        // Ignore "Select"
+        if (selectedOption.value !== '') {
+            document.getElementById('advisorNameHidden').value = advisorName;
+        } else {
+            document.getElementById('advisorNameHidden').value = '';
+        }
+    });
+	</script>
+
+}

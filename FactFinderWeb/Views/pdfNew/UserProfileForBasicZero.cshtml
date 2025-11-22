@@ -1,0 +1,1558 @@
+﻿@using FactFinderWeb.BLL
+@using FactFinderWeb.ModelsView
+@model FactFinderWeb.ModelsView.RootAwareness
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AWAKEN – User Summary Report (A4)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/FactFinderWeb.styles.css" asp-append-version="true" />
+    <!-- Robust html2pdf loader (primary + fallback CDN) -->
+    <script>
+        (function loadHtml2Pdf(){
+        var primary  = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+        var fallback = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        function inject(src){
+        var s = document.createElement('script');
+        s.src = src; s.defer = true;
+        s.onload = function(){ console.log('html2pdf loaded:', src); };
+        s.onerror = function(){ if (src !== fallback) inject(fallback); };
+        document.head.appendChild(s);
+        }
+        inject(primary);
+        })();
+    </script>
+    <title>Manish Sharma - Comprehensive Report</title>
+    <style>
+        /* ---------- GLOBAL STYLES ---------- */
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #222;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3 {
+            color: #1a237e;
+            text-align: center;
+        }
+
+        h2 {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-left: 5px solid #1565c0;
+            font-size: 25px !important;
+            text-align: left;
+            margin: 30px 0 10px;
+        }
+
+        h3 {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-left: 5px solid #1565c0;
+            font-size: 19px !important;
+            text-align: left;
+            margin: 30px 0 10px;
+        }
+
+        h4 {
+            background-color: #f2f8ff;
+            padding: 10px;
+            font-size: 19px !important;
+            text-align: left;
+            margin: 30px 0 10px;
+            color: #003b80 !important;
+            border-left: 4px solid #66aaff !important;
+        }
+
+        p {
+            padding: 10px 20px;
+            background: #fff;
+            margin: 0 0 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #1976d2;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 4px auto;
+            background: #fff;
+            padding: 3px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        footer {
+            text-align: center;
+            font-size: 13px;
+            color: #555;
+            padding: 15px;
+            margin-top: 40px;
+        }
+
+        .highlight {
+            background-color: #e8f5e9;
+            border-left: 4px solid #2e7d32;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 6px;
+        }
+
+        .h1, h1 {
+            font-size: 29px !important;
+        }
+
+        .details-table {
+            width: 99%;
+            border-collapse: collapse; /* important! removes double lines */
+            font-size: 15px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+            /* Header row */
+            .details-table th {
+                background-color: #1976d2;
+                color: #fff;
+                text-align: left;
+                padding: 10px 12px;
+                font-weight: 600;
+                font-size: 15px;
+                border: none;
+            }
+
+            .details-table td {
+                border-top: 1px solid #ADD8E6; /* top border */
+                border-left: 1px solid #ADD8E6; /* left border */
+                border-right: none; /* no overlap yet */
+                border-bottom: none; /* no overlap yet */
+                padding: 4px 10px;
+                vertical-align: top;
+            }
+            /* Last row – add clean bottom line once */
+            .details-table tr:last-child td {
+                border-bottom: 1px solid #ADD8E6;
+            }
+            /* Last column – add right border once */
+            .details-table tr td:last-child {
+                border-right: 1px solid #ADD8E6;
+            }
+            /* Zebra background */
+            .details-table tr:nth-child(even) td {
+                background: #f7f9fc;
+            }
+            /* Left column styling */
+            .details-table td:first-child {
+                width: 65%;
+            }
+
+            .details-table tr td:last-child {
+                border-right: 1px solid #ADD8E6;
+            }
+
+            .details-table tr:last-child td {
+                border-bottom: 1px solid #ADD8E6;
+            }
+            /* Add right border to the last column (fix missing right edge) */
+            .details-table tr td:last-child {
+                border-right: 1px solid #ADD8E6;
+            }
+
+        p {
+            padding: 0px 15px !important;
+            background: #fff !important;
+            margin: 0 0 10px !important;
+            border-radius: 8px !important;
+            box-shadow: none !important;
+        }
+
+        .sub-header {
+            background-color: #f0f6ff;
+            font-weight: bold;
+        }
+
+        .details-table-1 {
+            width: 99%;
+            border-collapse: collapse; /* important! removes double lines */
+            font-size: 15px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+            /* Header row */
+            .details-table-1 th {
+                background-color: #1976d2;
+                color: #fff;
+                text-align: left;
+                padding: 10px 12px;
+                font-weight: 600;
+                font-size: 15px;
+                border: none;
+                border-top: 1px solid #ADD8E6;
+                border-left: 1px solid #ADD8E6;
+            }
+
+            .details-table-1 td {
+                border-top: 1px solid #ADD8E6; /* top border */
+                border-left: 1px solid #ADD8E6; /* left border */
+                border-right: none; /* no overlap yet */
+                border-bottom: none; /* no overlap yet */
+                padding: 4px 10px;
+                vertical-align: top;
+            }
+            /* Last row – add clean bottom line once */
+            .details-table-1 tr:last-child td {
+                border-bottom: 1px solid #ADD8E6;
+            }
+            /* Last column – add right border once */
+            .details-table-1 tr td:last-child {
+                border-right: 1px solid #ADD8E6;
+            }
+            /* Zebra background */
+            .details-table-1 tr:nth-child(even) td {
+                background: #f7f9fc;
+            }
+
+            .details-table-1 tr td:last-child {
+                border-right: 1px solid #ADD8E6;
+            }
+
+            .details-table-1 tr:last-child td {
+                border-bottom: 1px solid #ADD8E6;
+            }
+            /* Add right border to the last column (fix missing right edge) */
+            .details-table-1 tr td:last-child {
+                border-right: 1px solid #ADD8E6;
+            }
+
+        .heading12 {
+            font-size: 19px !important;
+        }
+
+
+
+        section {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 25px;
+        }
+
+        /* Prevent tables or headings from splitting */
+        table, h2, h3, h4 {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* Force manual page break if needed */
+        .page-break {
+            page-break-before: always;
+            break-before: page;
+        }
+
+        /* Ensure each full 'page' div breaks cleanly */
+        .page {
+            page-break-after: always;
+            break-after: page;
+        }
+
+    </style>
+</head>
+<body id="body">
+
+    <div id="loader"
+         style="display:none;
+            position:fixed;
+            top:0; left:0;
+            width:100%; height:100%;
+            background:#fff;
+            z-index:9999;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-size:20px;
+            font-weight:bold;">
+        Generating PDF... Please wait
+    </div>
+
+    <div class="page" id="page1">
+        <h1>
+            @(char.ToUpper(Model.Awaken.Awareness.planDetails?.PlanType?[0] ?? ' ')
+                + (Model.Awaken.Awareness.planDetails?.PlanType?.Substring(1) ?? ""))
+            Plan
+        </h1>
+        <h3>Client: @Model.Awaken.Awareness.personalDetails?.Name </h3>
+        <p>Advisor:  @Model.Awaken.Awareness.Advisor</p>
+        <div class="highlight">
+            <strong>Congratulations!</strong> So here we are with your Goal Oriented Financial Plan. This plan is built around the
+            timeless principles of all round "Abundance". But at the same time it also has a clear roadmap to
+            achieve your most important financial goals. We have developed this plan after assessing your
+            information that you provided in the fact finder, our discussion and our best understanding of your
+            situation.
+        </div>
+        <section>
+            <h2>Introduction</h2>
+            <p>
+                This is a six-step program, and every step takes you closer to your financial goals.
+                These steps are:
+            </p>
+            <ol style="background: #fff; padding: 5px 25px; border-radius: 8px;
+               line-height: 1.8; margin: 5px 0 20px; font-size: 15px;">
+                <li><strong>Awareness</strong></li>
+                <li><strong>Wings</strong></li>
+                <li><strong>Alertness</strong></li>
+                <li><strong>Knowledge</strong></li>
+                <li><strong>Execute Plan</strong></li>
+                <li><strong>Invest Now</strong></li>
+            </ol>
+            <p>
+                We have developed this plan based on a simple assumption that you want to design your life on true
+                abundance. Your happiness, fulfilment and peace of mind take you to set the right financial goals and
+                ultimately achieve them.
+            </p>
+            <p>
+                The aim is to become conscious while setting our goals, dealing with inflows and outflows of money,
+                investment planning and execution of the plan. Though you are setting your goals with a future date,
+                you will love every moment of the journey towards those goals. We assure you that we are always
+                there as your able assistant as you drive along the beautiful road toward your majestic goals.
+            </p>
+            <p>
+                While this is a beautiful journey towards your high-priority goals, we need to keep a keen vigil on our
+                efforts. We constantly need to ensure that we are on the right track, maintaining our reasonable speed
+                and avoiding accidents. For this, we need to work as a team and complement each other. A good journey
+                demands a good company — and we promise to be a good company.
+            </p>
+            <p>
+                As we mentioned, this program is a combination of inner abundance and conquering outer
+                challenges and goals. We will constantly remind ourselves that our outer success is grossly inadequate
+                without the discovery of inner abundance.
+            </p>
+        </section>
+        <section>
+        </section>
+        <section>
+            <h2>1. Awareness</h2>
+            <p>
+                The first step of this plan is to be AWARE of current situation. You and your advisor both need to understand your back ground and current state of affairs. Your financial journey needs to accommodate the current situation. This step is also the realization that you are already abundant and then investment doesn’t seem like a sacrifice.
+            </p>
+
+            <h3>1.1 Personal Details</h3>
+
+            <table class="details-table">
+                <tr>
+                    <th colspan="2">
+                        Details of @Model.Awaken.Awareness.personalDetails?.Name
+                    </th>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Name</td>
+                </tr>
+                <tr>
+                    <td>Gender</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Gender</td>
+                </tr>
+                <tr>
+                    <td>Date of Birth</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Dob</td>
+                </tr>
+                <tr>
+                    <td>Mobile number</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Phone</td>
+                </tr>
+                <tr>
+                    <td>Alternate Mobile</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.AltPhone</td>
+                </tr>
+                <tr>
+                    <td>Aadhaar Number</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Aadhaar</td>
+                </tr>
+                <tr>
+                    <td>Primary E-mail</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Email</td>
+                </tr>
+                <tr>
+                    <td>Secondary E-mail</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.SecEmail</td>
+                </tr>
+                <tr>
+                    <td>PAN Number</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Pan</td>
+                </tr>
+                <tr>
+                    <td>Occupation</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.Occupation</td>
+                </tr>
+
+                <!-- Residential -->
+                <tr class="sub-header">
+                    <td colspan="2">Residential Address</td>
+                </tr>
+                <tr>
+                    <td>Country</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.residential?.Country</td>
+                </tr>
+                <tr>
+                    <td>State</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.residential?.State</td>
+                </tr>
+                <tr>
+                    <td>City</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.residential?.City</td>
+                </tr>
+
+                <!-- Office -->
+                <tr class="sub-header">
+                    <td colspan="2">Office Address</td>
+                </tr>
+                <tr>
+                    <td>Company</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.office?.Company</td>
+                </tr>
+                <tr>
+                    <td>Country</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.office?.Country</td>
+                </tr>
+                <tr>
+                    <td>State</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.office?.State</td>
+                </tr>
+                <tr>
+                    <td>City</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.office?.City</td>
+                </tr>
+
+                <!-- Permanent -->
+                <tr class="sub-header">
+                    <td colspan="2">Permanent Address</td>
+                </tr>
+                <tr>
+                    <td>Country</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.permanent?.Country</td>
+                </tr>
+                <tr>
+                    <td>State</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.permanent?.State</td>
+                </tr>
+                <tr>
+                    <td>City</td>
+                    <td>@Model.Awaken.Awareness.personalDetails?.address?.permanent?.City</td>
+                </tr>
+            </table>
+
+        </section>
+        <section>
+            <h3>1.2 Spouse Details</h3>
+            @{
+                var spouse = Model.Awaken.Awareness.maritalDetails?.spouseDetails;
+            }
+
+            @if (spouse != null)
+            {
+                <table class="details-table">
+                    <tr>
+                        <th colspan="2">Details of @spouse.SpouseName</th>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>@spouse.SpouseName</td>
+                    </tr>
+                    <tr>
+                        <td>Gender</td>
+                        <td>@spouse.SpouseGender</td>
+                    </tr>
+                    <tr>
+                        <td>Date of Birth</td>
+                        <td>@spouse.SpouseDob</td>
+                    </tr>
+                    <tr>
+                        <td>Mobile number</td>
+                        <td>@spouse.SpousePhone</td>
+                    </tr>
+                    <tr>
+                        <td>Alternate Mobile</td>
+                        <td>@spouse.SpouseAltPhone</td>
+                    </tr>
+                    <tr>
+                        <td>Primary E-mail</td>
+                        <td>@spouse.SpouseEmail</td>
+                    </tr>
+                    <tr>
+                        <td>Secondary E-mail</td>
+                        <td>@spouse.SpouseSecEmail</td>
+                    </tr>
+                    <tr>
+                        <td>PAN Number</td>
+                        <td>@spouse.SpousePan</td>
+                    </tr>
+                    <tr>
+                        <td>Occupation</td>
+                        <td>@spouse.SpouseOccupation</td>
+                    </tr>
+                </table>
+            }
+            else
+            {
+                <p><i>No spouse details available.</i></p>
+            }
+
+            <!-- 🧒 1.3 Children Details -->
+            <h3>1.3 Children Details</h3>
+            @{
+                var children = Model.Awaken.Awareness.maritalDetails?.childrenDetails;
+            }
+
+            @if (children != null && children.Any())
+            {
+                @foreach (var child in children)
+                {
+                    <table class="details-table">
+                        <tr>
+                            <th colspan="2">Details of @child.ChildName</th>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td>@child.ChildName</td>
+                        </tr>
+                        <tr>
+                            <td>Gender</td>
+                            <td>@child.ChildGender</td>
+                        </tr>
+                        <tr>
+                            <td>Date of Birth</td>
+                            <td>@child.ChildDob</td>
+                        </tr>
+
+                    </table>
+                }
+            }
+            else
+            {
+                <p><i>No children details available.</i></p>
+            }
+        </section>
+
+        <section>
+            <h3>1.4 Assumptions</h3>
+            @{
+                var assumptions = Model.Awaken.Awareness.assumptions;
+            }
+
+            @if (assumptions != null)
+            {
+                <table class="details-table">
+                    <tr>
+                        <th colspan="2">Assumptions</th>
+                    </tr>
+                    <tr>
+                        <td>Return from shares and Equity funds</td>
+                        <td>@assumptions.Equity %</td>
+                    </tr>
+                    <tr>
+                        <td>Return from Debt (income) funds</td>
+                        <td>@assumptions.Debt %</td>
+                    </tr>
+                    <tr>
+                        <td>Return from Gold</td>
+                        <td>@assumptions.Gold %</td>
+                    </tr>
+                    <tr>
+                        <td>Return from Real Estate</td>
+                        <td>@assumptions.RealEstateReturn %</td>
+                    </tr>
+                    <tr>
+                        <td>Return from Liquid funds</td>
+                        <td>@assumptions.LiquidFunds %</td>
+                    </tr>
+                    <tr>
+                        <td>Rate of inflation</td>
+                        <td>@assumptions.InflationRates %</td>
+                    </tr>
+                    <tr>
+                        <td>Rate of inflation for higher Education</td>
+                        <td>@assumptions.EducationInflation %</td>
+                    </tr>
+                    <tr>
+                        <td>Assumed Retirement Age for Applicant</td>
+                        <td>@assumptions.ApplicantRetirement</td>
+                    </tr>
+                    <tr>
+                        <td>Assumed Retirement Age for Applicant’s Spouse</td>
+                        <td>@assumptions.SpouseRetirement</td>
+                    </tr>
+                    <tr>
+                        <td>Assumed Life Expectancy of Applicant</td>
+                        <td>@assumptions.ApplicantLifeExpectancy</td>
+                    </tr>
+                    <tr>
+                        <td>Assumed Life Expectancy of Applicant’s Spouse</td>
+                        <td>@assumptions.SpouseLifeExpectancy</td>
+                    </tr>
+                </table>
+            }
+            else
+            {
+                <p><i>No assumption data available.</i></p>
+            }
+        </section>
+
+
+        <section>
+            <h2>2. Wings</h2>
+            <p>
+                Goals drive us, goals motivate us and goals make us enthusiastic. Setting goals is an art. Goals are most effective when they are not for ego satisfaction. Choose your goals accordingly to your values. We suggest to discuss with your family members especially with your spouse. Setting goals and aligning your investments with your goals has been proven as one of the best way of developing a robust portfolio.
+            </p>
+
+        </section>
+
+
+        <section>
+            <h3>2.1 Selected Goals</h3>
+
+            @{
+                var selectedGoals = Model.Awaken.Wings?.SelectedForms;
+            }
+
+            @if (selectedGoals != null && selectedGoals.Any())
+            {
+                <table class="details-table">
+                    <tr>
+                        <th>Goal Priority</th>
+                        <th>Goal Name</th>
+                        <th>Goal Plan Year</th>
+                        <th>Goal Start Year</th>
+                        <th>Time Horizon</th>
+                        <th>Goal End Year</th>
+                    </tr>
+
+                    @foreach (var goal in selectedGoals)
+                    {
+                        <tr>
+                            <td style="width:13%">@goal.Priority</td>
+                            <td>@goal.Goal</td>
+                            <td>@goal.GoalPlanYear</td>
+                            <td>@goal.GoalStartYear</td>
+                            <td>@goal.TimeHorizon</td>
+                            <td>@goal.GoalEndYear</td>
+                        </tr>
+                    }
+                </table>
+            }
+            else
+            {
+                <p><i>No goals have been selected yet.</i></p>
+            }
+
+        </section>
+
+        <section>
+            <h2>
+                3. Alertness
+            </h2>
+            <p>
+                Building wealth requires continuous savings and savings requires you to always remain vigilant towards your income and expenses. Taking stock of your money inflows and outflows magically improves your saving potential and your goals give you enough passion to complete your saving targets.
+
+
+
+            </p>
+
+
+        </section>
+
+        <section class="Number">
+
+
+            <h3>3.1 Budgeting</h3>
+            <h4>3.1.1 Income</h4>
+
+            @{
+                var applicantIncome = Model.Awaken.Alertness.alertness?.incomeDetail?.income;
+                var spouseIncome = Model.Awaken.Alertness.alertness?.incomeDetail?.spouseIncome;
+                var applicantName = Model.Awaken.Awareness.personalDetails?.Name ?? "Applicant";
+                var spouseName = Model.Awaken.Awareness.maritalDetails?.spouseDetails?.SpouseName ?? "Spouse";
+            }
+
+            @if (applicantIncome != null || spouseIncome != null)
+            {
+                <table class="details-table-1">
+                    <tr>
+                        <th colspan="4" style="text-align:center" class="heading12">Income Details</th>
+                    </tr>
+                    <tr>
+                        <th>@applicantName</th>
+                        <th></th>
+                        <th>@spouseName</th>
+                        <th></th>
+                    </tr>
+
+                      
+                        <tr>
+                            <td>Post IT Income Monthly (Disposable Income)</td>
+                            <td>@applicantIncome?.PostITIncomeOld</td>
+                            <td>
+                                Post IT Income Monthly (Disposable Income)
+                            </td>
+                            <td>@spouseIncome?.SpousePostITIncomeOld</td>
+                        </tr>
+ 
+ 
+
+                    <tr style="color: green; font-weight: bold;">
+                        <td>Monthly Total Income</td>
+                        <td>
+                            @(
+                                (applicantIncome?.PostITIncomeOld ?? 0)
+                              
+                                )
+                        </td>
+
+                        <td>Monthly Total Income</td>
+                        <td>
+                            @((spouseIncome?.SpousePostITIncomeOld ?? 0)
+                               
+                                )
+                        </td>
+                    </tr>
+                </table>
+            }
+            else
+            {
+                <p><i>No income data available.</i></p>
+            }
+
+
+
+        </section>
+      @*   <section class="Number">
+            <h3>3.1.1.1 Annual Incomes</h3>
+
+            
+            <!-- 🧍 Applicant Annual Income Table -->
+            <table class="details-table">
+                 
+ 
+ 
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@((applicantIncome?.PostITIncomeOld ??0) * 12)</td>
+                </tr>
+            </table>
+
+          
+            <table class="details-table">
+                
+                <tr style="color: green; font-weight: bold;">
+                    <td>Annual Total</td>
+                    <td>@((spouseIncome?.SpousePostITIncomeOld ?? 0) * 12)</td>
+                </tr>
+
+                  <tr style="color: green; font-weight: bold;">
+                    <td>Total Post IT income (Old regime)</td>
+                    <td>@totalPostITOld_Annual.ToString()</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td>Total Post IT income (New regime)</td>
+                    <td>@totalPostITNew_Annual.ToString()</td>
+                </tr>  
+            </table>
+        </section> *@
+
+
+        <section class="Number">
+            <h3>3.1.2 Expenses</h3>
+
+            <table class="details-table">
+                <tr>
+                    <th colspan="2">
+                        Monthly Total Expense
+                   </th>
+                </tr>
+                <tr><td>Total Expense</td><td>@applicantIncome?.TotalExpense.ToString()</td></tr>
+              
+               
+
+            </table>
+        </section>
+
+ 
+@* 
+        <section class="Number">
+            <h3>3.1.12 Total Expenses Summary</h3>
+ 
+            <p style="font-size:12px;color:gray;">
+                <em>Note: Grand Total = (Monthly Expenses × 12) + Annual Expenses</em>
+            </p>
+        </section>
+ *@
+
+        @{
+            var savingsData = Model.Awaken.Alertness.alertness?.savings;
+            var emiData = Model.Awaken.Alertness.alertness?.emi;
+
+            var committedSavings = savingsData?.committedSavings ?? new List<CommittedSaving>();
+            var newSavings = savingsData?.newAdd ?? new List<CommittedSaving>();
+
+            var emiDetails = emiData?.details ?? new List<EmiDetail1>();
+
+            double totalCommittedSavings = savingsData?.totalCommittedSavings ?? 0;
+            double totalEMI = emiData?.totalEMI ?? 0;
+            double oneTimeLoanRepay = emiData?.oneTimeLoanRepay ?? 0;
+        }
+
+        <section class="Number">
+            <h3>3.2 Savings & EMI</h3>
+
+            <!-- SAVINGS SECTION -->
+            <h3>Committed Savings</h3>
+            <table class="details-table-1">
+                <tr>
+                    <th>Saving Name</th>
+                    <th>Current Value (₹)</th>
+                    <th>Monthly Contribution (₹)</th>
+                    <th>Till When</th>
+                    <th>Follow Up</th>
+                </tr>
+
+                @if (committedSavings.Any())
+                {
+                    foreach (var item in committedSavings)
+                    {
+                        <tr>
+                            <td>@item.name</td>
+                            <td>@item.currentValue.ToString()</td>
+                            <td>@item.monthlyContribution.ToString()</td>
+                            <td>
+                                @{
+                                    string formattedDate = "-";
+                                    if (!string.IsNullOrWhiteSpace(Convert.ToString(item.tillWhen)))
+                                    {
+                                        if (DateTime.TryParse(item.tillWhen.ToString(), out DateTime parsedDate))
+                                        {
+                                            formattedDate = parsedDate.ToString("dd/MM/yyyy");
+                                        }
+                                    }
+                                }
+                                @formattedDate
+                            </td>
+                            <td>@item.followUp</td>
+                        </tr>
+                    }
+                }
+
+                @if (newSavings.Any())
+                {
+                    foreach (var item in newSavings)
+                    {
+                        <tr>
+                            <td>@item.name</td>
+                            <td>@item.currentValue.ToString()</td>
+                            <td>@item.monthlyContribution.ToString()</td>
+                            <td>
+                                @{
+                                    string formattedDate = "-";
+                                    if (!string.IsNullOrWhiteSpace(Convert.ToString(item.tillWhen)))
+                                    {
+                                        if (DateTime.TryParse(item.tillWhen.ToString(), out DateTime parsedDate))
+                                        {
+                                            formattedDate = parsedDate.ToString("dd/MM/yyyy");
+                                        }
+                                    }
+                                }
+                                @formattedDate
+                            </td>
+                            <td>@item.followUp</td>
+                        </tr>
+                    }
+                }
+            </table>
+
+            @{
+                var totalSavings = committedSavings.Sum(x => (double?)x.currentValue ?? 0) +
+                newSavings.Sum(x => (double?)x.currentValue ?? 0);
+            }
+
+            <p style="font-weight:bold; color:green;">
+                Total Committed Savings: ₹@totalSavings.ToString()
+            </p>
+        </section>
+        <section class="Number">
+            <!-- EMI SECTION -->
+            <h3>EMI Details</h3>
+            <table class="details-table-1">
+                <tr>
+                    <th>Loan Name</th>
+                    <th>Outstanding (₹)</th>
+                    <th>Interest (%)</th>
+                    <th>Principal (₹)</th>
+                    <th>Monthly (₹)</th>
+                    <th>Till</th>
+                    <th>Follow Up</th>
+                </tr>
+
+                @if (emiDetails.Any())
+                {
+                    foreach (var loan in emiDetails)
+                    {
+                        <tr>
+                            <td>@loan.Name</td>
+                            <td>@loan.Outstanding.ToString()</td>
+                            <td>@loan.Interest.ToString()</td>
+                            <td>@loan.Principal.ToString()</td>
+                            <td>@loan.Monthly.ToString()</td>
+                            <td>@Convert.ToDateTime(loan.Till).ToString("dd/MM/yyyy")</td>
+                            <td>@(loan.FollowUp == "1" ? "Yes" : "No")</td>
+                        </tr>
+                    }
+                }
+            </table>
+
+            @{
+                var totalMonthlyEMI = emiDetails?.Sum(x => (double?)x.Monthly ?? 0) ?? 0;
+                var totalAnnualEMI = totalMonthlyEMI * 12;
+            }
+
+            <p style="font-weight:bold; color:green;">
+                Total Monthly EMI: ₹@totalMonthlyEMI.ToString()<br />
+                Total Annual EMI: ₹@totalAnnualEMI.ToString()<br />
+                One-Time Loan Repayment: ₹@oneTimeLoanRepay.ToString()
+            </p>
+        </section>
+        @{
+            var postIncome = Model.Awaken.Alertness.alertness?.postIncomeDetails;
+
+            double mustHavePercent = postIncome?.MustHaveExpensesPercent ?? 0;
+            double optionalPercent = postIncome?.OptionalExpensesPercent ?? 0;
+            double savingsPercent = postIncome?.SavingsPercent ?? 0;
+
+            double totalPercent = mustHavePercent + optionalPercent + savingsPercent;
+
+            double projectedGrowth5 = postIncome?.ProjectedGrowthRateNext5Years ?? 0;
+            double projectedGrowth6To10 = postIncome?.ProjectedGrowthRate6To10Years ?? 0;
+            double inflationRate = postIncome?.InflationRate ?? 0;
+        }
+
+
+        @if (Model.Awaken.Awareness.planDetails?.PlanType?.ToLower() == "basic" ){
+
+            var lifeInsurances = Model?.Awaken?.Alertness?.alertness?.lifeInsurance?.insurance;
+            var generalInsurances = Model?.Awaken?.Alertness?.alertness?.generalInsurance?.insurance;
+        <section class="Number">
+            <h3>3.3 Suggested Modified Budget</h3>
+
+            <!-- Budget Percentages Table -->
+            <table class="details-table-1">
+                <tr>
+                    <th>Must-Have Expenses (%)</th>
+                    <th>Optional Expenses (%)</th>
+                    <th>Savings (%)</th>
+                </tr>
+                <tr>
+                    <td>@mustHavePercent.ToString()</td>
+                    <td>@optionalPercent.ToString()</td>
+                    <td>@savingsPercent.ToString()</td>
+                </tr>
+                <tr style="color: green; font-weight: bold;">
+                    <td colspan="3" style="text-align: right;">Total Percent: @totalPercent.ToString()%</td>
+                </tr>
+            </table>
+
+            <!-- Projected Growth Table -->
+            <table class="details-table-1">
+                <tr>
+                    <th>Projected Growth Rate (Next 5 Years) (%)</th>
+                    <th>Projected Growth Rate (6 to 10 Years) (%)</th>
+                    <th>Inflation Rate (%)</th>
+                </tr>
+                <tr>
+                    <td>@projectedGrowth5.ToString()</td>
+                    <td>@projectedGrowth6To10.ToString()</td>
+                    <td>@inflationRate.ToString()</td>
+                </tr>
+            </table>
+        </section>
+
+
+        
+
+        <section class="Number">
+            <h3>3.4 Insurance</h3>
+            <h4>Life Insurance Policies</h4>
+
+            <table class="details-table-1">
+                <tr>
+                    <th>Policy Type</th>
+                    <th>Policy Name</th>
+                    <th>Coverage Amount (Rs.)</th>
+                    <th>Premium Due Date</th>
+                    <th>Maturity Date</th>
+                </tr>
+
+                @if (lifeInsurances != null && lifeInsurances.Any())
+                {
+                    foreach (var policy in lifeInsurances)
+                    {
+                        <tr>
+                            <td>@policy.insuranceType</td>
+                            <td>@policy.name</td>
+                            <td>@policy.amountOfCoverage</td>
+                            <td>@policy.premiumDueDate</td>
+                            <td>@policy.maturityDate</td>
+                        </tr>
+                    }
+
+                    // ✅ Totals (if needed)
+                    var totalCoverage = lifeInsurances.Sum(p => p.amountOfCoverage);
+                    <tr style="color: green; font-weight: bold;">
+                        <td>Total Life Insurance Coverage</td>
+                        <td>-</td>
+                        <td>@totalCoverage</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" style="text-align:center; color: gray;">No life insurance records available</td>
+                    </tr>
+                }
+            </table>
+        </section>
+
+
+      
+
+        <section class="Number">
+            <h4>General Insurance Policies</h4>
+
+            <table class="details-table-1">
+                <tr>
+                    <th>Insurance Type</th>
+                    <th>Coverage Amount (Rs.)</th>
+                    <th>Premium Due Date</th>
+                    <th>Maturity Date</th>
+                </tr>
+
+                @if (generalInsurances != null && generalInsurances.Any())
+                {
+                    foreach (var policy in generalInsurances)
+                    {
+                        <tr>
+                            <td>@policy.insuranceType</td>
+                            <td>@policy.amountOfCoverage</td>
+                            <td>@policy.premiumDueDate</td>
+                            <td>@policy.maturityDate</td>
+                        </tr>
+                    }
+
+                    var totalCoverage = generalInsurances.Sum(p => p.amountOfCoverage);
+                    <tr style="color: green; font-weight: bold;">
+                        <td>Total General Insurance Coverage</td>
+                        <td>@totalCoverage</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" style="text-align:center; color:gray;">
+                            No general insurance policies found
+                        </td>
+                    </tr>
+                }
+            </table>
+        </section>
+
+        }
+        <section>
+            <h3>4. Knowledge That Matters</h3>
+
+            <p>
+                Not every knowledge is power. You have to determine which knowledge is useful and which is simply waste of time and energy. The good news is that for being a successful investor, you don’t need to know a mountain of knowledge. And whatever you need to know is only about yourself and your goals. Isn’t it liberating to know that self-knowledge is all that you need to become a successful investor.
+
+            </p>
+
+            <ol type="I">
+                <li>Your risk tolerance</li>
+              
+                <li>Your risk capacity</li>
+                <li>Your risk requirement</li>
+            </ol>
+
+            <p>
+                With these feedback, we can develop right asset allocation (allocation betweek Equity and Debt) for
+                each goals.
+            </p>
+
+        </section>
+
+        @{
+            var knowledge = Model?.Awaken?.Knowledge?.Knowledge;
+            var selectedRiskProfile = Model?.Awaken?.Invest?.Knowledge?.SelectedRiskProfile;
+        }
+
+        <section>
+            <h3>Risk Review</h3>
+
+            <table class="details-table">
+                <tr>
+                    <th colspan="2">Risk Review</th>
+                </tr>
+                <tr>
+                    <td>Your Risk Tolerance</td>
+                    <td>@(knowledge?.RiskTolerance ?? "-")</td>
+                </tr>
+                <tr>
+                    <td>Your Risk Capacity</td>
+                    <td>@(knowledge?.RiskCapacity ?? "-")</td>
+                </tr>
+
+                <tr>
+                    <td>Your Risk Requirement</td>
+                    <td>@(knowledge?.RiskRequirement ?? "-")</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </section>
+
+
+        <section>
+            <h2>5. Execution With Precision</h2>
+
+            <p>Clearly defined goals needs careful and precise execution. Not every goal may be worth pursuing. You need to define the priority of your goals and deploy the resources carefully. Your goals need constant monitoring and take the timely decision so that you remain ready for any positive or negative surprise of the market. A clear cut execution road map makes your financial journey fruitful and enjoyable. </p>
+
+          
+            @{
+                var allGoals = Model?.Awaken?.ExecutePlan?.FormData?.GoalData;
+            }
+         
+
+        </section>
+        <section>
+            <h3>Action Plan for Financial Goals</h3>
+
+            @if (allGoals != null && allGoals.Any())
+            {
+                foreach (var goal in allGoals)
+                {
+
+                    <table class="details-table">
+                        <tr>
+                            <th colspan="2">
+                                @goal.Name
+                            </th>
+                        </tr>
+                        @if (goal.Values != null && goal.Values.Any())
+                        {
+                            foreach (var item in goal.Values)
+                            {
+                                <tr>
+                                    <td>@item.Key</td>
+                                    <td>@item.Value</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2" style="text-align:center;color:gray;">No data available for this goal.</td>
+                            </tr>
+                        }
+                    </table>
+                }
+            }
+            else
+            {
+                <p style="color: gray;">No goal data available.</p>
+            }
+        </section>
+
+        <section class="Number">
+            <h2>6. Invest In The Now</h2>
+            <p>
+                Financial plans are nothing if you fail to invest properly. And there is no point thinking about too long. Once you make the plan, all you need to do is to make a diversified portfolio and do the necessary investments. Make the most out of saving potential and commit to invest NOW. Any delay is only going to rob the power of compounding. Just do the investment NOW.
+
+            </p>
+            <h3>Total Available Savings for Investments</h3>
+
+            <table class="details-table-1">
+                <tr>
+                    <th>Monthly Savings</th>
+                    <th>Intended SIP Monthly</th>
+                    <th>Available Lumpsum (if any)</th>
+                </tr>
+                <tr>
+                    <td>
+                        @((Model?.Awaken?.Invest?.ActNow?.SavingsForInvestments?.MonthlySavings ?? 0))
+
+                    </td>
+                    <td>@(Model?.Awaken?.Invest?.ActNow?.SavingsForInvestments?.IntendedSipMonthly ?? 0)</td>
+                    <td>@(Model?.Awaken?.Invest?.ActNow?.SavingsForInvestments?.AvailableLumpsum ?? 0)</td>
+                </tr>
+            </table>
+
+            <h3>Action Plan for Financial Goals</h3>
+
+            <table class="details-table-1">
+                <tr>
+                    <th>Name of the Goal</th>
+                    <th>Lumpsum Amount Intended for this Goal</th>
+                    <th>SIP Amount Intended for this Goal</th>
+                </tr>
+
+                @if (Model?.Awaken?.Invest?.ActNow?.Earmarked != null && Model.Awaken.Invest.ActNow.Earmarked.Any())
+                {
+                    double totalLumpsum = 0;
+                    double totalSip = 0;
+
+                    foreach (var goal in Model.Awaken.Invest.ActNow.Earmarked)
+                    {
+                        totalLumpsum += (double)goal.LumpSum;
+                        totalSip += (double)goal.SIP;
+                        <tr>
+                            <td>@goal.EarmarkedForGoal</td>
+                            <td>@goal.LumpSum</td>
+                            <td>@goal.SIP</td>
+                        </tr>
+                    }
+
+                    <tr style="font-weight: bold; color: green;">
+                        <td>Total</td>
+                        <td>@totalLumpsum</td>
+                        <td>@totalSip</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" style="text-align:center;">No goals found.</td>
+                    </tr>
+                }
+            </table>
+      
+        </section>
+        <section>
+            <center><h3 style="    text-align: center;">Disclaimer-</h3></center>
+
+            <p> 1)	Mainstream Investments Services Pvt Ltd is an AMFI registered MFD (Mutual Fund Distributor). The financial planning process through this Fact finder is incidental to the task of choosing the right mutual funds for the investors.</p>
+            <p>    2)	  The information gathered through fact finder is only to develop incidental investment advisory for you and it is strictly confidential.</p>
+            <p>   3)	Preparing this plan is in no way a compulsion for you to invest through us. We always respect your decision in this regard.</p>
+            <p>   4)	AWAKEN is the acronym of the six steps of the incidental planning we do for selecting the suitable investment avenues for you. It suggests a certain way of realising abundance without guaranteeing a fixed return on your investments.</p>
+            <p>  Any terminology such as financial planning, investment advisory, portfolio management, wealth management and other such phrases are incidental while choosing the right mutual funds for you. We hereby declare that we are not the RIA (Registered Investment Adviser). We are the AMFI registered MFD and as such allowed to provide the incidental investment advisory only.</p>
+        </section>
+    </div>
+
+    <script>
+                     window.addEventListener("load", async function () {
+
+
+                        if (!window.html2pdf) {
+                          alert('PDF library failed to load.');
+                          return;
+                        }
+
+                        const element = document.getElementById('page1');
+
+                        const opt = {
+          margin: [25, 10, 15, 10],
+          filename: 'AWAKEN_Financial_Plan.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: {
+            mode: ['css', 'legacy'], // 'avoid-all' often causes issues — remove it
+            before: '.page-break',   // insert a page break *before* elements with this class
+            after:  '.page-break-after', // optional
+            avoid:  ['.no-split', 'tr', 'img'] // prevent splitting important blocks
+          }
+        };
+
+                        try {
+                          const pdf = await html2pdf().set(opt).from(element).toPdf().get('pdf');
+
+                          const totalPages = pdf.internal.getNumberOfPages();
+                          const pageWidth = pdf.internal.pageSize.getWidth();
+                          const pageHeight = pdf.internal.pageSize.getHeight();
+                          //  pdf.deletePage(totalPages); // ✅ remove last blank page
+
+
+                          // Image loader helper
+                          const loadImage = (src) =>
+                            new Promise((resolve, reject) => {
+                              const img = new Image();
+                              img.crossOrigin = 'Anonymous';
+                              img.src = src;
+                              img.onload = () => resolve(img);
+                              img.onerror = () => reject(`Failed to load image: ${src}`);
+                            });
+
+                          // Preload images
+                                  const base = window.location.origin;
+                      const [logo, phoneIcon, emailIcon, webIcon] = await Promise.all([
+                        loadImage(base + '/images/logopdf.jpg'),
+                                loadImage(base + '/images/icons/phone.png'),
+                       loadImage(base + '/images/icons/email.png'),
+                         loadImage(base + '/images/icons/web.png'),
+                      ]);
+
+
+                          // Layout settings
+                        const logoHeight = (102 / 988) * pageWidth;
+                          const logoY = 0;
+                          const iconSize = 3.5;
+
+                          // Loop pages
+                          for (let i = 1; i <= totalPages; i++) {
+                            pdf.setPage(i);
+
+
+                            const watermarkImg = await loadImage(base + '/images/watermarklpdf.jpg');
+                     // === WATERMARK ===
+                  try {
+                    // 0.9 = 90% opacity (nearly full but slightly soft)
+                    if (pdf.setGState) {
+                                      const gs = pdf.GState({ opacity: 0.05  });
+                      pdf.setGState(gs);
+                    }
+
+                    const wmWidth = pageWidth * 0.6;
+                    const wmHeight = wmWidth * (watermarkImg.height / watermarkImg.width);
+                    const wmX = (pageWidth - wmWidth) / 2;
+                    const wmY = (pageHeight - wmHeight) / 2;
+
+                    // Draw watermark centered and diagonal
+                    pdf.addImage(watermarkImg, "PNG", wmX, wmY, wmWidth, wmHeight, "", "FAST", 45);
+
+                    // Reset opacity back to 1 for header/footer
+                    if (pdf.setGState) {
+                      const gsNormal = pdf.GState({ opacity: 1 });
+                      pdf.setGState(gsNormal);
+                    }
+                  } catch (wmError) {
+                    console.warn("⚠️ Watermark not loaded:", wmError);
+                  }
+
+
+                            // HEADER
+                            pdf.addImage(logo, 'JPEG', 0, logoY, pageWidth, logoHeight);
+                            pdf.setDrawColor(200);
+                         //   pdf.line(10, logoY + logoHeight + 2, pageWidth - 10, logoY + logoHeight + 2);
+
+                // === FOOTER (Left-Aligned) ===
+                // === FOOTER BACKGROUND (Light Blue, No Top Padding / Flush Bottom) ===
+                   const footerHeight = 16; // footer bar height
+                const footerY = pageHeight; // align flush to bottom edge
+
+                // Very light blue gradient background
+                const gradientSteps = 20;
+                for (let i = 0; i < gradientSteps; i++) {
+                  const ratio = i / gradientSteps;
+                  const r = 245 - ratio * 3;  // soft tone variation
+                  const g = 250 - ratio * 3;
+                  const b = 255 - ratio * 2;
+                  pdf.setFillColor(r, g, b);
+                  pdf.rect(
+                    0,
+                    footerY - footerHeight + i * (footerHeight / gradientSteps),
+                    pageWidth,
+                    footerHeight / gradientSteps,
+                    'F'
+                  );
+                }
+
+                // === Footer text color and style ===
+                pdf.setTextColor(0, 0, 0); // black text for readability
+
+
+
+                // === Company Name + Address (Left-Aligned) ===
+                pdf.setFontSize(8.5);
+                pdf.setTextColor(0, 0, 0);
+
+                const companyName = 'Mainstream Investments Services Pvt. Ltd.';
+                const companyAddress = ', Unit No-1003, 10th Floor, Noida One, Sector-62 Noida-201306';
+                const leftMargin = 15; // left padding
+
+                // Bold company name + normal address (same line)
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(companyName, leftMargin, footerY - 10);
+                const companyNameWidth = pdf.getTextWidth(companyName);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(companyAddress, leftMargin + companyNameWidth, footerY - 10);
+
+                // === Contact Info (Left-Aligned) ===
+                const iconSize = 4;
+                const contactY = footerY - 3.5;
+                let contactX = leftMargin;
+
+                // Phone
+                pdf.addImage(phoneIcon, 'PNG', contactX, contactY - 2.2, iconSize, iconSize);
+                contactX += iconSize + 2;
+                pdf.text('+91-93542 68360, 98113 33637', contactX, contactY);
+
+                // Email
+                contactX += pdf.getTextWidth('+91-93542 68360, 98113 33637  |  ');
+                pdf.addImage(emailIcon, 'PNG', contactX, contactY - 2.2, iconSize, iconSize);
+                contactX += iconSize + 2;
+                pdf.text('advisor@mainstream.co.in', contactX, contactY);
+
+                // Web
+                contactX += pdf.getTextWidth('advisor@mainstream.co.in  |  ');
+                pdf.addImage(webIcon, 'PNG', contactX, contactY - 2.2, iconSize, iconSize);
+                contactX += iconSize + 2;
+                pdf.text('www.mainstream.co.in', contactX, contactY);
+
+                // === Page Number (Right-Aligned, Same Line) ===
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(9);
+                pdf.setTextColor(50);
+                pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 20, contactY, { align: 'right' });
+
+                          }
+
+                          //pdf.save('User-Summary.pdf');
+                          debugger;
+                           //        const element1 = document.getElementById('body');
+
+                // 1️⃣ Make visible
+            //    element1.style.removeProperty('display');
+                  //      element1.style.visibility = 'visible';
+
+                // 2️⃣ Force a reflow/repaint before html2pdf runs
+                await new Promise(requestAnimationFrame);
+
+                              const pdfBlob = pdf.output('blob');
+
+                            // Send to server via FormData
+                            const formData = new FormData();
+                            debugger;
+            // === Build the dynamic filename from Razor variables ===
+                const planType = "@(Model.Awaken.Awareness.planDetails?.PlanType)";
+            const clientName = "@(Model.Awaken?.Awareness?.personalDetails?.Name ?? "Client")";
+                          const ProfileId = "@(Model.Awaken?.ProfileId.ToString() ?? "0")";
+                          debugger;
+        debugger;
+            // Generate a short unique code (timestamp-based)
+            const uniqueCode = Date.now().toString().slice(-6);
+
+            // Build final filename
+                const fileName = `FF_${planType}_${clientName}_${ProfileId}.pdf`;
+
+                                formData.append("pdfFile", pdfBlob, fileName);
+
+                            // Upload to controller
+                             const response = await fetch(`/pdf/SaveGeneratedPdf/${ProfileId}`, {
+                              method: "POST",
+                              body: formData
+                            });
+                            debugger;
+                                const result = await response.json();
+
+                            if (result.success && result.url) {
+                              console.log("✅ PDF saved successfully:", result.url);
+
+                              // ✅ Open PDF in new browser tab
+                              const pdfUrl = window.location.origin + result.url;
+                            //  window.open(pdfUrl, "_blank"); // opens the saved PDF file
+
+                              // Optional redirect after open
+                                     window.location.href = pdfUrl;
+                            } else {
+                              console.error("❌ Failed to save PDF:", result.message);
+                              alert("Failed to save PDF. Please check console.");
+                            }
+
+
+
+                        } catch (error) {
+                          console.error('❌ PDF Generation Failed:', error);
+                          alert('Failed to load one or more images. Please verify your image paths.');
+                        }
+                      });
+
+
+
+    </script>
+
+    <script>
+        // ✅ Convert numeric string → formatted Indian style with .00
+        function formatNumberWithCommas(num) {
+            if (num == null || num === "") return num;
+            num = num.toString().trim().replace(/,/g, "");
+
+            // Skip if not numeric
+            if (isNaN(num)) return num;
+
+            const [intPart, decPart] = num.split(".");
+            const formattedInt = parseInt(intPart, 10).toLocaleString("en-IN");
+
+            // Always keep two decimal places
+            let decimal = decPart ? decPart.padEnd(2, "0") : "00";
+
+            return `${formattedInt}`;
+        }
+
+        // ✅ Format all <td> inside <section class="Number">
+        function applyNumberFormatting() {
+            document.querySelectorAll("section.Number td").forEach(td => {
+                const text = td.textContent.trim();
+
+                // Skip non-numeric or empty
+                if (!text || !/^\d+(\.\d+)?$/.test(text)) return;
+
+                // Skip long numbers (e.g., mobile numbers)
+                if (text.length >= 10 && text.length <= 12) return;
+
+                // Replace with formatted value
+                td.textContent = formatNumberWithCommas(text);
+            });
+        }
+
+        // ✅ Run when DOM is ready
+        document.addEventListener("DOMContentLoaded", applyNumberFormatting);
+
+        // ✅ Reapply before PDF generation (important)
+        document.getElementById('btn-generate').addEventListener('click', async () => {
+            applyNumberFormatting(); // make sure values are formatted before PDF
+            // then continue with your PDF creation logic...
+        });
+    </script>
+
+</body>
+</html>

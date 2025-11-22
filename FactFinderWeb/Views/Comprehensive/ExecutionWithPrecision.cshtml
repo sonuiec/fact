@@ -1,0 +1,796 @@
+﻿@using FactFinderWeb.ModelsView
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Http;
+
+ @model ExecutionWithPrecisionModelView
+@{
+    ViewData["Title"] = "Execution With Precision";
+    Layout = "~/Views/Shared/_LayoutUser.cshtml";
+    var userPlan = HttpContextAccessor.HttpContext.Session.GetString("UserPlan") ?? "Comprehensive";
+    var _profileId = HttpContextAccessor.HttpContext.Request.RouteValues["pid"]?.ToString();
+
+}
+
+<style>
+    .text-truncate-3 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+    }     
+    .formfield {
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+        color: #333;
+        text-align: left;
+    }
+</style>
+
+<div class="mt-4 ">
+    @await Html.PartialAsync("_StepProgress", 5)
+    <div style="background-color: 	#E6E6FA" class="px-4  py-2 g-4 rounded d-flex flex-column gap-3">
+        <div style="color:#006400" class="d-flex justify-content-between align-items-center ">
+            <h2 class="mb-0" style="width: 80%;">5. Execution With Precision</h2><a href="javascript:void(0);" id="toggleBtn" class="btn btn-link p-0 d-nonee">View more info</a>
+
+            <a href="javascript:void(0);" onclick="submitFormAsSave()"  class="btn btn-primary px-3 py-1 rounded ">Save</a>
+        </div>
+        <div class="more-less-section">
+            <p id="infoPara" class="text-truncate-3">
+                Clearly defined goals needs careful and precise execution. Not every goal may be worth pursuing. You need to define the priority of your goals and deploy the resources carefully. Your goals need constant monitoring and take the timely decision so that you remain ready for any positive or negative surprise of the market. A clear cut execution road map makes your financial journey fruitful and enjoyable.
+            </p>
+        </div>
+
+    </div>
+
+    <div style="background-color: 	#fcfcff" class="px-4  py-2 g-4 rounded d-flex flex-column gap-3">
+        <div class="d-flex justify-content-end mt-3 mx-3 bg-light ">
+            @if (ViewData["msg"] != null)
+            {
+                <p style="color: green;">@ViewData["msg"]</p>
+            }
+        </div>
+    </div>
+
+    <!-- form -->
+    <form id="mainForm" style="background-color: #F5F5F5" class="mt-3 p-3 d-flex flex-column gap-4  rounded" 
+          asp-controller="Comprehensive"
+          asp-route-planType="@userPlan" asp-action="ExecutionWithPrecision">
+        <!--plan details -->
+        <fieldset class="d-flex flex-column gap-2"> 
+        <legend style="color: #3B3737" class="fw-bold"> Action plan for Financial Goals </legend>
+        <div style="color:	#006400" class="row ">
+            <div class="col-12  formfield">
+            @{
+                if (Model.wingsGoalStep5ExecutionDataList != null && Model.wingsGoalStep5ExecutionDataList.Any())
+                {
+                    int dataindex = 1;
+                    decimal? totalLumpsum = 0;
+                    decimal? totalSIP = 0; 
+                    string? goalName = string.Empty;
+                    //foreach (var executionData in Model.wingsGoalStep5ExecutionDataList)
+                    @for (int i = 0; i < Model.wingsGoalStep5ExecutionDataList.Count; i++)
+                    {
+                        string ChildName = "";
+
+                        if (goalName != Model.wingsGoalStep5ExecutionDataList[i].GoalName)
+                        {
+                        goalName = Model.wingsGoalStep5ExecutionDataList[i].GoalName;
+                        ChildName = goalName?.Split('-').Skip(1).FirstOrDefault()?.Trim() ?? "";
+
+                        <div class="row bg-light ">
+                        <div class="col-12 text-center text-lg font-bold text-gray-800  py-3">
+                        <h4>@Model.wingsGoalStep5ExecutionDataList[i].GoalName</h4></div>
+                        </div>
+                        }
+                    <div class="row">
+                        <div class="col-12 col-md-1">
+                        <input type="hidden" asp-for="@Model.wingsGoalStep5ExecutionDataList[i].Id" readonly="readonly"
+                         class="form-control outline-none w-[40%] rounded-lg mx-[26%] float-end peer focus:outline-secondary my-2" />
+                        </div>
+                       
+                        @{
+                            var description = Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription;
+                            var executionValue = Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue;
+                            var dropdownOptions = ViewBag.OtherAssetsOptions as List<string>;
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(description) &&  (description.Contains("Children Higher") || description.Contains("Child Marriage")))
+                        {
+                            <div class="col-12 col-md-6">
+                            <input value="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription" class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2" readonly tabindex="-1" />
+                            </div>
+                            <div class="col-12  col-md-3">
+                             <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue"
+                            class="form-control outline-none rounded peer focus:outline-secondary my-2 @executionValue" />
+                                        </div>
+                      }
+                                    else if (description.Contains("Children Name") || description.Contains("Child's Name") || description.Contains("Child’s Name"))
+                    {
+                        //string name = description?.Split('-').Skip(1).FirstOrDefault()?.Trim() ?? "";
+                        string name = ChildName ?? "";
+                        Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue = ChildName ?? "";
+                            <div class="col-12 col-md-6">
+                                            <input value="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription" class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2" readonly tabindex="-1" />
+                            </div>
+                            <div class="col-12  col-md-3">
+                               <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue"
+                                                   class="form-control outline-none rounded peer focus:outline-secondary my-2 @executionValue" readonly />
+                            </div>
+                    }
+
+                                    // else if (description.Contains("@ Current Cost") || description.Contains("No of Months") || description.Contains("Expected Age for Marriage"))
+                                    // {
+                                    //     <div class="col-12 col-md-6">
+                                    //         <input value="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription" class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2" readonly tabindex="-1" />
+                                    //     </div>
+                                    //     <div class="col-12  col-md-3">
+                                    //         <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue"
+                                    //                class="form-control outline-none rounded peer focus:outline-secondary my-2 @executionValue" />
+                                    //     </div>
+                                    // }
+                    else if (description.Contains("Any other Investments"))
+                        {
+                            <div class="col-12  col-md-6">
+                               <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription" tabindex="-1"
+                               class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2" readonly />
+                            </div>
+                            <div class="col-12  col-md-3">
+                                <input  asp-for="@Model.wingsGoalStep5ExecutionDataList[@i].ExecutionValue"
+                        value="@executionValue" type="hidden" />
+                                <select id="ddlOtherInvest_@i" class="form-select my-2" onchange="handleSelectChange(this, 'wingsGoalStep5ExecutionDataList_'+ @i +'__ExecutionValue')">
+                    <option value="">Select</option>
+                                    @foreach (var option in dropdownOptions)
+                                    {
+                                        if (option == executionValue)
+                                        {
+                                            <option value="@option" selected="selected">@option</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@option">@option</option>
+                                        }
+                                    }
+                            </select>
+                            </div>
+                        }
+                                    else if (description.Contains("Expected annual Top-up") || description.Contains("Annual Top-Up Rate (%)") || description.Contains("Annual Top up rate on SIP"))
+                        {
+                            <div class="col-12  col-md-6">
+                              <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription" tabindex="-1" class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2" readonly />
+                            </div>
+                            <div class="col-12  col-md-3">
+                                <input asp-for="@Model.wingsGoalStep5ExecutionDataList[@i].ExecutionValue"
+                                                   value="@executionValue" type="hidden" class="amount-input" />
+                                            <select id="ddlOtherTopUP_@i" class="form-select my-2 amount-input" onchange="handleSelectChange(this, 'wingsGoalStep5ExecutionDataList_'+ @i +'__ExecutionValue')">
+                                    <option value="">Select</option>
+                                    <option value="0">0%</option>
+                                    <option value="5">5%</option>
+                                    <option value="10">10%</option>
+                                    <option value="15">15%</option>
+                                    <option value="20">20%</option>
+                                    <option value="25">25%</option>
+                                </select>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-12  col-md-6">
+                             <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription"
+                             class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2" readonly tabindex="-1" />
+                            </div>
+                            <div class="col-12  col-md-3">
+                                <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue"
+                               class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2 @executionValue" />
+                            </div>
+                        }
+
+                        <div class="col-12  col-md-2"> @Html.ValidationMessageFor(model => model.wingsGoalStep5ExecutionDataList[i].ExecutionValue, "", new { @class = "text-danger" })</div>
+                        </div>
+                }
+                }
+                else
+                {
+                    <tr><td colspan="3" class="text-center">You haven't selected any goals yet.</td></tr>
+                }
+            }
+            </div>
+        </fieldset>
+                
+        <div class="d-flex justify-content-end mt-3 mx-5 ">
+          
+            <a asp-action="KnowledgeThatMatters" asp-controller="Comprehensive" asp-route-planType="Comprehensive" asp-route-pid="@_profileId" class="btn btn-secondary px-2 py-1 rounded mx-1">Previous</a>
+            <button name="btnSubmit" id="btnSubmit" asp-controller="@userPlan" asp-route-id="@_profileId" class="btn btn-primary px-5 py-1 rounded ">Next</button>
+            @Html.AntiForgeryToken()
+        </div>
+        <div class="d-flex justify-content-end mt-3 mx-5 ">
+            <span id="spmsg" class="d-none"></span>
+            <div id="formErrorMessage" class="text-danger d-none" role="alert">
+                Please review and correct the highlighted fields to continue.
+            </div>
+        </div> 
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+
+
+                 function handleSelectChange(selectEl, hiddenInputId) {
+                const hiddenInput = document.getElementById(hiddenInputId);
+                if (hiddenInput) {
+                    hiddenInput.value = selectEl.value;
+                }
+            }
+    // Formatting helpers
+    function formatINR(value) {
+        if (!value) return '';
+        let number = parseFloat(value);
+        if (isNaN(number)) return value;
+        number = Math.round(number); // Round off to whole number
+        return number.toLocaleString('en-IN'); // Indian format e.g., 1,23,456
+    }
+
+    function unformatINR(value) {
+        return value.replace(/,/g, '');
+    }
+
+         document.addEventListener("DOMContentLoaded", function () {
+                const totalItems = @Model.wingsGoalStep5ExecutionDataList.Count;
+
+                for (let i = 0; i < totalItems; i++) {
+                    const hiddenInputId = `wingsGoalStep5ExecutionDataList_${i}__ExecutionValue`;
+                    const selectId = `ddlOtherTopUP_${i}`;
+
+                    const hiddenInput = document.getElementById(hiddenInputId);
+                    const select = document.getElementById(selectId);
+
+                    if (hiddenInput && select) {
+                        const hiddenValue = hiddenInput.value;
+                        const optionToSelect = Array.from(select.options).find(opt => opt.value === hiddenValue);
+                        if (optionToSelect) {
+                            optionToSelect.selected = true;
+                        }
+                    }
+                }
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+            const valueInputs = document.querySelectorAll("input[id^='wingsGoalStep5ExecutionDataList_'][id$='__ExecutionValue']");
+
+            valueInputs.forEach(function (valueInput) {
+
+                function validateInput(input) {
+                    const valueId = input.id;
+                    const match = valueId.match(/wingsGoalStep5ExecutionDataList_(\d+)__ExecutionValue/);
+                    if (!match) return;
+
+                    const index = match[1];
+                    const descriptionInput = document.getElementById(`wingsGoalStep5ExecutionDataList_${index}__ExecutionDescription`);
+                    if (!descriptionInput) return;
+
+                    const description = descriptionInput.value.trim();
+                    let value = input.value.trim();
+
+                    let isValid = true;
+                    let errorMessage = "";
+
+                    const validationSpan = document.querySelector(`span[data-valmsg-for="wingsGoalStep5ExecutionDataList[${index}].ExecutionValue"]`);
+
+
+                    if (description.includes("No of Months") ||
+                        description.includes("Every (Years)") ||
+                        description.includes("Age of") ||
+                        description.includes("Duration of") ||
+                        description.includes("Expected Age") ||
+                        description.includes("Year of")) {
+                        input.placeholder = "0";
+                        if (value === '') {
+                        input.placeholder = "0";
+                        }
+                        else if (!/^\d+$/.test(value)) {
+                            isValid = false;
+                            errorMessage = "Please enter a valid number.";
+                        }
+
+                        if ( description.includes("No of Months") || description.includes("Age of") || 
+                            description.includes("Expected Age") ) {
+                            if (!value || value === '') {
+                                isValid = false;
+                                        errorMessage = "<div style='font-size:18px;'>*</div>";
+                                input.title = "Please enter number.";
+                            }
+                        }
+
+                            } else if (
+                        description.toLowerCase().includes("expected return") ||
+                        description.toLowerCase().includes("expected average")
+                                 //|| description.toLowerCase().includes("expected annual")
+                    ) {
+                        input.placeholder = "%";
+                        if (value === '') {
+                                input.placeholder = "%";
+                        }
+                        else if (!/^100$|^\d{1,2}(\.\d{1,2})?$/.test(value)) {
+                            isValid = false;
+                                    errorMessage = "Please enter a valid value (0–100).";
+                        }
+                    }
+                        else if (description.includes("Amount availble") || //description.includes("Current Cost") ||
+                        description.includes("Annual Contribution") ||
+                        description.includes("Anunal Amoun") ||
+                        description.includes("Available Funds") ||
+                        description.includes("Existing Investments") ||
+                        description.includes("Expected Return") ||
+                        description.includes("Present Value") ||
+                                          description.includes("Intended SIP") ||
+                                                        description.includes("Intended Lump Sum") ||description.includes("Monthly Income Requirement") ||
+                                                                        description.includes("FD Corpus available for this Goal") || description.includes("MF & Shares available for this Goal") ||
+                                                                                                description.includes("Cash available for this Goal") ||    description.includes("Other corpus available for this goal") ||
+                                                                                                        description.includes("Investable Amount for this Goal") ||
+                                                                                                                description.includes("Value of Existing Shares and MFs meant for this goal") ||
+                                                                                                                        description.includes("Planned Monthly SIP") ||
+                        description.includes("Value of Shares")) {
+                            input.classList.add("amount-input", "highlight-cost");
+                            value = unformatINR(value);
+                            input.placeholder = "0.00";
+                            if (!value || value === '') {
+                                //input.value = '0.00';
+                            } else if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+                                isValid = false;
+                                errorMessage = "Please enter a valid amount.";
+                            } else {
+                                input.value = formatINR(value);
+                            }
+
+                        }
+                        else if (description.toLowerCase().includes("current cost")) {
+                            input.classList.add("amount-input");
+                            //value = unformatINR(value);
+                            input.placeholder = "0.00";
+                            if (!value || value === '') {
+                            isValid = false;
+                            errorMessage = "<div style='font-size:18px;'>*</div>";
+                            input.title = "Please enter amount.";
+                            }else if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+                                isValid = false;
+                                errorMessage = "Please enter a valid amount.";
+                            } else {
+                                input.value = formatINR(value);
+                            }
+                    }
+                    else if (description.toLowerCase().includes("top-up")) {
+                        const select = document.getElementById(`ddlOtherTopUP_${index}`);
+                        if (select && (!select.value || select.value === '')) {
+                            isValid = false;
+                            errorMessage = "<div style='font-size:18px;'>*</div>";
+                            select.classList.add("border", "border-danger");
+                            select.title = "Please select a top-up value.";
+                        }else{
+                                    isValid = false;
+                                    errorMessage = "";
+                                    select.classList.remove("border", "border-danger");
+                        }
+                    }
+                    else {
+                        if (!/^[a-zA-Z0-9 ]+$/.test(value)) {
+                            isValid = true;
+                                    //errorMessage = "Please enter or select value."; annual Top-up
+                        }
+                    }
+
+                    if (validationSpan) {
+                        if (!isValid) {
+                            validationSpan.classList.remove("field-validation-valid");
+                            validationSpan.classList.add("field-validation-error");
+                            validationSpan.innerHTML = errorMessage;
+                            input.classList.add("border", "border-danger");
+                            validationSpan.style.fontSize = '13px';
+                        } else {
+                            validationSpan.classList.remove("field-validation-error");
+                            validationSpan.classList.add("field-validation-valid");
+                            validationSpan.innerText = "";
+                            input.classList.remove("border", "border-danger");
+                        }
+                    }
+                }
+
+               const allSelects = document.querySelectorAll("select[id^='ddlOtherTopUP_']");
+
+                allSelects.forEach(select => {
+                    select.addEventListener("change", () => {
+                        const index = select.id.split('_')[1];
+                        const input = document.getElementById(`wingsGoalStep5ExecutionDataList_${index}__ExecutionValue`);
+                        if (input) validateInput(input); // Re-run validation
+                    });
+                });
+
+                // Run on blur
+                valueInput.addEventListener("blur", function () {
+                    validateInput(valueInput);
+                });
+
+                // Run on page load
+                validateInput(valueInput);
+            });
+
+            // After all validations set up, attach formatting listeners
+            setTimeout(() => {
+                document.querySelectorAll('.amount-input').forEach(input => {
+                    input.addEventListener('blur', () => {
+                        let rawValue = unformatINR(input.value);
+                        input.value = formatINR(rawValue);
+                    });
+
+                    input.addEventListener('focus', () => {
+                        input.value = unformatINR(input.value);
+                    });
+                });
+
+                // Ensure raw value is submitted
+                document.querySelector('form')?.addEventListener('submit', (e) => {
+                    document.querySelectorAll('.amount-input').forEach(input => {
+                        input.value = unformatINR(input.value);
+                    });
+                });
+            }, 0); // Run after DOM + validation setup
+        });
+
+
+               
+    /*document.addEventListener("DOMContentLoaded", function () {
+        const valueInputs = document.querySelectorAll("input[id^='wingsGoalStep5ExecutionDataList_'][id$='__ExecutionValue']");
+
+        valueInputs.forEach(function (valueInput) {
+
+
+                    //   function validateInput() {
+            valueInput.addEventListener("blur", function () {
+                const valueId = valueInput.id;
+                const match = valueId.match(/wingsGoalStep5ExecutionDataList_(\d+)__ExecutionValue/);
+                if (!match) return;
+
+                const index = match[1];
+                const descriptionInput = document.getElementById(`wingsGoalStep5ExecutionDataList_${index}__ExecutionDescription`);
+                if (!descriptionInput) return;
+
+                const description = descriptionInput.value.trim();
+                let value = valueInput.value.trim();
+
+                let isValid = true;
+                let errorMessage = "";
+
+                const validationSpan = document.querySelector(`span[data-valmsg-for="wingsGoalStep5ExecutionDataList[${index}].ExecutionValue"]`);
+
+                // Apply validations based on description
+                if (description.includes("No of Months") || description.includes("Every (Years)") || description.includes("Age of") || description.includes("Duration of") || description.includes("Expected Age") || description.includes("No of Months") || description.includes("Year of")) {
+                            valueInput.placeholder = "Please enter number.";
+                    if (!/^\d+$/.test(value)) {
+                        isValid = false;
+                        errorMessage = "Please enter a valid number.";
+                    }
+                } else if (description.includes("Expected Return") || description.includes("Expected Average") || description.includes("Expected annual")) {
+                    valueInput.placeholder = "%";
+                    if (!/^100$|^\d{1,2}(\.\d{1,2})?$/.test(value)) {
+                        isValid = false;
+                        errorMessage = "Please enter a valid value (0–100).";
+                    }
+                } else if (description.includes("Current Cost") || description.includes("Amount availble")  || description.includes("Annual Contribution")  || description.includes("Anunal Amoun")  || description.includes("Available Funds")  || description.includes("Existing Investments")  || description.includes("Expected Return")  || description.includes("Present Value")  || description.includes("Value of Shares")  ) {
+                    // Add formatting and visual class
+                    valueInput.classList.add("amount-input", "highlight-cost");
+                    value = unformatINR(value); // unformatINR
+                    valueInput.placeholder = "0.00";//`Enter ${description.toLowerCase()}`;
+                    if (!value || value === '') {
+                        valueInput.value = '0.00';
+                    } else if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+                        isValid = false;
+                        errorMessage = "Please enter a valid number.";
+                    } else {
+                        valueInput.value = formatINR(value); // Format after rounding                        
+                    }
+                } else {
+                    if (!/^[a-zA-Z0-9 ]+$/.test(value)) {
+                        isValid = false;
+                        errorMessage = "Please enter a valid alphanumeric value.";
+                    }
+                }
+
+                // Handle validation messages
+                if (validationSpan) {
+                    if (!isValid) {
+                        validationSpan.classList.remove("field-validation-valid");
+                        validationSpan.classList.add("field-validation-error");
+                        validationSpan.innerText = errorMessage;
+                        valueInput.classList.add("border", "border-danger");
+                    } else {
+                        validationSpan.classList.remove("field-validation-error");
+                        validationSpan.classList.add("field-validation-valid");
+                        validationSpan.innerText = "";
+                        valueInput.classList.remove("border", "border-danger");
+                    }
+                }
+            });
+        });
+
+        // After all validations set up, attach formatting listeners
+        setTimeout(() => {
+            document.querySelectorAll('.amount-input').forEach(input => {
+                input.addEventListener('blur', () => {
+                    let rawValue = unformatINR(input.value);
+                    input.value = formatINR(rawValue);
+                });
+
+                input.addEventListener('focus', () => {
+                    input.value = unformatINR(input.value);
+                });
+            });
+
+            // Ensure raw value is submitted
+            document.querySelector('form')?.addEventListener('submit', (e) => {
+                document.querySelectorAll('.amount-input').forEach(input => {
+                    input.value = unformatINR(input.value);
+                });
+            });
+        }, 0); // Run after DOM + validation setup
+    });*/
+
+
+
+
+    document.querySelector('form')?.addEventListener('submit', (e) => {
+    let isFormValid = true;
+
+     const formErrorBox = document.getElementById("formErrorMessage");
+    if (formErrorBox) {
+        formErrorBox.classList.add("d-none");
+    }
+
+    // Trigger blur on all inputs to ensure validation runs
+    const inputs = document.querySelectorAll("input[id^='wingsGoalStep5ExecutionDataList_'][id$='__ExecutionValue']");
+    inputs.forEach(input => {
+        input.blur(); // triggers validation
+    });
+
+    // Now, check if any error spans are active
+    const errorSpans = document.querySelectorAll(".field-validation-error");
+    errorSpans.forEach(span => {
+        if (span.innerText.trim() !== "") {
+            isFormValid = false;
+        }
+    });
+
+    if (!isFormValid) {
+        formErrorBox.classList.remove("d-none"); // Show error
+        formErrorBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        e.preventDefault(); // Block form submission
+    } else {
+        // Unformat all amount inputs before final submission
+        document.querySelectorAll('.amount-input').forEach(input => {
+            input.value = unformatINR(input.value);
+        });
+    }
+});
+                   function submitFormAsSave() {
+                        var form = document.getElementById("mainForm");
+                        if (!form) {
+                            console.error("Form not found");
+                            return;
+                        }
+
+
+                    let isFormValid = true;
+
+                    const formErrorBox = document.getElementById("formErrorMessage");
+                    if (formErrorBox) {
+                        formErrorBox.classList.add("d-none");
+                    }
+
+                    // Trigger blur on all inputs to ensure validation runs
+                    const inputs = document.querySelectorAll("input[id^='wingsGoalStep5ExecutionDataList_'][id$='__ExecutionValue']");
+                    inputs.forEach(input => {
+                        input.blur(); // triggers validation
+                    });
+
+                    // Now, check if any error spans are active
+                    const errorSpans = document.querySelectorAll(".field-validation-error");
+                    errorSpans.forEach(span => {
+                        if (span.innerText.trim() !== "") {
+                            isFormValid = false;
+                        }
+                    });
+
+                    if (!isFormValid) {
+                        formErrorBox.classList.remove("d-none"); // Show error
+                        formErrorBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        e.preventDefault(); // Block form submission
+                    } else {
+                        // Unformat all amount inputs before final submission
+                        document.querySelectorAll('.amount-input').forEach(input => {
+                            input.value = unformatINR(input.value);
+                        });
+                    }
+
+
+
+
+                        var input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = "btnSubmit";
+                        input.value = "Save";
+                        form.appendChild(input);
+
+                        form.submit();
+                    }
+        /*
+        document.addEventListener("DOMContentLoaded", function () {
+            // Select all input fields matching the pattern
+            const valueInputs = document.querySelectorAll("input[id^='wingsGoalStep5ExecutionDataList_'][id$='__ExecutionValue']");
+
+            valueInputs.forEach(function (valueInput) {
+                valueInput.addEventListener("blur", function () {
+                    const valueId = valueInput.id; // e.g., wingsGoalStep5ExecutionDataList_4__ExecutionValue
+
+                    // Extract index from the id (e.g., 4)
+                    const match = valueId.match(/wingsGoalStep5ExecutionDataList_(\d+)__ExecutionValue/);
+                    if (!match) return;
+
+                    const index = match[1];
+
+                    // Find corresponding description input using the same index
+                    const descriptionInput = document.getElementById(`wingsGoalStep5ExecutionDataList_${index}__ExecutionDescription`);
+                    if (!descriptionInput) return;
+
+                    const description = descriptionInput.value.trim();
+                    const value = valueInput.value.trim();
+
+                    let isValid = true;
+                    const validationSpan = document.querySelector(`span[data-valmsg-for="wingsGoalStep5ExecutionDataList[${index}].ExecutionValue"]`);
+                    let errorMessage = "";
+                    
+                    // Example keyword-based validation
+                    if (description.includes("Months") || description.includes("Years") ) {
+                        if (!/^\d+$/.test(value)) {
+                            isValid = false;
+                            errorMessage = "Please enter a valid number.";
+                        }
+                    } else if (description.includes("Expected Return")) {
+                        if (!/^100$|^\d{1,2}(\.\d{1,2})?$/.test(value)) {
+                            isValid = false;
+                            errorMessage = "Please enter a valid value eq. (0–100).";
+                        }
+                    } else if (description.includes("Current Cost")) {
+                        valueInput.classList.add("amount-input");
+
+                        if (!value || value.trim() === '') {
+                            valueInput.value = '0.00';
+                        } else if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+                            isValid = false;
+                            errorMessage = "Please enter a valid number.";
+                        } else {
+                            // Format to 2 decimal places
+                            valueInput.value = parseFloat(value).toFixed(2);
+                        }
+
+                    } else {
+                        if (!/^[a-zA-Z0-9 ]+$/.test(value)) {
+                            isValid = false;
+                            errorMessage = "Please enter a valid alphanumeric value.";
+                        }
+                    }
+
+                    ////// Handle validation result
+                    ///if (!isValid) {
+                    ///    //alert(errorMessage);
+                    ///    console.log(errorMessage);
+                    ///    valueInput.classList.add("border", "border-danger", "border-3");
+                    ///    // valueInput.focus();
+                    ///} else {
+                    ///    valueInput.classList.remove("border", "border-danger");
+                    ///}/
+
+                    if (validationSpan) {
+                        if (!isValid) {
+                            validationSpan.classList.remove("field-validation-valid");
+                            validationSpan.classList.add("field-validation-error");
+                            validationSpan.innerText = errorMessage;
+                            valueInput.classList.add("border", "border-danger");
+                        } else {
+                            validationSpan.classList.remove("field-validation-error");
+                            validationSpan.classList.add("field-validation-valid");
+                            validationSpan.innerText = "";
+                            valueInput.classList.remove("border", "border-danger");
+                        }
+                    }
+
+                });
+            });
+        });
+
+            function formatINR(value) {
+            if (!value) return '';
+            let number = parseFloat(value);
+            if (isNaN(number)) return value;
+            
+            number = Math.round(number);// Round off
+            
+            return number.toLocaleString('en-IN');// Format in Indian style (e.g., 1,23,456)
+            }
+
+            function unformatINR(value) {
+                return value.replace(/,/g, '');
+            }
+
+            document.querySelectorAll('.amount-input').forEach(input => {
+                // On blur → format the number
+                input.addEventListener('blur', () => {
+                    let rawValue = unformatINR(input.value);
+                    input.value = formatINR(rawValue);
+                });
+
+                // On focus → unformat it
+                input.addEventListener('focus', () => {
+                    input.value = unformatINR(input.value);
+                });
+            });
+
+            // On form submit → convert back to raw
+            document.querySelector('form')?.addEventListener('submit', (e) => {
+                document.querySelectorAll('.amount-input').forEach(input => {
+                    input.value = unformatINR(input.value);
+                });
+            });*/
+    </script>
+    <script>
+        $('#toggleBtn').click(function () {
+                  $('#infoPara').toggleClass('text-truncate-3');
+
+                  if ($('#infoPara').hasClass('text-truncate-3')) {
+                      $(this).text('View More');
+                  } else {
+                      $(this).text('View Less');
+                  }
+              });
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+
+}
+ 
+
+                @{
+                    /*
+     *  @if (Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription != "" && (Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription.Contains("Children Higher") || Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription.Contains("Child Marriage")))
+        {
+            string name =Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription.Split('-')
+                           .Skip(1).FirstOrDefault()?.Trim() ?? "";
+
+            <div class="col-5"><input asp-for="@name" class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2" readonly /></div>
+            <div class="col-3">
+                <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue" class="form-control outline-none rounded  peer focus:outline-secondary my-2 @Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue" />
+            </div>
+                    }
+
+        else if((Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription.Contains("Any other Investments")))
+                {
+                string name =Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription.Split('-')
+                .Skip(1).FirstOrDefault()?.Trim() ?? "";
+
+                        <div class="col-5"><input asp-for="@name" class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2" readonly /></div>
+                        <div class="col-3">
+                            <input type="hidden" asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue" class="form-control outline-none rounded  peer focus:outline-secondary my-2 @Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue" />
+                            <select></select>
+                        </div>
+                        }
+        else
+        {
+            <div class="col-5"><input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionDescription" class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2" readonly /></div>
+            <div class="col-3">
+                <input asp-for="@Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue" class="form-control outline-none rounded-lg float-end peer focus:outline-secondary my-2 @Model.wingsGoalStep5ExecutionDataList[i].ExecutionValue" />
+            </div>
+        }
+        ----
+id="hiddenInput_@i"
+                     */
+                }

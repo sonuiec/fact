@@ -1,0 +1,2241 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AWAKEN – User Summary Report (A4)</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/FactFinderWeb.styles.css" asp-append-version="true" />
+    <!-- Robust html2pdf loader (primary + fallback CDN) -->
+    <script>
+        (function loadHtml2Pdf(){
+        var primary  = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+        var fallback = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        function inject(src){
+        var s = document.createElement('script');
+        s.src = src; s.defer = true;
+        s.onload = function(){ console.log('html2pdf loaded:', src); };
+        s.onerror = function(){ if (src !== fallback) inject(fallback); };
+        document.head.appendChild(s);
+        }
+        inject(primary);
+        })();
+    </script>
+
+    <style>
+        h3 {
+        }
+
+        h4 {
+        }
+
+        :root {
+        --ink: #111827;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --soft: #f8fafc;
+        --brand: #0f766e;
+        --brand2: #0891b2;
+        }
+
+        html, body {
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        color: var(--ink)
+        }
+
+        .sheet {
+      
+        min-height: 297mm;
+        padding: 14mm;
+        margin: 10px auto;
+        background: #fff;
+        box-shadow: 0 0 0 1px var(--line),0 10px 24px rgba(0,0,0,.06)
+        }
+
+        .section {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 12px
+        }
+
+        .section-title {
+        background: white;
+        color: #000;
+        padding: 10px 12px;
+        font-weight: 700;
+        font-size: 14px
+        }
+
+        .section-body {
+        padding: 10px 12px
+        }
+
+        table.ff2 {
+        width: 70%;
+        margin-left:15%;
+        border-collapse: collapse
+        }
+
+        table.ff {
+        width: 100%;
+        border-collapse: collapse
+        }
+
+        .ff th, .ff td {
+        border: 1px solid var(--line);
+        padding: 5px;
+        font-size: 13px;
+        vertical-align: top
+        }
+
+        .ff th {
+        width: 32%;
+        background: #f3f4f6;
+        font-weight: 600
+        }
+
+        .kv {
+        font-size: 11px;
+        color: var(--muted)
+        }
+
+        .vv {
+        font-size: 12px;
+        font-weight: 600
+        }
+
+        .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px
+        }
+
+        .grid3 {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 10px
+        }
+
+        /* ===== LOADING OVERLAY ===== */
+        #loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(255,255,255,0.92);
+        display: none; /* default hidden */
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        z-index: 99999;
+        backdrop-filter: blur(2px);
+        }
+
+        #loading-overlay img {
+        width: 64px;
+        height: 64px; /* adjust to your loader asset */
+        display: block;
+        }
+
+        #loading-overlay .loading-text {
+        margin-top: 12px;
+        font: 600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        color: #111827;
+        letter-spacing: .2px;
+        }
+        /* small helper classes (optional) */
+        .is-loading #loading-overlay {
+        display: flex;
+        }
+
+        .heading1{
+            color: #2F4A7D !important;
+            font-size: 20px !important;
+            font-weight: 400 !important;
+            color: #2E3E77 !important;
+            line-height: 1.8 !important;
+        }
+
+        .headingsub1 {
+            color: #2F4A7D !important;
+            font-size: 20px !important;
+            font-weight: 400 !important;
+            color: #2E3E77 !important;
+            line-height: 1.8 !important;
+        }
+        body{
+            margin: 0;
+            padding: 0;
+            font-family: Calibri, sans-serif !important;
+            background-color: #ffffff;
+            height: 100vh;
+         
+            align-items: center;
+            justify-content: center;
+            color: #002D66;
+           
+        }
+
+        .awaken-heading {
+            font-family: Calibri, sans-serif;
+            font-weight: 600;
+            font-size: 26px;
+            text-align: center;
+            color: #002D66;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== LOADING OVERLAY (drop-in) ========== -->
+    <div id="loading-overlay" aria-hidden="true">
+        <!-- Use your own spinner image or GIF -->
+        <img src="/images/loader.webp" alt="Loading..." />
+        <div class="loading-text">Loading…</div>
+    </div>
+    <!-- ========== /LOADING OVERLAY ========== -->
+    <div class="container py-3 no-print" style="max-width:210mm;">
+        <div class="d-flex gap-2 justify-content-end">
+            <button id="btn-generate" class="btn btn-dark btn-sm">Download PDF</button>
+        </div>
+    </div>
+
+    <div id="sheet1" class="" style="
+    padding: 0;
+    margin: 0;
+">
+        <div class="container" style="
+    padding: 0;
+    margin: 0;
+">
+            <div class="header-banner">
+                <h2 class=" text-center p-3 awaken-title">AWAKEN Comprehensive</h2>
+                <h5 class="  text-left ">Name of the Client - <span id="p_name1"></span></h5>
+                <h5 class=" text-left ">Fact Finder summary report & overview</h5>
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    <h3>
+                        1. AWARENESS
+                    </h3>
+                </div>
+                <div class="section-body">
+                    <table class="ff">
+                        <tr class="fw-bold mb-1 fs-4"><th>Plan Details</th><th></th></tr>
+                        <tr><td>Plan Type</td><td id="planType"></td></tr>
+                        <tr><td>Plan Year</td><td id="planYear"></td></tr>
+                        <tr><td>Plan Duration</td><td id="planDuration"></td></tr>
+                    </table>
+                </div>
+
+
+                <div class="section-title">1.1 Applicant's Details</div>
+
+                <div class="section-body">
+                    <table class="ff">
+                        <tr>
+                            <th></th>
+                            <th>Head of the Family</th>
+                            <th>Spouse Details</th>
+                        </tr>
+                        <tr><td>Name</td>
+                            <td id="p_name"></td>
+                            <td id="spouseName"></td>
+                        </tr>
+                        <tr>
+                            <td>Gender</td>
+                            <td id="p_gender"></td>
+                            <td id="spouseGender"></td>
+                        </tr>
+                        <tr>
+                            <td>DOB</td>
+                            <td id="p_dob"></td>
+                            <td id="spouseDob"></td>
+                        </tr>
+                        <tr>
+                            <td>Marital Status</td>
+                            <td id="maritalStatus"></td>
+                            <td id="spousemaritalStatus"></td>
+                        </tr>
+                        <tr>
+                            <td>Mobile No.</td>
+                            <td id="p_phone"></td>
+                            <td id="spousePhone"></td>
+                        </tr>
+                        <tr>
+                            <td>Altrante Mobile No</td>
+                            <td id="p_altPhone"></td>
+                            <td id="spouseAltPhone"></td>
+                        </tr>
+                        <tr>
+                            <td>Primary Email</td>
+                            <td id="p_email"></td>
+                            <td id="spouseEmail"></td>
+                        </tr>
+                        <tr>
+                            <td>Secondary Email</td>
+                            <td id="p_secEmail"></td>
+                            <td id="spouseSecEmail"></td>
+                        </tr>
+                        <tr>
+                            <td>AADHAR No.</td>
+                            <td id="p_aadhaar"></td>
+                            <td id="spouseAadhaar"></td>
+                        </tr>
+                        <tr>
+                            <td>PAN No.</td>
+                            <td id="p_pan"></td>
+                            <td id="spousePan"></td>
+                        </tr>
+                        <tr>
+                            <td>Occupation</td>
+                            <td id="p_occ"></td>
+                            <td id="spouseOccupation"></td>
+                        </tr>
+                        <tr>
+                            <td>Company Name</td>
+                            <td id="p_name"></td>
+                            <td id="SpouseCmpName"></td>
+                        </tr>
+                        <tr>
+                            <td>Company Address</td>
+                            <td id="p_name"></td>
+                            <td id="SpouseCmpAddress"></td>
+                        </tr>
+                        <tr>
+                            <td>City</td>
+                            <td id="p_name"></td>
+                            <td id="SpouseCmpCity"></td>
+                        </tr> 
+                        <tr>
+                            <td>State</td>
+                            <td id="p_name"></td>
+                            <td id="SpouseCmpState"></td>
+                        </tr>
+                        <tr>
+                            <td>PIN / Zip</td>
+                            <td id="p_name"></td>
+                            <td id="SpouseCmpPincode"></td>
+                        </tr>
+                        <tr>
+                            <td>Country</td>
+                            <td id="p_name"></td>
+                            <td id="SpouseCmpCountry"></td>
+                        </tr>
+
+
+                    </table>
+                </div>
+                <!-- childs -->
+
+                <div class="section">
+                    <div class="section-title">
+                        1.2 Children Details
+                    </div>
+                    <div class="section-body ">
+                        <table class="ff">
+                            <thead>
+                                <tr>
+                                    <th style="width:10%">S. No.</th>
+                                    <th style="width:28%">Name</th>
+                                    <th style="width:12%">Gender</th>
+                                    <th style="width:10%">DOB</th>
+                                    <th style="width:15%">Phone</th>
+                                    <th style="width:20%">Email</th>
+                                    <th style="width:10%">PAN</th>
+                                </tr>
+                            </thead>
+                            <tbody id="children_tbody"><tr><th>Child</th><td></td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!--Address -->
+                <div class="section">
+                    <div class="section-title">
+                        1.3 Address
+                    </div>
+                    <div class="section-body ">
+                        <table class="ff">
+                            <tr class="fw-bold"><th></th><th>Residential</th><th>Permanent</th></tr>
+                            <tr>
+                                <td>Address</td>
+                                <td id="addr_res_address"></td>
+                                <td id="addr_perm_address"></td>
+                            </tr>
+                            <tr>
+                                <td>City</td>
+                                <td id="addr_res_city"></td>
+                                <td id="addr_perm_city"></td>
+                            </tr>
+                            <tr>
+                                <td>State</td>
+                                <td id="addr_res_state"></td>
+                                <td id="addr_perm_state"></td>
+                            </tr>
+                            <tr>
+                                <td>PIN</td>
+                                <td id="addr_res_pin"></td>
+                                <td id="addr_perm_pin"></td>
+                            </tr>
+                            <tr>
+                                <td>Country</td>
+                                <td id="addr_res_country"></td>
+                                <td id="addr_perm_country"></td>
+                            </tr>
+
+                        </table>
+                        <table class="ff  d-none">
+                            <caption class="fw-bold mb-1">Permanent</caption>
+                            <tr><th>Address</th><td id="addr_perm_address"></td></tr>
+                            <tr><th>City</th><td id="addr_perm_city"></td></tr>
+                            <tr><th>State</th><td id="addr_perm_state"></td></tr>
+                            <tr><th>PIN</th><td id="addr_perm_pin"></td></tr>
+                            <tr><th>Country</th><td id="addr_perm_country"></td></tr>
+                        </table>
+                        <table class="ff d-none">
+                            <caption class="fw-bold mb-1">Office</caption>
+                            <tr><th>Company</th><td id="addr_off_company"></td></tr>
+                            <tr><th>Address</th><td id="addr_off_address"></td></tr>
+                            <tr><th>City</th><td id="addr_off_city"></td></tr>
+                            <tr><th>State</th><td id="addr_off_state"></td></tr>
+                            <tr><th>PIN</th><td id="addr_off_pin"></td></tr>
+                            <tr><th>Country</th><td id="addr_off_country"></td></tr>
+                        </table>
+                    </div>
+                </div>
+
+
+                <!-- Family Financial --> 
+
+                <!-- assume -->
+                <div class="section">
+                    <div class="section-title">
+                        1.4 Assumtions                        
+                    </div>
+                    <div class="section-body">
+                        <table class="ff">
+                            <tr><th colspan="4">Assumptions Related with Investments</th></tr>
+                            <tr>
+                                <td  style="width:35%;">Equity %</td><td class="text-center" id="ass_equity"></td>
+                                <td style="width:35%;">Debt %</td>
+                                <td class="text-center" id="ass_debt"></td>
+                            </tr>
+                            <tr>
+                                <td style="width:35%;">Gold %</td>
+                                <td id="ass_gold" class="text-center"></td>
+                                <td style="width:35%;">Real Estate Return %</td>
+                                <td id="ass_re" class="text-center"></td>
+                            </tr>
+                            <tr>
+                                <td>Liquid Funds %</td>
+                                <td id="ass_liquid" class="text-center"></td>
+                                <td>Inflation %</td>
+                                <td id="ass_infl" class="text-center"></td>
+                            </tr>
+                            <tr>
+                                <td>Education Inflation %</td>
+                                <td id="ass_edu_infl" class="text-center"></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </table>
+
+                        <table class="ff">
+                            <tr><th colspan="4">Assumptions Related with Client's Profile</th></tr>
+                            <tr>
+                                <td style="width:35%;">Applicant Retirement Age</td>
+                                <td id="ass_ret_app" class="text-center"></td>
+                                <td style="width:35%;">Spouse Retirement Age</td>
+                                <td id="ass_ret_sp" class="text-center"></td>
+                            </tr>
+                            <tr>
+                                <td style="width:35%;">Applicant Life Expectancy</td>
+                                <td id="ass_life_app" class="text-center"></td>
+                                <td style="width:35%;">Spouse Life Expectancy</td>
+                                <td id="ass_life_sp" class="text-center"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+
+            </div>
+            <!--WINGS -->
+            <div class="section">
+                <div class="section-title"><h3>2. WINGS</h3></div>
+                <div class="section-body">
+                    <table class="ff" id="goals_table">
+                        <thead class="fw-bold">
+                            <tr>
+                                <th style="width:12%;">Priority</th>
+                                <th style="width:44%;">Goal</th>
+                                <th style="width:12%;">Start Year</th>
+                                <th style="width:12%;">Plan Year</th>
+                                <th style="width:20%;">Time Horizon (yrs)</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td colspan="5"></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ALERTNESS-->
+            <div class="section">
+                <h3 class="p-3">3. ALERTNESS with Time & Money</h3>
+
+                <div class="section-title">
+                    <h5>3.1 Budgeting</h5>
+                </div>
+                <div class="section-body">
+                    <div class="section">
+                        <div class="section-title"><h5>3.1.1 Income</h5> ALERTNESS – Income & Expenses</div>
+                        <div class="section-body grid2">
+                            <table class="ff" id="income_table">
+                                <thead><tr><td colspan="2" class="fw-bold mb-1">Applicant Monthly Income</td></tr></thead>
+                                <tbody id="income_rows"></tbody>
+                                <tfoot><tr><th class="text-center">Total </th><td id="income_total" class="text-end"></td></tr></tfoot>
+                            </table>
+                            <table class="ff" id="sp_income_table">
+                                <thead><tr><td colspan="2" class="fw-bold mb-1">Spouse Monthly Income</td></tr></thead>
+                                <tbody id="sp_income_rows"></tbody>
+                                <tfoot><tr><th class="text-center">Total </th><td id="sp_income_total" class="text-end"></td></tr></tfoot>
+                            </table>
+                        </div>
+
+
+                        <div class="section-title">
+                            <h5>3.1.2 Expenses</h5>
+                        </div>
+                        @if (ViewBag.planType != "zero2one" && ViewBag.planType != "basic")
+                        {
+                            <div class="section-body">
+                                <table class="ff">
+                                    <thead><tr><th colspan="2">
+                                                <div class="fw-bold text-center mb-1">Home Expenses</div></th></tr></thead>
+                                    <tbody id="exp_home"></tbody>
+                                </table>
+                                <table class="ff">
+                                    <thead>
+                                        <tr>                                    
+                                            <th colspan="2">
+                                                <div class="fw-bold text-center mb-1">Conveyance</div></th></tr></thead>
+                                    <tbody id="exp_conv"></tbody>
+                                </table>
+                                <table class="ff">                                    
+                                    <thead><tr><th colspan="2">
+                                                <div class="fw-bold text-center mb-1">Communication</div></th></tr></thead>
+                                    <tbody id="exp_comm"></tbody>
+                                </table>
+                                <table class="ff">
+                                    <thead><tr><th colspan="2">
+                                                <div class="fw-bold text-center mb-1">Utilities</div></th></tr></thead>
+                                    <tbody id="exp_util"></tbody>
+                                </table>
+                                <table class="ff">
+                                    <thead><tr><th colspan="2">
+                                                <div class="fw-bold text-center mb-1">Educational</div></th></tr></thead>
+                                    <tbody id="exp_edu"></tbody>
+                                </table>
+                                <table class="ff">
+                                    <thead><tr><th colspan="2">
+                                                <div class="fw-bold text-center mb-1">Entertainment</div></th></tr></thead>
+                                    <tbody id="exp_ent"></tbody>
+                                </table>
+                                <table class="ff">
+                                    <thead><tr><th colspan="2">
+                                                <div class="fw-bold text-center mb-1">Medical</div></th></tr></thead>
+                                    <tbody id="exp_med"></tbody>
+                                </table>
+                                <table class="ff">
+                                    <thead><tr><th colspan="2">
+                                                <div class="fw-bold text-center mb-1">New/Replacement</div></th></tr></thead>
+                                    <tbody id="exp_new"></tbody>
+                                </table>
+                                <table class="ff">
+                                    <thead><tr><th colspan="2"> 
+                                                <div class="fw-bold text-center mb-1">Insurance</div></th></tr></thead>
+                                    <tbody id="exp_ins"></tbody>
+                                </table>
+                                <table class="ff">
+                                    <thead><tr><th colspan="2">
+                                                <div class="fw-bold text-center mb-1">Other Expenses</div></th></tr></thead>
+                                    <tbody id="exp_oth"></tbody>
+                                </table>
+
+                            </div>
+
+                        }else{
+                            <div class="section-body">
+                                <table class="ff">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2">
+                                                <div class="fw-bold text-center mb-1">Total Expense</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="exp_totals"></tbody>
+                                </table>
+                            </div>
+                        }
+
+                        <div class="section">
+                            <div class="section-title"><h5>3.1.3 Committed Savings</h5></div>
+                            <div class="section-body ">
+                                <h6 class="fw-bold text-center py-2 shadow mb-1">Savings</h6>
+                                <table class="ff">
+                                    <thead><tr>
+                                            <th>Saving Name</th>
+                                            <th>Current Value</th>
+                                            <th>Monthly Contribution</th>
+                                            <th style="width:20%;">Till When</th>
+                                            <th style="width:20%;">Follow Up</th>
+                                        </tr></thead>
+                                    <tbody id="sav_rows"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title"><h5>3.1.4 EMIs</h5></div>
+                            <div class="section-body ">
+                                <h6 class="fw-bold text-center mb-1 py-2 shadow">EMIs</h6>
+                                <table class="ff">
+                                    <thead><tr>                                        
+                                            <th>EMI Type</th>
+                                            <th>EMI Monthly</th>
+                                            <th>Interest Component</th>
+                                            <th>Principal Component</th>
+                                            <th>Outstanding Principal</th>
+                                            <th>Till When</th>
+                                            <th>FollowUp</th>
+                                        </tr></thead>
+                                    <tbody id="emi_rows"></tbody>
+                                </table>
+
+                                <table class="ff">
+                                    <tbody id="emi_OneTimeLoanRepayment"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (ViewBag.planType != "zero2one" )
+                    {
+                        <div class="section">
+                            <div class="section-title">
+                                <h5> 3.2 Suggested Modified Budget</h5>
+                            </div>
+                            <div class="section-body ">
+                                <table class="ff">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2">
+                                                <div class="fw-bold text-center  mb-1"></div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="postIncome_Details"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        @if (ViewBag.planType != "basic")
+                        {
+                            <div class="section">
+
+                                <div class="section-title">
+                                    <h5> 3.3 Networth</h5>
+                                </div>
+                                <div class="section-body ">
+                                    <table class="ff"><thead><tr><th colspan="2">
+                                                    <div class="fw-bold text-center  mb-1">Investments</div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="nw_invest"></tbody></table>
+                                    <table class="ff"><thead><tr><th colspan="2">
+                                                    <div class="fw-bold text-center  mb-1">Other Assets</div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="nw_assets"></tbody></table>
+                                    <table class="ff"><thead><tr><th colspan="2">
+                                                    <div class="fw-bold text-center  mb-1">Liabilities</div></th></tr></thead>
+                                        <tbody id="nw_liab"></tbody></table>
+                                </div>
+
+                                <div class="section-title">
+                                    <h5>
+                                        3.4 Debt
+                                    </h5>
+                                </div>
+                                <div class="section-body ">
+                                    <table class="ff"><thead><tr><th colspan="2">
+                                                    <div class="fw-bold text-center  mb-1">Bad Loans</div>
+                                                </th></tr></thead>
+                                        <tbody id="bad_loans"></tbody></table>
+                                    <table class="ff"><thead><tr><th colspan="2">
+                                                    <div class="fw-bold text-center  mb-1">Good Loans</div>
+                                                </th></tr></thead>
+                                        <tbody id="good_loans"></tbody></table>
+                                </div>
+                            </div>
+                        }
+
+
+                        <div class="section-title">
+                            <h5>
+                                3.5 Insurance
+                            </h5>
+                        </div>
+                        <div class="section-body ">
+                            <h6 class="fw-bold text-center  mb-1">Life Insurance</h6>
+                            <table class="ff">
+                                <thead>
+                                    <tr>
+                                        <th>Insurance Type</th>
+                                        <th>Name</th>
+                                        <th>Amount of Coverage</th>
+                                        <th style="width: 19%;">Premium Due </th>
+                                        <th style="width: 19%;">Maturity</th>
+                                    </tr>
+                                </thead> 
+                                <tbody id="life_ins"></tbody>
+                            </table>
+                            <h6 class="fw-bold text-center py-2 mb-1">General Insurance</h6>
+                            <table class="ff">
+                                <thead>
+                                    <tr>
+                                        <th>Insurance Type</th>
+                                        <th>Amount of Coverage</th>
+                                        <th style="width: 19%;">Premium Due</th>
+                                        <th style="width: 19%;">Maturity</th>
+                                    </tr>
+                                </thead> 
+                                <tbody id="gen_ins"></tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!--KNOWLEDGE that matters -->
+            <div class="section">
+                <div class="section-title"><h3>4. KNOWLEDGE that matters</h3></div>
+                <div class="section-body">
+                    <table class="ff">
+                        <tr><th>Risk Capacity</th><td id="risk_cap"></td></tr>
+                        <tr><th>Risk Requirement</th><td id="risk_req"></td></tr>
+                        <tr><th>Risk Tolerance</th><td id="risk_tol"></td></tr>
+                    </table>
+
+                </div>
+            </div>
+            <!-- EXECUTION with precision-->
+            <div class="section">
+                <div class="section-title"><h3>5. EXECUTION with precision</h3></div>
+                <div class="section-body">
+                    <table class="ff" id="exec_goaldata"><tbody></tbody></table>
+                </div>
+            </div>
+
+            <!-- Invest in the NOW-->
+            <div class="section">
+                <div class="section-title">
+                    <h3>6. Invest in the NOW  </h3>
+                </div>
+                <div class="section-body">
+                    <h4>Total available Savings for Investments</h4>
+                    <table class="ff" id="invest_savings">
+                        <thead class="fw-bold">
+                            <tr style="margin: 0 5%;">
+                                <td style="width:30%;text-align:center;">Monthly Savings</td>
+                                <td style="width:30%;text-align:center;">Intended SIP monthly</td>
+                                <td style="width:30%;text-align:center;">Available Lumpsum (if any)</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                    <h4>Action plan for Financial Goals</h4>
+                    <table class="ff" id="invest_earmarked">
+                        <thead class="fw-bold">
+                            <tr>
+                                <td style="width:60%;">
+                                    Name of the Goal
+                                </td>
+                                <td style="width:20%;">
+                                    Lumpsum Amount intended<br />
+                                    for this goal
+                                </td>
+                                <td style="width:20%;">
+                                    SIP Amount intended<br />
+                                    for this goal
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+        <div class="d-none">
+
+        <div class="section">
+            <div class="section-title"><div id="p_name"></div>User Summary Report – Plan Overview</div>
+            <div class="section-body grid3">
+                <table class="ff">
+                    <caption class="fw-bold mb-1">Plan Details</caption>
+                    <tr><th>Plan Type</th><td id="planType"></td></tr>
+                    <tr><th>Plan Year</th><td id="planYear"></td></tr>
+                    <tr><th>Plan Duration</th><td id="planDuration"></td></tr>
+                </table>
+                <table class="ff">
+                    <caption class="fw-bold mb-1">Applicant</caption>
+                    <tr><th>Name</th><td id="p_name"></td></tr>
+                    <tr><th>Gender</th><td id="p_gender"></td></tr>
+                    <tr><th>DOB</th><td id="p_dob"></td></tr>
+                    <tr><th>Phone</th><td id="p_phone"></td></tr>
+                    <tr><th>Email</th><td id="p_email"></td></tr>
+                    <tr><th>PAN</th><td id="p_pan"></td></tr>
+                    <tr><th>Occupation</th><td id="p_occ"></td></tr>
+                </table>
+                <table class="ff">
+                    <caption class="fw-bold mb-1">Family & Behaviour</caption>
+                    <tr><th>Marital Status</th><td id="maritalStatus"></td></tr>
+                    <tr><th>Invests in Stock</th><td id="fam_stock"></td></tr>
+                    <tr><th>Income Trend</th><td id="fam_income"></td></tr>
+                    <tr><th>Payments</th><td id="fam_payment"></td></tr>
+                    <tr><th>Holidays</th><td id="fam_holiday"></td></tr>
+                    <tr><th>Shopping</th><td id="fam_shopping"></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Addresses</div>
+            <div class="section-body grid3">
+                <table class="ff">
+                    <caption class="fw-bold mb-1">Residential</caption>
+                    <tr><th>Address</th><td id="addr_res_address"></td></tr>
+                    <tr><th>City</th><td id="addr_res_city"></td></tr>
+                    <tr><th>State</th><td id="addr_res_state"></td></tr>
+                    <tr><th>PIN</th><td id="addr_res_pin"></td></tr>
+                    <tr><th>Country</th><td id="addr_res_country"></td></tr>
+                </table>
+                <table class="ff">
+                    <caption class="fw-bold mb-1">Permanent</caption>
+                    <tr><th>Address</th><td id="addr_perm_address"></td></tr>
+                    <tr><th>City</th><td id="addr_perm_city"></td></tr>
+                    <tr><th>State</th><td id="addr_perm_state"></td></tr>
+                    <tr><th>PIN</th><td id="addr_perm_pin"></td></tr>
+                    <tr><th>Country</th><td id="addr_perm_country"></td></tr>
+                </table>
+                <table class="ff">
+                    <caption class="fw-bold mb-1">Office</caption>
+                    <tr><th>Company</th><td id="addr_off_company"></td></tr>
+                    <tr><th>Address</th><td id="addr_off_address"></td></tr>
+                    <tr><th>City</th><td id="addr_off_city"></td></tr>
+                    <tr><th>State</th><td id="addr_off_state"></td></tr>
+                    <tr><th>PIN</th><td id="addr_off_pin"></td></tr>
+                    <tr><th>Country</th><td id="addr_off_country"></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Spouse & Children</div>
+            <div class="section-body grid2">
+                <table class="ff">
+                    <caption class="fw-bold mb-1">Spouse</caption>
+                    <tr><th>Name</th><td id="s_name"></td></tr>
+                    <tr><th>Gender</th><td id="s_gender"></td></tr>
+                    <tr><th>DOB</th><td id="s_dob"></td></tr>
+                    <tr><th>Phone</th><td id="s_phone"></td></tr>
+                    <tr><th>Email</th><td id="s_email"></td></tr>
+                    <tr><th>PAN</th><td id="s_pan"></td></tr>
+                    <tr><th>Occupation</th><td id="s_occ"></td></tr>
+                </table>
+                <div>
+                    <table class="ff">
+                        <caption class="fw-bold mb-1">Children</caption>
+                        <tbody id="children_tbody"><tr><th>Child</th><td></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Assumptions</div>
+            <div class="section-body grid3">
+                <table class="ff">
+                    <tr><th>Equity %</th><td id="ass_equity"></td></tr>
+                    <tr><th>Debt %</th><td id="ass_debt"></td></tr>
+                    <tr><th>Gold %</th><td id="ass_gold"></td></tr>
+                    <tr><th>Real Estate Return %</th><td id="ass_re"></td></tr>
+                </table>
+                <table class="ff">
+                    <tr><th>Liquid Funds %</th><td id="ass_liquid"></td></tr>
+                    <tr><th>Inflation %</th><td id="ass_infl"></td></tr>
+                    <tr><th>Education Inflation %</th><td id="ass_edu_infl"></td></tr>
+                </table>
+                <table class="ff">
+                    <tr><th>Applicant Retirement Age</th><td id="ass_ret_app"></td></tr>
+                    <tr><th>Spouse Retirement Age</th><td id="ass_ret_sp"></td></tr>
+                    <tr><th>Applicant Life Expectancy</th><td id="ass_life_app"></td></tr>
+                    <tr><th>Spouse Life Expectancy</th><td id="ass_life_sp"></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">WINGS – Selected Goals</div>
+            <div class="section-body">
+                <table class="ff" id="goals_table">
+                    <thead><tr><th>Priority</th><th>Goal</th><th>Start Year</th><th>Plan Year</th><th>Time Horizon (yrs)</th></tr></thead>
+                    <tbody><tr><td colspan="5"></td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">ALERTNESS – Income & Expenses</div>
+            <div class="section-body grid2">
+                <table class="ff" id="income_table">
+                    <caption class="fw-bold mb-1">Applicant Monthly Income</caption>
+                    <tbody id="income_rows"></tbody>
+                    <tfoot><tr><th>Total (calc)</th><td id="income_total"></td></tr></tfoot>
+                </table>
+                <table class="ff" id="sp_income_table">
+                    <caption class="fw-bold mb-1">Spouse Monthly Income</caption>
+                    <tbody id="sp_income_rows"></tbody>
+                    <tfoot><tr><th>Total (calc)</th><td id="sp_income_total"></td></tr></tfoot>
+                </table>
+            </div>
+            <div class="section-body">
+                <div class="grid3">
+                    <table class="ff"><caption class="fw-bold mb-1">Home Expenses</caption><tbody id="exp_home"></tbody></table>
+                    <table class="ff"><caption class="fw-bold mb-1">Conveyance</caption><tbody id="exp_conv"></tbody></table>
+                    <table class="ff"><caption class="fw-bold mb-1">Communication</caption><tbody id="exp_comm"></tbody></table>
+                </div>
+                <div class="grid3 mt-2">
+                    <table class="ff"><caption class="fw-bold mb-1">Utilities</caption><tbody id="exp_util"></tbody></table>
+                    <table class="ff"><caption class="fw-bold mb-1">Educational</caption><tbody id="exp_edu"></tbody></table>
+                    <table class="ff"><caption class="fw-bold mb-1">Entertainment</caption><tbody id="exp_ent"></tbody></table>
+                </div>
+                <div class="grid3 mt-2">
+                    <table class="ff"><caption class="fw-bold mb-1">Medical</caption><tbody id="exp_med"></tbody></table>
+                    <table class="ff"><caption class="fw-bold mb-1">New/Replacement</caption><tbody id="exp_new"></tbody></table>
+                    <table class="ff"><caption class="fw-bold mb-1">Insurance</caption><tbody id="exp_ins"></tbody></table>
+                </div>
+                <div class="grid3 mt-2">
+                    <table class="ff"><caption class="fw-bold mb-1">Other Expenses</caption><tbody id="exp_oth"></tbody></table>
+                    <table class="ff"><caption class="fw-bold mb-1">Savings</caption><tbody id="sav_rows"></tbody></table>
+                    <table class="ff"><caption class="fw-bold mb-1">EMIs</caption><tbody id="emi_rows"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Net Worth & Debt</div>
+            <div class="section-body grid3">
+                <table class="ff"><caption class="fw-bold mb-1">Investments</caption><tbody id="nw_invest"></tbody></table>
+                <table class="ff"><caption class="fw-bold mb-1">Other Assets</caption><tbody id="nw_assets"></tbody></table>
+                <table class="ff"><caption class="fw-bold mb-1">Liabilities</caption><tbody id="nw_liab"></tbody></table>
+            </div>
+            <div class="section-body grid2">
+                <table class="ff"><caption class="fw-bold mb-1">Bad Loans</caption><tbody id="bad_loans"></tbody></table>
+                <table class="ff"><caption class="fw-bold mb-1">Good Loans</caption><tbody id="good_loans"></tbody></table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Insurances</div>
+            <div class="section-body grid2">
+                <table class="ff"><caption class="fw-bold mb-1">Life Insurance</caption><tbody id="life_ins"></tbody></table>
+                <table class="ff"><caption class="fw-bold mb-1">General Insurance</caption><tbody id="gen_ins"></tbody></table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Knowledge – Risk Profile</div>
+            <div class="section-body grid2">
+                <table class="ff">
+                    <tr><th>Risk Capacity</th><td id="risk_cap"></td></tr>
+                    <tr><th>Risk Requirement</th><td id="risk_req"></td></tr>
+                    <tr><th>Risk Tolerance</th><td id="risk_tol"></td></tr>
+                    <tr><th>Total Risk Score</th><td id="risk_score"></td></tr>
+                    <tr><th>Planner Assessment</th><td id="risk_planner"></td></tr>
+                </table>
+                <table class="ff">
+                    <tr><th>Selected Risk Profile (Invest)</th><td id="invest_sel_risk"></td></tr>
+                    <tr><th>Family Monthly Income (Invest)</th><td id="invest_fam_inc"></td></tr>
+                    <tr><th>Family Monthly Expenses (Invest)</th><td id="invest_fam_exp"></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Execute Plan & Invest – Actions</div>
+            <div class="section-body">
+                <div class="grid2">
+                    <table class="ff" id="exec_goaldata"><caption class="fw-bold mb-1">ExecutePlan – Goal Data</caption><tbody></tbody></table>
+                    <table class="ff" id="invest_savings"><caption class="fw-bold mb-1">Act Now – Savings For Investments</caption><tbody></tbody></table>
+                </div>
+                <div class="grid2 mt-2">
+                    <table class="ff" id="invest_action_totals"><caption class="fw-bold mb-1">Action Plan Totals</caption><tbody></tbody></table>
+                    <table class="ff" id="invest_earmarked"><caption class="fw-bold mb-1">Earmarked</caption><tbody></tbody></table>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script>
+
+
+        const API_URL = '/userprofile/data/@ViewBag.profileId';
+        const COUNTRIES_JSON_URL = '/js/countries.json';
+
+        // ---------- tiny utils you already use ----------
+        const get = (obj, path, def='') => {
+          try { const v = path.split('.').reduce((a,k)=> (a && a[k]!==undefined ? a[k] : undefined), obj); return (v==null?def:v); }
+          catch(e){ return def }
+        };
+        const toNum = (x)=>{ if(x===''||x==null) return 0; const n = Number(String(x).replace(/,/g,'')); return isNaN(n)?0:n; };
+        const fmt = (x)=>{ if(x===''||x==null) return ''; const n = Number(x); return isNaN(n)? String(x) : n.toLocaleString(); };
+        const setTxt = (id,val='')=>{ const el=document.getElementById(id); if(el) el.textContent = (val??''); };
+        const fillPairs = (tbody, obj)=>{ if(!tbody) return; tbody.innerHTML = Object.entries(obj||{}).map(([k,v])=>`<tr><td>${k}</td><td class="text-end">${fmt(v)}</td></tr>`).join(''); };
+        const fmt1 = (value)=> (value==null? '' : (typeof value==='number'? value.toLocaleString() : value.toString()));
+
+        // ---------- loader helpers ----------
+        function showLoader(){ document.documentElement.classList.add('is-loading'); }
+        function hideLoader(){ document.documentElement.classList.remove('is-loading'); }
+                // helper to format YYYY-MM-DD → DD/MM/YYYY
+        function fmtDate(d) {
+          if (!d) return '';
+          const parts = d.split('-'); // [YYYY, MM, DD]
+          if (parts.length !== 3) return d; // fallback if not in expected format
+          return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        // ---------- Country/State mapper (self-contained) ----------
+        const CountryStateMapper = (function(){
+          const norm = (v) => (v || '').toString().trim();
+          const up   = (v) => norm(v).toUpperCase();
+
+          function buildLookups(data) {
+            const countryNameByCode = {};
+            const countryCodeByNameLower = {};
+            const statesByCountryCode = {};
+            const statesNameToCodeByCountryLower = {};
+
+            Object.keys(data || {}).forEach(code => {
+              const c = data[code] || {};
+              const cCode = up(c.code || code);
+              const cName = norm(c.name || code);
+              countryNameByCode[cCode] = cName;
+              countryCodeByNameLower[cName.toLowerCase()] = cCode;
+
+              const stateMap = {};
+              const stateNameToCode = {};
+              (c.states || []).forEach(s => {
+                const sCode = up(s.code);
+                const sName = norm(s.name || sCode);
+                if (sCode) stateMap[sCode] = sName;
+                if (sName) stateNameToCode[sName.toLowerCase()] = sCode;
+              });
+              statesByCountryCode[cCode] = stateMap;
+              statesNameToCodeByCountryLower[cCode] = stateNameToCode;
+            });
+
+            return { countryNameByCode, countryCodeByNameLower, statesByCountryCode, statesNameToCodeByCountryLower };
+          }
+
+          function detectCountryCode(raw, lookups) {
+            const v = norm(raw);
+            const vUp = up(v);
+            if (lookups.countryNameByCode[vUp]) return vUp;                  // is a known code
+            const byName = lookups.countryCodeByNameLower[v.toLowerCase()];  // maybe given as full name
+            return byName || null;
+          }
+
+          function setText(id, text) {
+            const el = document.getElementById(id);
+            if (el && norm(el.textContent) !== norm(text)) el.textContent = text;
+          }
+
+          function getText(id) {
+            const el = document.getElementById(id);
+            return el ? el.textContent : '';
+          }
+
+          // Map a single (countryId, stateId) pair
+          function mapPair(countryId, stateId, lookups) {
+            if (!countryId) return;
+
+            // Country
+            const rawCountry = getText(countryId);
+            const countryCode = detectCountryCode(rawCountry, lookups);
+            if (countryCode) {
+              setText(countryId, lookups.countryNameByCode[countryCode] || rawCountry);
+            }
+
+            // State (if provided)
+            if (stateId) {
+              const rawState = getText(stateId);
+              if (rawState && countryCode) {
+                const stateMap = lookups.statesByCountryCode[countryCode] || {};
+                const rawUp = up(rawState);
+                if (stateMap[rawUp]) {
+                  setText(stateId, stateMap[rawUp]); // convert code -> name
+                } else {
+                  // If already a name and you want to normalize capitalization, you could do that here.
+                  // Otherwise leave as-is.
+                }
+              }
+            }
+          }
+
+          async function run(jsonUrl, pairs /* array of {countryId, stateId?} */) {
+            try {
+              const resp = await fetch(jsonUrl, { cache: 'no-store' });
+              if (!resp.ok) throw new Error('countries.json fetch failed: ' + resp.status);
+              const data = await resp.json();
+              const lookups = buildLookups(data);
+              (pairs || []).forEach(p => mapPair(p.countryId, p.stateId, lookups));
+            } catch (e) {
+              console.warn('[CountryStateMapper] Error:', e);
+            }
+          }
+
+          return { run };
+        })();
+
+        // ---------- MAIN: load everything with loader + bind states ----------
+        (async function init() {
+          showLoader();               // show the overlay immediately
+          try {
+            // If you also want to prefetch countries.json in parallel, do:
+            // const [apiRes, _ignore] = await Promise.all([fetch(API_URL), fetch(COUNTRIES_JSON_URL)]);
+            const apiRes = await fetch(API_URL, { cache: 'no-store' });
+            if (!apiRes.ok) throw new Error('Data fetch failed: ' + apiRes.status);
+            const data = await apiRes.json();
+
+            const root = data?.awaken || data || {};
+            const awareness = get(root,'awareness',{});
+
+            // ---------- Your existing population code (shortened to essentials you shared) ----------
+            // Plan & Applicant
+            setTxt('planType', get(awareness,'planDetails.planType'));
+            setTxt('planYear', get(awareness,'planDetails.planYear'));
+            setTxt('planDuration', get(awareness,'planDetails.planDuration'));
+
+            const p = get(awareness,'personalDetails',{});
+            setTxt('p_name', p.name||'');setTxt('p_name1', p.name||''); setTxt('p_gender', p.gender||''); setTxt('p_dob', p.dob||'');
+            setTxt('p_phone', p.phone||''); setTxt('p_altPhone', p.altPhone||'');setTxt('p_email', p.email||'');
+            setTxt('p_secEmail', p.secEmail||'');setTxt('p_aadhaar', p.aadhaar||'');setTxt('p_pan', p.pan||''); setTxt('p_occ', p.occupation||'');
+
+            setTxt('maritalStatus', get(awareness,'maritalDetails.maritalStatus'));
+
+            // Addresses (fill raw values first; codes like IN, DL will be mapped below)
+            const res = get(p,'address.residential',{}), perm = get(p,'address.permanent',{}), off = get(p,'address.office',{});
+            setTxt('addr_res_address', res.address||''); setTxt('addr_res_city', res.city||''); setTxt('addr_res_state', res.state||''); setTxt('addr_res_pin', res.pinCode||''); setTxt('addr_res_country', res.country||'');
+            setTxt('addr_perm_address', perm.address||''); setTxt('addr_perm_city', perm.city||''); setTxt('addr_perm_state', perm.state||''); setTxt('addr_perm_pin', perm.pinCode||''); setTxt('addr_perm_country', perm.country||'');
+            setTxt('addr_off_company', off.company||''); setTxt('addr_off_address', off.address||''); setTxt('addr_off_city', off.city||''); setTxt('addr_off_state', off.state||''); setTxt('addr_off_pin', off.pinCode||''); setTxt('addr_off_country', off.country||'');
+
+            // Spouse (incl. company address cells you had)
+            const s = get(awareness,'maritalDetails.spouseDetails',{})||{};
+            setTxt('spouseName', s.spouseName||''); setTxt('spouseGender', s.spouseGender||''); setTxt('spouseDob', s.spouseDob||'');
+            setTxt('spousePhone', s.spousePhone||''); setTxt('spouseAltPhone', s.spouseAltPhone||'');
+            setTxt('spouseAadhaar', s.spouseAadhaar||''); setTxt('spouseSecEmail', s.spouseSecEmail||'');
+            setTxt('spouseEmail', s.spouseEmail||''); setTxt('spousePan', s.spousePan||''); setTxt('spouseOccupation', s.spouseOccupation||'');
+            setTxt('SpouseCmpAddress', s.SpouseCmpAddress||'');
+            setTxt('SpouseCmpCity', s.SpouseCmpCity||'');
+            setTxt('SpouseCmpCountry', s.SpouseCmpCountry||'');
+            setTxt('SpouseCmpName', s.SpouseCmpName||'');
+            setTxt('SpouseCmpPincode', s.SpouseCmpPincode||'');
+            setTxt('SpouseCmpState', s.SpouseCmpState||'');
+
+            // ... (keep the rest of your tables filling logic as-is)
+
+
+          const children = Array.isArray(get(awareness,'maritalDetails.childrenDetails',[]))? get(awareness,'maritalDetails.childrenDetails',[]):[];
+          const cbody = document.getElementById('children_tbody');
+          if(cbody){ cbody.innerHTML = children.length ? children.map((c,i)=>`
+            <tr><td>Child ${i+1}</td>
+                <td>${c.childName??''}</td>
+                <td>${c.childGender??''}</td>
+                <td>${c.childDob??''}</td>
+                <td>${c.childPhone??''}</td>
+                <td>${c.childEmail??''}</td>
+                <td class="text-uppercase">${c.childPan??''}</td>
+            </tr>`).join('') : '<tr><td colspan="7" class="text-center">NA</td></tr>'; }
+
+          // Assumptions
+          const a = get(awareness,'assumptions',{});
+          setTxt('ass_equity', a.equity??''); setTxt('ass_debt', a.debt??''); setTxt('ass_gold', a.gold??''); setTxt('ass_re', a.realEstateReturn??'');
+          setTxt('ass_liquid', a.liquidFunds??''); setTxt('ass_infl', a.inflationRates??''); setTxt('ass_edu_infl', a.educationInflation??'');
+          setTxt('ass_ret_app', a.applicantRetirement??''); setTxt('ass_ret_sp', a.spouseRetirement??''); setTxt('ass_life_app', a.applicantLifeExpectancy??''); setTxt('ass_life_sp', a.spouseLifeExpectancy??'');
+
+          // WINGS – selectedForms
+          const selGoals = Array.isArray(get(root,'wings.selectedForms',[]))? get(root,'wings.selectedForms',[]):[];
+          const gt = document.querySelector('#goals_table tbody');
+                        if(gt){ gt.innerHTML = selGoals.length ? selGoals.map(g=>`<tr>
+                              <td class="text-center">${g.priority??''}</td><td>${g.goal??''}</td>
+                              <td class="text-center">${g.goalStartYear??''}</td>
+                              <td class="text-center">${g.goalPlanYear??''}</td><td class="text-center">
+                            ${g.timeHorizon??''}</td></tr>`).join('') : '<tr><td colspan="5"></td></tr>'; }
+
+          // ALERTNESS – Income & Expenses
+          const alert2 = get(root,'alertness.alertness',{});
+          const inc = get(alert2,'incomeDetail.income',{});
+          const spI = get(alert2,'incomeDetail.spouseIncome',{});
+                  const planType = "@ViewBag.planType";
+          function objRows(obj, filterKeys=[]) {
+            return Object.entries(obj||{})
+              .filter(([k,v])=> typeof v!=='object' && (filterKeys.length? filterKeys.includes(k): true))
+              .map(([k,v])=>`<tr><td style="width:70%;" >${k}</td><td class="text-end">${fmt(Number(v))}</td></tr>`).join('');
+          }
+          function numericSum(obj){ return Object.values(obj||{}).reduce((t,v)=> t + (typeof v==='object'?0:toNum(v)), 0); }
+debugger
+
+                        if(planType =="zero2one" || planType =="basic"){
+                     let hraOnly = Object.fromEntries(
+                              Object.entries(inc).filter(([k, v]) => k === "Post IT Income Monthly (Disposable Income)")
+                    );
+                                  const incBody = document.getElementById('income_rows'); if(incBody){ incBody.innerHTML = objRows(hraOnly); }
+                  setTxt('income_total', numericSum(inc).toLocaleString());
+                  let hraOnly1 = Object.fromEntries(
+                                      Object.entries(spI).filter(([k, v]) => k === "Post IT Income Monthly (Disposable Income)")
+                    );
+
+                          const spBody = document.getElementById('sp_income_rows'); if(spBody){ spBody.innerHTML = objRows(hraOnly1); }
+                  setTxt('sp_income_total', numericSum(spI).toLocaleString());
+
+                                            const totalexp = get(alert2,'incomeDetail.totalexp',{});
+                                            debugger;
+                                                           if(document.getElementById('exp_totals')){ document.getElementById('exp_totals').innerHTML = objRows(totalexp); }
+
+
+                }else{
+               
+          const incBody = document.getElementById('income_rows'); if(incBody){ incBody.innerHTML = objRows(inc); }
+          setTxt('income_total', numericSum(inc).toLocaleString());
+          const spBody = document.getElementById('sp_income_rows'); if(spBody){ spBody.innerHTML = objRows(spI); }
+          setTxt('sp_income_total', numericSum(spI).toLocaleString());
+          }
+          // Expenses buckets
+          const exp = get(alert2,'expenses',{});
+          const buckets = [
+            ['homeExpenses','exp_home'],['conveyance','exp_conv'],['communication','exp_comm'],
+            ['utilities','exp_util'],['educationalExpenses','exp_edu'],['entertainmentRecreation','exp_ent'],
+            ['medical','exp_med'],['newReplacementItems','exp_new'],['insurance','exp_ins'],['otherExpenses','exp_oth']
+          ];
+          buckets.forEach(([key,tbodyId])=>{
+            const obj = get(exp,key,{});
+            const entries = Object.entries(obj||{}).filter(([k,v])=>k!=='new');
+            const html = entries.map(([k,v])=>`<tr><td>${k}</td><td class="text-end">${fmt1(Number(v))}</td></tr>`).join('');
+            const el = document.getElementById(tbodyId); if(el) el.innerHTML = html || '<tr><td colspan="2">No Records Found.</td></tr>';
+          });
+
+          // Savings
+          const sav = get(alert2,'savings',{});
+          const savRows = [];
+          (sav.committedSavings||[]).forEach(x=> savRows.push(`<tr><td>Committed – ${x.name}</td><td class="text-end">${fmt1(Number(x.CurrentValue))} </td><td class="text-end"> ${fmt1(Number(x.MonthlyContribution))}</td><td> ${fmtDate(x.TillWhen )} </td><td> ${x.FollowUp }</td></tr>`));
+          (sav.new||[]).forEach(x=> savRows.push(`<tr><td>New – ${x.name}</td><td  class="text-end"> ${fmt1(Number(x.CurrentValue))} </td><td class="text-end"> ${fmt1(Number(x.MonthlyContribution))} </td><td > ${fmtDate(x.TillWhen) } </td><td style="width:20%;"> ${x.FollowUp || ''}</td></tr>`));
+          const savEl = document.getElementById('sav_rows'); if(savEl) savEl.innerHTML = savRows.join('') || '<tr><td colspan="5"></td></tr>';
+           
+
+          // EMIs
+          const emis = Array.isArray(get(alert2,'emi',[]))? get(alert2,'emi',[]):[];
+          const emiEl = document.getElementById('emi_rows'); if(emiEl){ emiEl.innerHTML = emis.map(e=>`<tr>
+          <td>${e.Name}</td>
+            <td class="text-end">${fmt1(e.Monthly)}</td>
+          <td class="text-end">${fmt1(e.Interest)} </td>
+          <td class="text-end">${fmt1(e.Principal)} </td>
+                <td class="text-end">${fmt1(e.Outstanding)} </td>
+          <td>${fmtDate(e.Till)}</td>
+          <td>${e.FollowUp}</td>
+          </tr>`).join('') || '<tr><td colspan="7" class="text-center">No records found.</td></tr>'; }
+          debugger;
+                                   const OneTimeLoanRepayment = get(alert2,'OneTimeLoanRepayment',{});
+                                   if(document.getElementById('emi_OneTimeLoanRepayment')){ document.getElementById('emi_OneTimeLoanRepayment').innerHTML = "One-Time Loan Repayment: "+ OneTimeLoanRepayment }
+                                   
+
+                  
+          debugger;
+           const nw1 = get(alert2,'postIncomeDetails',{});
+          fillPairs(document.getElementById('postIncome_Details'), nw1);
+
+          // Net Worth
+          const nw = get(alert2,'netWorth',{});
+          fillPairs(document.getElementById('nw_invest'), get(nw,'investments',{}));
+          fillPairs(document.getElementById('nw_assets'), get(nw,'otherAssets',{}));
+          fillPairs(document.getElementById('nw_liab'), get(nw,'liabilities',{}));
+
+          // Debt
+          fillPairs(document.getElementById('bad_loans'), get(alert2,'debt.badLoans',{}));
+          fillPairs(document.getElementById('good_loans'), get(alert2,'debt.goodLoans',{}));
+
+          // Insurances
+          const life = Array.isArray(get(alert2,'lifeInsurance.Insurance',[]))? get(alert2,'lifeInsurance.Insurance',[]):[];
+          const gen  = Array.isArray(get(alert2,'generalInsurance.Insurance',[]))? get(alert2,'generalInsurance.Insurance',[]):[];
+
+
+        const lifeEl = document.getElementById('life_ins');
+        if (lifeEl) {
+          lifeEl.innerHTML = life.map(i => `
+            <tr>
+              <td>${i.insuranceType || ''}</td>
+               <td> ${i['Name'] || ''} </td>
+               <td class="text-end"> ${fmt1(Number(i['Amount of Coverage']))} </td>
+               <td> ${fmtDate(i['Premium Due Date']) || ''} </td>
+               <td> ${fmtDate(i['Maturity Date']) || ''}</td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" class="text-center">No records found.</td></tr>';
+        }
+
+        const genEl = document.getElementById('gen_ins');
+        if (genEl) {
+          genEl.innerHTML = gen.map(i => `
+            <tr>
+              <td>${i.insuranceType || ''}</td>
+                 <td  class="text-end"> ${fmt1(Number(i['Amount of Coverage']))} </td>
+                 <td> ${fmtDate(i['Premium Due Date']) || ''}  </td>
+                 <td> ${fmtDate(i['Maturity Date']) || ''} </td>
+            </tr>
+          `).join('') || '<tr><td colspan="4" class="text-center">No records found.</td></tr>';
+        }
+          
+          
+        /// 
+        /// const lifeEl = document.getElementById('life_ins'); if(lifeEl){ lifeEl.innerHTML = life.map(i=>`<tr><td>///${i.insuranceType}</td><td>Name: ${i.name||''} | Coverage: ${fmt(i.amountOfCoverage)} | Premium Due: ///${i.premiumDueDate||''} | Maturity: ${i.maturityDate||''}</td></tr>`)
+        /// .join('')  || '<tr><td colspan="2"  class="text-center">No records found.</td></tr>'; }
+        /// //.join(''); }
+        ///
+        ///
+        /// const genEl  = document.getElementById('gen_ins'); if(genEl){ genEl.innerHTML = gen.map(i=>`<tr><td>///${i.insuranceType}</td><td>Coverage: ${fmt(i.amountOfCoverage)} | Premium Due: ${i.premiumDueDate||''} | ///Maturity: ${i.maturityDate||''}</td></tr>`)
+        /// .join('') || '<tr><td colspan="2" class="text-center">No records found.</td></tr>'; }
+          //.join(''); }
+
+          //s4 Knowledge (awaken.knowledge.knowledge)
+          const know = get(root,'knowledge.knowledge',{});
+          setTxt('risk_cap', know.riskCapacity||''); setTxt('risk_req', know.riskRequirement||''); setTxt('risk_tol', know.riskTolerance||'');
+          setTxt('risk_score', know.totalRiskProfileScore||''); setTxt('risk_planner', know.plannerAssessmentOnRiskProfile||'');
+         //  <tr><th>Total Risk Score</th><td id="risk_score"></td></tr>
+         //  <tr><th>Planner Assessment</th><td id="risk_planner"></td></tr>
+         //  <table class="ff">
+         //  <tr><th>Selected Risk Profile (Invest)</th><td id="invest_sel_risk"></td></tr>
+         //  <tr><th>Family Monthly Income (Invest)</th><td id="invest_fam_inc"></td></tr>
+         //  <tr><th>Family Monthly Expenses (Invest)</th><td id="invest_fam_exp"></td></tr>
+         //  </table>
+          // Invest aggregates
+          // // setTxt('invest_sel_risk', get(root,'Invest.knowledge.selectedRiskProfile'));
+          // // setTxt('invest_fam_inc', get(root,'Invest.alertness.familyMonthlyIncomeTotal'));
+          // // setTxt('invest_fam_exp', get(root,'Invest.alertness.familyMonthlyExpensesTotal'));
+
+          //////---S5    // ExecutePlan – Goal Data
+        const gdata = Array.isArray(get(root,'ExecutePlan.formData.goalData',[]))? get(root,'ExecutePlan.formData.goalData',[]):[];
+
+        const gtbody = document.querySelector('#exec_goaldata tbody');
+
+        if (gtbody && Array.isArray(gdata)) {
+            gtbody.innerHTML = gdata.map(goal => {
+                const rows = Object.entries(goal)
+                    .filter(([k]) => k !== 'name') // exclude 'name' from detail rows
+                    .map(([key, value]) => {
+                        if (key === 'Goal Name') {//<strong>${key}:</strong>
+                        return `<tr><th colspan="2" class="text-center fw-bold"> ${fmt(value)}</th></tr>`;
+                        }
+                        return `<tr><td>${key}</td><td>${fmt(value)}</td></tr>`;
+                    })
+                    .join('');
+
+                  return `${rows}`;
+                 // return `<tr class="border border-top border-3"><th colspan="2"></th></tr>${rows}`;
+            }).join('');
+        }
+
+                    //.map(([key, value]) => `<tr ><td>${key}</td><td>${fmt(value)}</td></tr>`)
+           //-------without seprate
+
+                function fmt(value) {
+            if (value == null) return '';
+            if (typeof value === 'number') return value.toLocaleString();
+            return value.toString();
+        }
+
+
+        // Act Now – savings
+          const investSav = get(root,'Invest.actNow.savingsForInvestments',{});
+          fillPairs(document.querySelector('#invest_savings tbody'), investSav);
+
+          // Life/General Insurance Req
+          // // const lifeReq = Array.isArray(get(root,'Invest.actNow.lifeInsuranceReq',[]))? get(root,'Invest.actNow.lifeInsuranceReq',[]):[];
+          // // const genReq  = Array.isArray(get(root,'Invest.actNow.generalInsuranceReq',[]))? get(root,'Invest.actNow.generalInsuranceReq',[]):[];
+
+          // // const lifeReqEl = document.querySelector('#invest_life_req tbody'); if(lifeReqEl){ lifeReqEl.innerHTML = lifeReq.map(r=>`<tr><th>${r.GoalName}</th><td>Lumpsum: ${fmt(r.LumpsumAmount)} | SIP: ${fmt(r.Sipamount)}</td></tr>`).join(''); }
+          // // const genReqEl  = document.querySelector('#invest_gen_req tbody'); if(genReqEl){ genReqEl.innerHTML = genReq.map(r=>`<tr><th>${r.GoalName}</th><td>Lumpsum: ${fmt(r.LumpsumAmount)} | SIP: ${fmt(r.Sipamount)}</td></tr>`).join(''); }
+          //////---S6
+          // Action Plan Totals
+          //const actTotals = get(root,'Invest.actNow.actionPlanFinancialGoals.total',{});
+          // fillPairs(document.querySelector('#invest_action_totals tbody'), actTotals);
+
+          // savingsForInvestments
+                  const savingsForInvestmentsRaw = get(root,'Invest.actNow.savingsForInvestments',{});
+        const savingsForInvestments = Array.isArray(savingsForInvestmentsRaw)
+          ? savingsForInvestmentsRaw : [savingsForInvestmentsRaw];  // wrap in array if it’s an object
+
+          const earmElSavings = document.querySelector('#invest_savings tbody');
+          if(earmElSavings){ earmElSavings.innerHTML = savingsForInvestments.map(e=>`<tr><td class="text-end">${fmt(e.MonthlySavings)}</td><td class="text-end">${fmt(e.intendedSipMonthly)}</td><td class="text-end">${fmt(e.availableLumpsum)}</td></tr>`).join(''); }
+
+          //InvestGoalList
+          const InvestGoal = Array.isArray(get(root,'Invest.actNow.InvestGoal',[]))? get(root,'Invest.actNow.InvestGoal',[]):[];
+          const earmEl = document.querySelector('#invest_earmarked tbody');
+          if(earmEl){ earmEl.innerHTML = InvestGoal.map(e=>`<tr><td>${e.goal}</td><td class="text-end">${fmt(e.lumpSum)}</td><td class="text-end">${fmt(e.SIP)}</td></tr>`).join(''); }
+
+            //earmarked.map(e=>`<tr><td>${e.earmarkedForGoal}</td><td>Type: ${e.typeOfFund||''} | Selected: ${e.selectedFunds||''} | LumpSum: ${fmt(e.lumpSum)} | SIP: ${fmt(e.SIP)}</td></tr>`).join(''); }
+
+
+            // ---------- COUNTRY/STATE BIND (runs AFTER your setTxt calls) ----------
+            // Provide the pairs of (country cell id, state cell id). State is optional.
+            const pairs = [
+              { countryId: 'addr_res_country',  stateId: 'addr_res_state'  },
+              { countryId: 'addr_perm_country', stateId: 'addr_perm_state' },
+              { countryId: 'addr_off_country',  stateId: 'addr_off_state'  },  // if "Office" section visible
+              { countryId: 'SpouseCmpCountry',  stateId: 'SpouseCmpState'  }   // spouse company cells (if used)
+            ];
+            await CountryStateMapper.run(COUNTRIES_JSON_URL, pairs);
+
+            // (Optional) If you want to hide the loader only after images (e.g., header.jpg) are ready:
+            // await new Promise(r => setTimeout(r, 50)); // tiny delay
+          } catch (err) {
+            console.error('Fetch error:', err);
+          } finally {
+            hideLoader();            // ALWAYS hide the overlay
+          }
+        })();
+
+        // ---------- PDF button stays as-is ----------
+        // document.getElementById('btn-generate').addEventListener('click', () => {
+        //   if (!window.html2pdf) { alert('PDF library failed to load.'); return; }
+        //   const opt = { margin:0, filename:'User-Summary.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['avoid-all','css','legacy']} };
+        //   html2pdf().set(opt).from(document.getElementById('sheet1')).save();
+        // });
+
+        document.getElementById('btn-generate').addEventListener('click', async () => {
+          if (!window.html2pdf) {
+            alert('PDF library failed to load.');
+            return;
+          }
+
+          const element = document.getElementById('sheet1');
+
+          const opt = {
+            margin: [20, 10, 20, 10],
+            filename: 'User-Summary.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+          };
+
+          try {
+            const pdf = await html2pdf().set(opt).from(element).toPdf().get('pdf');
+
+            const totalPages = pdf.internal.getNumberOfPages();
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+
+            // Image loader helper
+            const loadImage = (src) =>
+              new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.src = src;
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(`Failed to load image: ${src}`);
+              });
+
+            // Preload images
+                    const base = window.location.origin;
+        const [logo, phoneIcon, emailIcon, webIcon] = await Promise.all([
+          loadImage(base + '/images/header.jpg'),
+                  loadImage(base + '/images/icons/phone.png'),
+         loadImage(base + '/images/icons/email.png'),
+           loadImage(base + '/images/icons/web.png'),
+        ]);
+
+
+            // Layout settings
+            const logoHeight = 15;
+            const logoY = 5;
+            const iconSize = 3.5;
+
+            // Loop pages
+            for (let i = 1; i <= totalPages; i++) {
+              pdf.setPage(i);
+
+              // HEADER
+              pdf.addImage(logo, 'JPEG', 0, logoY, pageWidth, logoHeight);
+              pdf.setDrawColor(200);
+              pdf.line(10, logoY + logoHeight + 2, pageWidth - 10, logoY + logoHeight + 2);
+
+// === FOOTER (Left-Aligned) ===
+const footerY = pageHeight - 10;
+pdf.setDrawColor(220);
+pdf.line(10, footerY - 18, pageWidth - 10, footerY - 18);
+
+// === Company Name + Address (Left-Aligned) ===
+pdf.setFontSize(8.5);
+pdf.setTextColor(0, 0, 0);
+
+const companyName = 'Mainstream Investments Services Pvt. Ltd.';
+const companyAddress = ', Unit No-1003, 10th Floor, Noida One, Sector-62 Noida-201306';
+const leftMargin = 15; // left padding
+
+// Bold company name + normal address (same line)
+pdf.setFont('helvetica', 'bold');
+pdf.text(companyName, leftMargin, footerY - 10);
+const companyNameWidth = pdf.getTextWidth(companyName);
+pdf.setFont('helvetica', 'normal');
+pdf.text(companyAddress, leftMargin + companyNameWidth, footerY - 10);
+
+// === Contact Info (Left-Aligned) ===
+const iconSize = 4;
+const contactY = footerY - 3.5;
+let contactX = leftMargin;
+
+// Phone
+pdf.addImage(phoneIcon, 'PNG', contactX, contactY - 2.2, iconSize, iconSize);
+contactX += iconSize + 2;
+pdf.text('+91-93542 68360, 98113 33637', contactX, contactY);
+
+// Email
+contactX += pdf.getTextWidth('+91-93542 68360, 98113 33637  |  ');
+pdf.addImage(emailIcon, 'PNG', contactX, contactY - 2.2, iconSize, iconSize);
+contactX += iconSize + 2;
+pdf.text('advisor@mainstream.co.in', contactX, contactY);
+
+// Web
+contactX += pdf.getTextWidth('advisor@mainstream.co.in  |  ');
+pdf.addImage(webIcon, 'PNG', contactX, contactY - 2.2, iconSize, iconSize);
+contactX += iconSize + 2;
+pdf.text('www.mainstream.co.in', contactX, contactY);
+
+// === Page Number (Right-Aligned, Same Line) ===
+pdf.setFont('helvetica', 'normal');
+pdf.setFontSize(9);
+pdf.setTextColor(50);
+pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 20, contactY, { align: 'right' });
+
+            }
+
+            pdf.save('User-Summary.pdf');
+          } catch (error) {
+            console.error('❌ PDF Generation Failed:', error);
+            alert('Failed to load one or more images. Please verify your image paths.');
+          }
+        });
+
+
+
+
+        /*
+
+        const API_URL = '/userprofile/data';
+
+        const get = (obj, path, def='') => {
+          try{ const v = path.split('.').reduce((a,k)=> (a && a[k]!==undefined ? a[k] : undefined), obj); return (v==null?def:v); }catch(e){return def}
+        };
+        const toNum = (x)=>{ if(x===''||x==null) return 0; const n = Number(String(x).replace(/,/g,'')); return isNaN(n)?0:n; };
+        const fmt = (x)=>{ if(x===''||x==null) return ''; const n = Number(x); return isNaN(n)? String(x) : n.toLocaleString(); };
+        const setTxt = (id,val='')=>{ const el=document.getElementById(id); if(el) el.textContent = (val??''); };
+        const fillPairs = (tbody, obj)=>{ if(!tbody) return; tbody.innerHTML = Object.entries(obj||{}).map(([k,v])=>`<tr><td>${k}</td><td class="text-end">${fmt(v)}</td></tr>`).join(''); };
+
+        fetch(API_URL).then(r=>r.json()).then(data=>{
+          const root = data?.awaken || data || {};
+          const awareness = get(root,'awareness',{});
+
+            function fmt1(value) {
+            if (value == null) return '';
+            if (typeof value === 'number') return value.toLocaleString();
+            return value.toString();
+        }
+
+          // Plan & Applicant
+          setTxt('planType', get(awareness,'planDetails.planType'));
+          setTxt('planYear', get(awareness,'planDetails.planYear'));
+          setTxt('planDuration', get(awareness,'planDetails.planDuration'));
+
+          const p = get(awareness,'personalDetails',{});
+          setTxt('p_name', p.name||''); setTxt('p_gender', p.gender||''); setTxt('p_dob', p.dob||'');
+          setTxt('p_phone', p.phone||''); setTxt('p_altPhone', p.altPhone||'');setTxt('p_email', p.email||'');
+          setTxt('p_secEmail', p.secEmail||'');setTxt('p_aadhaar', p.aadhaar||'');setTxt('p_pan', p.pan||''); setTxt('p_occ', p.occupation||'');
+
+          setTxt('maritalStatus', get(awareness,'maritalDetails.maritalStatus'));
+          const fam = get(awareness,'familyFinancial',{});
+          setTxt('fam_stock', fam.stock||''); setTxt('fam_income', fam.income||''); setTxt('fam_payment', fam.payment||''); setTxt('fam_holiday', fam.holiday||''); setTxt('fam_shopping', fam.shopping||'');
+
+          // Addresses
+          const res = get(p,'address.residential',{}), perm = get(p,'address.permanent',{}), off = get(p,'address.office',{});
+          setTxt('addr_res_address', res.address||''); setTxt('addr_res_city', res.city||''); setTxt('addr_res_state', res.state||''); setTxt('addr_res_pin', res.pinCode||''); setTxt('addr_res_country', res.country||'');
+          setTxt('addr_perm_address', perm.address||''); setTxt('addr_perm_city', perm.city||''); setTxt('addr_perm_state', perm.state||''); setTxt('addr_perm_pin', perm.pinCode||''); setTxt('addr_perm_country', perm.country||'');
+          setTxt('addr_off_company', off.company||''); setTxt('addr_off_address', off.address||''); setTxt('addr_off_city', off.city||''); setTxt('addr_off_state', off.state||''); setTxt('addr_off_pin', off.pinCode||''); setTxt('addr_off_country', off.country||'');
+
+          // Spouse & Children
+          const s = get(awareness,'maritalDetails.spouseDetails',{})||{};
+          setTxt('spouseName', s.spouseName||''); setTxt('spouseGender', s.spouseGender||''); setTxt('spouseDob', s.spouseDob||'');setTxt('spousePhone', s.spousePhone||''); setTxt('spouseAltPhone', s.spouseAltPhone||'');
+          setTxt('spouseAadhaar', s.spouseAadhaar||'');setTxt('spouseSecEmail', s.spouseSecEmail||'');
+          setTxt('spouseEmail', s.spouseEmail||''); setTxt('spousePan', s.spousePan||''); setTxt('spouseOccupation', s.spouseOccupation||'');
+           setTxt('SpouseCmpAddress', s.SpouseCmpAddress||'');
+           setTxt('SpouseCmpCity', s.SpouseCmpCity||'');
+           setTxt('SpouseCmpCountry', s.SpouseCmpCountry||'');
+           setTxt('SpouseCmpName', s.SpouseCmpName||'');
+           setTxt('SpouseCmpPincode', s.SpouseCmpPincode||'');
+           setTxt('SpouseCmpState', s.SpouseCmpState||'');
+
+
+            
+
+          const children = Array.isArray(get(awareness,'maritalDetails.childrenDetails',[]))? get(awareness,'maritalDetails.childrenDetails',[]):[];
+          const cbody = document.getElementById('children_tbody');
+          if(cbody){ cbody.innerHTML = children.length ? children.map((c,i)=>`
+            <tr><td>Child ${i+1}</td>
+                <td>${c.childName??''}</td>
+                <td>${c.childGender??''}</td>
+                <td>${c.childDob??''}</td>
+                <td>${c.childPhone??''}</td>
+                <td>${c.childEmail??''}</td>
+                <td class="text-uppercase">${c.childPan??''}</td>
+            </tr>`).join('') : '<tr><td colspan="7" class="text-center">NA</td></tr>'; }
+
+          // Assumptions
+          const a = get(awareness,'assumptions',{});
+          setTxt('ass_equity', a.equity??''); setTxt('ass_debt', a.debt??''); setTxt('ass_gold', a.gold??''); setTxt('ass_re', a.realEstateReturn??'');
+          setTxt('ass_liquid', a.liquidFunds??''); setTxt('ass_infl', a.inflationRates??''); setTxt('ass_edu_infl', a.educationInflation??'');
+          setTxt('ass_ret_app', a.applicantRetirement??''); setTxt('ass_ret_sp', a.spouseRetirement??''); setTxt('ass_life_app', a.applicantLifeExpectancy??''); setTxt('ass_life_sp', a.spouseLifeExpectancy??'');
+
+          // WINGS – selectedForms
+          const selGoals = Array.isArray(get(root,'wings.selectedForms',[]))? get(root,'wings.selectedForms',[]):[];
+          const gt = document.querySelector('#goals_table tbody');
+                        if(gt){ gt.innerHTML = selGoals.length ? selGoals.map(g=>`<tr>
+                              <td class="text-center">${g.priority??''}</td><td>${g.goal??''}</td>
+                              <td class="text-center">${g.goalStartYear??''}</td>
+                              <td class="text-center">${g.goalPlanYear??''}</td><td class="text-center">
+                            ${g.timeHorizon??''}</td></tr>`).join('') : '<tr><td colspan="5"></td></tr>'; }
+
+          // ALERTNESS – Income & Expenses
+          const alert2 = get(root,'alertness.alertness',{});
+          const inc = get(alert2,'incomeDetail.income',{});
+          const spI = get(alert2,'incomeDetail.spouseIncome',{});
+
+          function objRows(obj, filterKeys=[]) {
+            return Object.entries(obj||{})
+              .filter(([k,v])=> typeof v!=='object' && (filterKeys.length? filterKeys.includes(k): true))
+              .map(([k,v])=>`<tr><td style="width:70%;" >${k}</td><td class="text-end">${fmt(v)}</td></tr>`).join('');
+          }
+          function numericSum(obj){ return Object.values(obj||{}).reduce((t,v)=> t + (typeof v==='object'?0:toNum(v)), 0); }
+
+          const incBody = document.getElementById('income_rows'); if(incBody){ incBody.innerHTML = objRows(inc); }
+          setTxt('income_total', numericSum(inc).toLocaleString());
+          const spBody = document.getElementById('sp_income_rows'); if(spBody){ spBody.innerHTML = objRows(spI); }
+          setTxt('sp_income_total', numericSum(spI).toLocaleString());
+
+          // Expenses buckets
+          const exp = get(alert2,'expenses',{});
+          const buckets = [
+            ['homeExpenses','exp_home'],['conveyance','exp_conv'],['communication','exp_comm'],
+            ['utilities','exp_util'],['educationalExpenses','exp_edu'],['entertainmentRecreation','exp_ent'],
+            ['medical','exp_med'],['newReplacementItems','exp_new'],['insurance','exp_ins'],['otherExpenses','exp_oth']
+          ];
+          buckets.forEach(([key,tbodyId])=>{
+            const obj = get(exp,key,{});
+            const entries = Object.entries(obj||{}).filter(([k,v])=>k!=='new');
+            const html = entries.map(([k,v])=>`<tr><td>${k}</td><td class="text-end">${fmt1(v)}</td></tr>`).join('');
+            const el = document.getElementById(tbodyId); if(el) el.innerHTML = html || '<tr><td></td><td></td></tr>';
+          });
+
+          // Savings
+          const sav = get(alert2,'savings',{});
+          const savRows = [];
+          (sav.committedSavings||[]).forEach(x=> savRows.push(`<tr><td>Committed – ${x.name}</td><td>CV: ${fmt1(x.currentValue)} | Monthly: ${fmt1(x.monthlyContribution)} | Till: ${x.tillWhen||''} | FollowUp: ${x.followUp||''}</td></tr>`));
+          (sav.new||[]).forEach(x=> savRows.push(`<tr><td>New – ${x.name}</td><td>CV: ${fmt1(x.currentValue)} | Monthly: ${fmt1(x.monthlyContribution)} | Till: ${x.tillWhen||''} | FollowUp: ${x.followUp||''}</td></tr>`));
+          const savEl = document.getElementById('sav_rows'); if(savEl) savEl.innerHTML = savRows.join('') || '<tr><td></td><td></td></tr>';
+
+          // EMIs
+          const emis = Array.isArray(get(alert2,'emi',[]))? get(alert2,'emi',[]):[];
+          const emiEl = document.getElementById('emi_rows'); if(emiEl){ emiEl.innerHTML = emis.map(e=>`<tr><td>${e.Name}</td><td>Outstanding: ${fmt1(e.Outstanding)} | Interest: ${fmt1(e.Interest)} | Principal: ${fmt1(e.Principal)} | Monthly: ${fmt1(e.Monthly)} | Till: ${e.Till}</td></tr>`).join(''); }
+
+          // Net Worth
+          const nw = get(alert2,'netWorth',{});
+          fillPairs(document.getElementById('nw_invest'), get(nw,'investments',{}));
+          fillPairs(document.getElementById('nw_assets'), get(nw,'otherAssets',{}));
+          fillPairs(document.getElementById('nw_liab'), get(nw,'liabilities',{}));
+
+          // Debt
+          fillPairs(document.getElementById('bad_loans'), get(alert2,'debt.badLoans',{}));
+          fillPairs(document.getElementById('good_loans'), get(alert2,'debt.goodLoans',{}));
+
+          // Insurances
+          const life = Array.isArray(get(alert2,'lifeInsurance.insurance',[]))? get(alert2,'lifeInsurance.insurance',[]):[];
+          const gen  = Array.isArray(get(alert2,'generalInsurance.insurance',[]))? get(alert2,'generalInsurance.insurance',[]):[];
+          const lifeEl = document.getElementById('life_ins'); if(lifeEl){ lifeEl.innerHTML = life.map(i=>`<tr><td>${i.insuranceType}</td><td>Name: ${i.name||''} | Coverage: ${fmt(i.amountOfCoverage)} | Premium Due: ${i.premiumDueDate||''} | Maturity: ${i.maturityDate||''}</td></tr>`)
+          .join('')  || '<tr><td colspan="2"  class="text-center">No records found.</td></tr>'; }
+          //.join(''); }
+          
+
+          const genEl  = document.getElementById('gen_ins'); if(genEl){ genEl.innerHTML = gen.map(i=>`<tr><td>${i.insuranceType}</td><td>Coverage: ${fmt(i.amountOfCoverage)} | Premium Due: ${i.premiumDueDate||''} | Maturity: ${i.maturityDate||''}</td></tr>`)            
+          .join('') || '<tr><td colspan="2" class="text-center">No records found.</td></tr>'; }
+          //.join(''); }
+
+          //s4 Knowledge (awaken.knowledge.knowledge)
+          const know = get(root,'knowledge.knowledge',{});
+          setTxt('risk_cap', know.riskCapacity||''); setTxt('risk_req', know.riskRequirement||''); setTxt('risk_tol', know.riskTolerance||'');
+          setTxt('risk_score', know.totalRiskProfileScore||''); setTxt('risk_planner', know.plannerAssessmentOnRiskProfile||'');
+         //  <tr><th>Total Risk Score</th><td id="risk_score"></td></tr>
+         //  <tr><th>Planner Assessment</th><td id="risk_planner"></td></tr>
+         //  <table class="ff">
+         //  <tr><th>Selected Risk Profile (Invest)</th><td id="invest_sel_risk"></td></tr>
+         //  <tr><th>Family Monthly Income (Invest)</th><td id="invest_fam_inc"></td></tr>
+         //  <tr><th>Family Monthly Expenses (Invest)</th><td id="invest_fam_exp"></td></tr>
+         //  </table>
+          // Invest aggregates
+          // // setTxt('invest_sel_risk', get(root,'Invest.knowledge.selectedRiskProfile'));
+          // // setTxt('invest_fam_inc', get(root,'Invest.alertness.familyMonthlyIncomeTotal'));
+          // // setTxt('invest_fam_exp', get(root,'Invest.alertness.familyMonthlyExpensesTotal'));
+
+          //////---S5    // ExecutePlan – Goal Data
+        const gdata = Array.isArray(get(root,'ExecutePlan.formData.goalData',[]))? get(root,'ExecutePlan.formData.goalData',[]):[];
+
+        const gtbody = document.querySelector('#exec_goaldata tbody');
+
+        if (gtbody && Array.isArray(gdata)) {
+            gtbody.innerHTML = gdata.map(goal => {
+                const rows = Object.entries(goal)
+                    .filter(([k]) => k !== 'name') // exclude 'name' from detail rows
+                    .map(([key, value]) => {
+                        if (key === 'Goal Name') {//<strong>${key}:</strong>
+                        return `<tr><th colspan="2" class="text-center fw-bold"> ${fmt(value)}</th></tr>`;
+                        }
+                        return `<tr><td>${key}</td><td>${fmt(value)}</td></tr>`;
+                    })
+                    .join('');
+
+                  return `${rows}`;
+                 // return `<tr class="border border-top border-3"><th colspan="2"></th></tr>${rows}`;
+            }).join('');
+        }
+
+                    //.map(([key, value]) => `<tr ><td>${key}</td><td>${fmt(value)}</td></tr>`)
+           //-------without seprate
+        
+                function fmt(value) {
+            if (value == null) return '';
+            if (typeof value === 'number') return value.toLocaleString();
+            return value.toString();
+        }
+
+
+        // Act Now – savings
+          const investSav = get(root,'Invest.actNow.savingsForInvestments',{});
+          fillPairs(document.querySelector('#invest_savings tbody'), investSav);
+
+          // Life/General Insurance Req
+          // // const lifeReq = Array.isArray(get(root,'Invest.actNow.lifeInsuranceReq',[]))? get(root,'Invest.actNow.lifeInsuranceReq',[]):[];
+          // // const genReq  = Array.isArray(get(root,'Invest.actNow.generalInsuranceReq',[]))? get(root,'Invest.actNow.generalInsuranceReq',[]):[];
+
+          // // const lifeReqEl = document.querySelector('#invest_life_req tbody'); if(lifeReqEl){ lifeReqEl.innerHTML = lifeReq.map(r=>`<tr><th>${r.GoalName}</th><td>Lumpsum: ${fmt(r.LumpsumAmount)} | SIP: ${fmt(r.Sipamount)}</td></tr>`).join(''); }
+          // // const genReqEl  = document.querySelector('#invest_gen_req tbody'); if(genReqEl){ genReqEl.innerHTML = genReq.map(r=>`<tr><th>${r.GoalName}</th><td>Lumpsum: ${fmt(r.LumpsumAmount)} | SIP: ${fmt(r.Sipamount)}</td></tr>`).join(''); }
+          //////---S6
+          // Action Plan Totals
+          //const actTotals = get(root,'Invest.actNow.actionPlanFinancialGoals.total',{});
+          // fillPairs(document.querySelector('#invest_action_totals tbody'), actTotals);
+
+          // savingsForInvestments
+                  const savingsForInvestmentsRaw = get(root,'Invest.actNow.savingsForInvestments',{});
+        const savingsForInvestments = Array.isArray(savingsForInvestmentsRaw)
+          ? savingsForInvestmentsRaw : [savingsForInvestmentsRaw];  // wrap in array if it’s an object
+
+          const earmElSavings = document.querySelector('#invest_savings tbody');
+          if(earmElSavings){ earmElSavings.innerHTML = savingsForInvestments.map(e=>`<tr><td class="text-end">${fmt(e.MonthlySavings)}</td><td class="text-end">${fmt(e.intendedSipMonthly)}</td><td class="text-end">${fmt(e.availableLumpsum)}</td></tr>`).join(''); }
+
+          //InvestGoalList
+          const InvestGoal = Array.isArray(get(root,'Invest.actNow.InvestGoal',[]))? get(root,'Invest.actNow.InvestGoal',[]):[];
+          const earmEl = document.querySelector('#invest_earmarked tbody');
+          if(earmEl){ earmEl.innerHTML = InvestGoal.map(e=>`<tr><td>${e.goal}</td><td class="text-end">${fmt(e.lumpSum)}</td><td class="text-end">${fmt(e.SIP)}</td></tr>`).join(''); }
+
+            //earmarked.map(e=>`<tr><td>${e.earmarkedForGoal}</td><td>Type: ${e.typeOfFund||''} | Selected: ${e.selectedFunds||''} | LumpSum: ${fmt(e.lumpSum)} | SIP: ${fmt(e.SIP)}</td></tr>`).join(''); }
+        }).catch(err=>{
+          console.error('Fetch error:', err);
+        });
+
+        // PDF
+        document.getElementById('btn-generate').addEventListener('click', () => {
+          if (!window.html2pdf) { alert('PDF library failed to load.'); return; }
+          const opt = { margin:0, filename:'User-Summary.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['avoid-all','css','legacy']} };
+          html2pdf().set(opt).from(document.getElementById('sheet1')).save();
+        });*/
+    </script>
+</body>
+</html>
+
+@{
+
+
+    /*
+
+            <div id="sheet1" class="sheet">
+                <div class="section">
+                    <div class="section-title"><div id="p_name"></div>User Summary Report – Plan Overview</div>
+                    <div class="section-body grid3">
+                        <table class="ff">
+                            <caption class="fw-bold mb-1">Plan Details</caption>
+                            <tr><th>Plan Type</th><td id="planType"></td></tr>
+                            <tr><th>Plan Year</th><td id="planYear"></td></tr>
+                            <tr><th>Plan Duration</th><td id="planDuration"></td></tr>
+                        </table>
+                        <table class="ff">
+                            <caption class="fw-bold mb-1">Applicant</caption>
+                            <tr><th>Name</th><td id="p_name"></td></tr>
+                            <tr><th>Gender</th><td id="p_gender"></td></tr>
+                            <tr><th>DOB</th><td id="p_dob"></td></tr>
+                            <tr><th>Phone</th><td id="p_phone"></td></tr>
+                            <tr><th>Email</th><td id="p_email"></td></tr>
+                            <tr><th>PAN</th><td id="p_pan"></td></tr>
+                            <tr><th>Occupation</th><td id="p_occ"></td></tr>
+                        </table>
+                        <table class="ff">
+                            <caption class="fw-bold mb-1">Family & Behaviour</caption>
+                            <tr><th>Marital Status</th><td id="maritalStatus"></td></tr>
+                            <tr><th>Invests in Stock</th><td id="fam_stock"></td></tr>
+                            <tr><th>Income Trend</th><td id="fam_income"></td></tr>
+                            <tr><th>Payments</th><td id="fam_payment"></td></tr>
+                            <tr><th>Holidays</th><td id="fam_holiday"></td></tr>
+                            <tr><th>Shopping</th><td id="fam_shopping"></td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Addresses</div>
+                    <div class="section-body grid3">
+                        <table class="ff">
+                            <caption class="fw-bold mb-1">Residential</caption>
+                            <tr><th>Address</th><td id="addr_res_address"></td></tr>
+                            <tr><th>City</th><td id="addr_res_city"></td></tr>
+                            <tr><th>State</th><td id="addr_res_state"></td></tr>
+                            <tr><th>PIN</th><td id="addr_res_pin"></td></tr>
+                            <tr><th>Country</th><td id="addr_res_country"></td></tr>
+                        </table>
+                        <table class="ff">
+                            <caption class="fw-bold mb-1">Permanent</caption>
+                            <tr><th>Address</th><td id="addr_perm_address"></td></tr>
+                            <tr><th>City</th><td id="addr_perm_city"></td></tr>
+                            <tr><th>State</th><td id="addr_perm_state"></td></tr>
+                            <tr><th>PIN</th><td id="addr_perm_pin"></td></tr>
+                            <tr><th>Country</th><td id="addr_perm_country"></td></tr>
+                        </table>
+                        <table class="ff">
+                            <caption class="fw-bold mb-1">Office</caption>
+                            <tr><th>Company</th><td id="addr_off_company"></td></tr>
+                            <tr><th>Address</th><td id="addr_off_address"></td></tr>
+                            <tr><th>City</th><td id="addr_off_city"></td></tr>
+                            <tr><th>State</th><td id="addr_off_state"></td></tr>
+                            <tr><th>PIN</th><td id="addr_off_pin"></td></tr>
+                            <tr><th>Country</th><td id="addr_off_country"></td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Spouse & Children</div>
+                    <div class="section-body grid2">
+                        <table class="ff">
+                            <caption class="fw-bold mb-1">Spouse</caption>
+                            <tr><th>Name</th><td id="s_name"></td></tr>
+                            <tr><th>Gender</th><td id="s_gender"></td></tr>
+                            <tr><th>DOB</th><td id="s_dob"></td></tr>
+                            <tr><th>Phone</th><td id="s_phone"></td></tr>
+                            <tr><th>Email</th><td id="s_email"></td></tr>
+                            <tr><th>PAN</th><td id="s_pan"></td></tr>
+                            <tr><th>Occupation</th><td id="s_occ"></td></tr>
+                        </table>
+                        <div>
+                            <table class="ff">
+                                <caption class="fw-bold mb-1">Children</caption>
+                                <tbody id="children_tbody"><tr><th>Child</th><td></td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Assumptions</div>
+                    <div class="section-body grid3">
+                        <table class="ff">
+                            <tr><th>Equity %</th><td id="ass_equity"></td></tr>
+                            <tr><th>Debt %</th><td id="ass_debt"></td></tr>
+                            <tr><th>Gold %</th><td id="ass_gold"></td></tr>
+                            <tr><th>Real Estate Return %</th><td id="ass_re"></td></tr>
+                        </table>
+                        <table class="ff">
+                            <tr><th>Liquid Funds %</th><td id="ass_liquid"></td></tr>
+                            <tr><th>Inflation %</th><td id="ass_infl"></td></tr>
+                            <tr><th>Education Inflation %</th><td id="ass_edu_infl"></td></tr>
+                        </table>
+                        <table class="ff">
+                            <tr><th>Applicant Retirement Age</th><td id="ass_ret_app"></td></tr>
+                            <tr><th>Spouse Retirement Age</th><td id="ass_ret_sp"></td></tr>
+                            <tr><th>Applicant Life Expectancy</th><td id="ass_life_app"></td></tr>
+                            <tr><th>Spouse Life Expectancy</th><td id="ass_life_sp"></td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">WINGS – Selected Goals</div>
+                    <div class="section-body">
+                        <table class="ff" id="goals_table">
+                            <thead><tr><th>Priority</th><th>Goal</th><th>Start Year</th><th>Plan Year</th><th>Time Horizon (yrs)</th></tr></thead>
+                            <tbody><tr><td colspan="5"></td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">ALERTNESS – Income & Expenses</div>
+                    <div class="section-body grid2">
+                        <table class="ff" id="income_table">
+                            <caption class="fw-bold mb-1">Applicant Monthly Income</caption>
+                            <tbody id="income_rows"></tbody>
+                            <tfoot><tr><th>Total (calc)</th><td id="income_total"></td></tr></tfoot>
+                        </table>
+                        <table class="ff" id="sp_income_table">
+                            <caption class="fw-bold mb-1">Spouse Monthly Income</caption>
+                            <tbody id="sp_income_rows"></tbody>
+                            <tfoot><tr><th>Total (calc)</th><td id="sp_income_total"></td></tr></tfoot>
+                        </table>
+                    </div>
+                    <div class="section-body">
+                        <div class="grid3">
+                            <table class="ff"><caption class="fw-bold mb-1">Home Expenses</caption><tbody id="exp_home"></tbody></table>
+                            <table class="ff"><caption class="fw-bold mb-1">Conveyance</caption><tbody id="exp_conv"></tbody></table>
+                            <table class="ff"><caption class="fw-bold mb-1">Communication</caption><tbody id="exp_comm"></tbody></table>
+                        </div>
+                        <div class="grid3 mt-2">
+                            <table class="ff"><caption class="fw-bold mb-1">Utilities</caption><tbody id="exp_util"></tbody></table>
+                            <table class="ff"><caption class="fw-bold mb-1">Educational</caption><tbody id="exp_edu"></tbody></table>
+                            <table class="ff"><caption class="fw-bold mb-1">Entertainment</caption><tbody id="exp_ent"></tbody></table>
+                        </div>
+                        <div class="grid3 mt-2">
+                            <table class="ff"><caption class="fw-bold mb-1">Medical</caption><tbody id="exp_med"></tbody></table>
+                            <table class="ff"><caption class="fw-bold mb-1">New/Replacement</caption><tbody id="exp_new"></tbody></table>
+                            <table class="ff"><caption class="fw-bold mb-1">Insurance</caption><tbody id="exp_ins"></tbody></table>
+                        </div>
+                        <div class="grid3 mt-2">
+                            <table class="ff"><caption class="fw-bold mb-1">Other Expenses</caption><tbody id="exp_oth"></tbody></table>
+                            <table class="ff"><caption class="fw-bold mb-1">Savings</caption><tbody id="sav_rows"></tbody></table>
+                            <table class="ff"><caption class="fw-bold mb-1">EMIs</caption><tbody id="emi_rows"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Net Worth & Debt</div>
+                    <div class="section-body grid3">
+                        <table class="ff"><caption class="fw-bold mb-1">Investments</caption><tbody id="nw_invest"></tbody></table>
+                        <table class="ff"><caption class="fw-bold mb-1">Other Assets</caption><tbody id="nw_assets"></tbody></table>
+                        <table class="ff"><caption class="fw-bold mb-1">Liabilities</caption><tbody id="nw_liab"></tbody></table>
+                    </div>
+                    <div class="section-body grid2">
+                        <table class="ff"><caption class="fw-bold mb-1">Bad Loans</caption><tbody id="bad_loans"></tbody></table>
+                        <table class="ff"><caption class="fw-bold mb-1">Good Loans</caption><tbody id="good_loans"></tbody></table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Insurances</div>
+                    <div class="section-body grid2">
+                        <table class="ff"><caption class="fw-bold mb-1">Life Insurance</caption><tbody id="life_ins"></tbody></table>
+                        <table class="ff"><caption class="fw-bold mb-1">General Insurance</caption><tbody id="gen_ins"></tbody></table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Knowledge – Risk Profile</div>
+                    <div class="section-body grid2">
+                        <table class="ff">
+                            <tr><th>Risk Capacity</th><td id="risk_cap"></td></tr>
+                            <tr><th>Risk Requirement</th><td id="risk_req"></td></tr>
+                            <tr><th>Risk Tolerance</th><td id="risk_tol"></td></tr>
+                            <tr><th>Total Risk Score</th><td id="risk_score"></td></tr>
+                            <tr><th>Planner Assessment</th><td id="risk_planner"></td></tr>
+                        </table>
+                        <table class="ff">
+                            <tr><th>Selected Risk Profile (Invest)</th><td id="invest_sel_risk"></td></tr>
+                            <tr><th>Family Monthly Income (Invest)</th><td id="invest_fam_inc"></td></tr>
+                            <tr><th>Family Monthly Expenses (Invest)</th><td id="invest_fam_exp"></td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Execute Plan & Invest – Actions</div>
+                    <div class="section-body">
+                        <div class="grid2">
+                            <table class="ff" id="exec_goaldata"><caption class="fw-bold mb-1">ExecutePlan – Goal Data</caption><tbody></tbody></table>
+                            <table class="ff" id="invest_savings"><caption class="fw-bold mb-1">Act Now – Savings For Investments</caption><tbody></tbody></table>
+                        </div>
+                        <div class="grid2 mt-2">
+                            <table class="ff" id="invest_action_totals"><caption class="fw-bold mb-1">Action Plan Totals</caption><tbody></tbody></table>
+                            <table class="ff" id="invest_earmarked"><caption class="fw-bold mb-1">Earmarked</caption><tbody></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+    */
+
+
+    /*
+
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>User Summary Report</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+
+            <!-- Bootstrap 5 CDN -->
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+            <style>
+
+                // keep capture tight; avoid default margins causing stray white space
+                html, body {
+                    margin: 0;
+                    padding: 0;
+                    background: #fff;
+                }
+
+                #contentToPrint {
+                    margin: 0;
+                    padding: 0;
+                }
+
+                * {
+                    box-sizing: border-box;
+                }
+
+                // optional: control manual page breaks in HTML
+                .html2pdf__page-break {
+                    break-before: page;
+                    page-break-before: always;
+                }
+
+                // better color fidelity when printing
+                 //media print {
+               //   html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    //
+               //         }
+
+
+
+                body {
+                    background-color: #f8f9fa;
+                    padding: 20px;
+                }
+
+                h1, h2 {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+
+                table {
+                    margin-bottom: 30px;
+                }
+
+                th {
+                    width: 30%;
+                    background-color: #f1f1f1;
+                }
+
+                td, th {
+                    padding: 10px !important;
+                }
+
+                .section {
+                    margin-bottom: 40px;
+                }
+
+
+                table, tr, td, th {
+                    page-break-inside: avoid !important;
+                    break-inside: avoid !important;
+                }
+
+                .section {
+                    page-break-inside: avoid !important;
+                    break-inside: avoid !important;
+                }
+
+                h2, h5 {
+                    page-break-after: avoid !important;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container" id="content">
+                <h1>User Summary Report</h1>
+                <p class="text-center">Loading data...</p>
+            </div>
+
+            <!-- html2pdf CDN -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+            <script>
+                const API_URL = '/userprofile/data';
+
+                fetch(API_URL)
+                    .then(response => response.json())
+                    .then(data => {
+                        const root = data.awaken;
+                        console.log(root);
+
+                        const planDetails = root.awareness.planDetails;
+                        const personal = root.awareness.personalDetails;
+                        const spouse = root.awareness.maritalDetails.spouseDetails;
+                        const children = root.awareness.maritalDetails.childrenDetails;
+                        const goals = root.wings.selectedForms;
+
+                        const contentDiv = document.getElementById("content");
+                        contentDiv.innerHTML = `
+                                <h1>User Summary Report</h1>
+                                 <div class="section">
+                                    <h2>Plan Details</h2>
+                                    <div class="row">
+                                        <div class="col-12 col-md-4">
+                                        Plan Type : ${planDetails.planType}
+                                        </div>
+                                         <div class="col-12 col-md-4">
+                                          Plan Year : ${planDetails.planYear}
+                                        </div>
+                                         <div class="col-12 col-md-4">
+                                          Plan Duration : ${planDetails.planDuration}
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                                <div class="section">
+                                    <h2>Personal Details</h2>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped">
+                                            <tr><th>Name</th><td>${personal.name}</td></tr>
+                                            <tr><th>Gender</th><td>${personal.gender}</td></tr>
+                                            <tr><th>DOB</th><td>${personal.dob}</td></tr>
+                                            <tr><th>Phone</th><td>${personal.phone}</td></tr>
+                                            <tr><th>Email</th><td>${personal.email}</td></tr>
+                                            <tr><th>Aadhaar</th><td>${personal.aadhaar}</td></tr>
+                                            <tr><th>PAN</th><td>${personal.pan}</td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="section">
+                                    <h2>Spouse Details</h2>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped">
+                                            <tr><th>Name</th><td>$4{spouse.spouseName  ?? ''}</td></tr>
+                                            <tr><th>DOB</th><td>$4{spouse.spouseDob  ?? ''}</td></tr>
+                                            <tr><th>Phone</th><td>$4{spouse.spousePhone ?? ''}</td></tr>
+                                            <tr><th>Email</th><td>$4{spouse.spouseEmail ?? ''}</td></tr>
+                                            <tr><th>PAN</th><td>$4{spouse.spousePan ?? ''}</td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="section">
+                                    <h2>Children Details</h2>
+                                    ${children.map((child, index) => `
+                                        <div class="mb-3">
+                                            <h5>Child ${index + 1}</h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-striped">
+                                                    <tr><th>Name</th><td>${child.childName}</td></tr>
+                                                    <tr><th>DOB</th><td>${child.childDob}</td></tr>
+                                                    <tr><th>Phone</th><td>${child.childPhone}</td></tr>
+                                                    <tr><th>Email</th><td>${child.childEmail}</td></tr>
+                                                    <tr><th>PAN</th><td>${child.childPan}</td></tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+
+                                <div class="section">
+                                    <h2>Selected Goals</h2>
+                                    ${goals.map((goal, index) => `
+                                        <div class="mb-3">
+                                            <h5>Goal ${index + 1}</h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-striped">
+                                                    <tr><th>Goal</th><td>${goal.goal}</td></tr>
+                                                    <tr><th>Start Year</th><td>${goal.goalStartYear}</td></tr>
+                                                    <tr><th>Plan Year</th><td>${goal.goalPlanYear}</td></tr>
+                                                    <tr><th>Priority</th><td>${goal.priority}</td></tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+
+                        //setTimeout(() => {
+                        //    html2pdf().from(contentDiv).save('User-Summary.pdf');
+                        //}, 2000);
+
+                        setTimeout(() => {
+                            const opt = {
+                                margin: 0.5,
+                                filename: 'User-Summary.pdf',
+                                image: { type: 'jpeg', quality: 0.98 },
+                                html2canvas: { scale: 2 },
+                                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+                                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                            };
+
+                            html2pdf().set(opt).from(contentDiv).save();
+                        }, 2000);
+
+
+                    })
+                    .catch(err => {
+                        document.getElementById("content").innerHTML = "<p class='text-danger'>Error loading data.</p>";
+                        console.error("Fetch error:", err);
+                    });
+            </script>
+        </body>
+        </html>
+
+    */
+}

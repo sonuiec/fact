@@ -1,0 +1,262 @@
+﻿@using FactFinderWeb.ModelsView
+@model MVLoginRegister
+@{
+	ViewData["Title"] = "Registration";
+	//Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+	.validation-summary-errors,
+	.validation-summary-valid {
+		display: inline-block;
+		padding: 5px;
+		border: 1px solid #ccc;
+		margin-bottom: 10px;
+	}
+
+	.validation-summary-errors ul {
+		list-style-type: none;
+		padding-left: 0;
+	}
+
+		.validation-summary-errors::first-letter {
+			display: none; /* This will hide the first word, which should be "The" */
+		}
+	.form-wrap {
+		background: rgba(255,255,255,1);
+		width: 100%;
+		max-width: 850px;
+		padding: 50px;
+		margin: 0 auto;
+		position: relative;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		border-radius: 10px;
+		-webkit-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		-moz-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		margin-top: 10px;
+		margin-bottom: 80px;
+	}
+
+		.form-wrap:before {
+			content: "";
+			width: 90%;
+			height: calc(100% + 60px);
+			left: 0;
+			right: 0;
+			margin: 0 auto;
+			position: absolute;
+			top: -30px;
+			background: #101357;
+			z-index: -1;
+			opacity: 0.8;
+			-webkit-border-radius: 10px;
+			-moz-border-radius: 10px;
+			border-radius: 10px;
+			-webkit-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+			-moz-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+			box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
+		}
+
+	.form-group {
+		margin-bottom: 25px;
+	}
+
+		.form-group > label {
+			display: block;
+			font-size: 18px;
+			color: #000;
+			letter-spacing: 1px;
+		}
+
+	.custom-control-label {
+		color: #000;
+		font-size: 16px;
+	}
+
+	.form-control {
+		height: 50px;
+		background: #ecf0f4;
+		border-color: transparent;
+		padding: 0 15px;
+		font-size: 16px;
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+	}
+
+		.form-control:focus {
+			border-color: #00bcd9;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+	textarea.form-control {
+		height: 51px;
+		padding-top: 15px;
+		resize: none;
+	}
+
+	.btn {
+		padding: .657rem .75rem;
+		font-size: 18px;
+		letter-spacing: 0.050em;
+		-webkit-transition: all 0.3s ease-in-out;
+		-moz-transition: all 0.3s ease-in-out;
+		-o-transition: all 0.3s ease-in-out;
+		transition: all 0.3s ease-in-out;
+		width: 48%;
+	}
+
+	.btn-primary {
+		color: #fff;
+		background-color: #FF1D58;
+		border-color: #FF1D58;
+	}
+
+		.btn-primary:hover {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+		.btn-primary:focus, .btn-primary.focus {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+		}
+
+		.btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
+		.show > .btn-primary.dropdown-toggle {
+			color: #101357;
+			background-color: #ffffff;
+			border-color: #101357;
+		}
+
+			.btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus,
+			.show > .btn-primary.dropdown-toggle:focus {
+				-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+				-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+				box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+			}
+
+	.imgh {
+		width: 300px;
+		height: 200px;
+		object-fit: contain;
+	}
+
+</style>
+
+<div class="container">
+	<div class="text-center"><img src="/images/main.png" class="imgh" alt="Logo"></div>
+
+	<div class="form-wrap">
+		<form id="survey-form" method="post" asp-action="register" asp-controller="User" novalidate>
+			<div class="row">
+				<div class="col-md-12">
+					@if (ViewData["success"] != null)
+					{// <a href="/login">Click Here</a>
+						<p style="color: green;">
+							@ViewData["success"]
+						</p>
+					}
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-group">
+                        <label id="name-label" for="@Model.Name">Full Name</label>
+						<input type="text" asp-for="Name" class="form-control"  placeholder="Full Name" required wfd-id="id0">
+						@Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="form-group">
+						<label asp-for="@Model.Mobile">Phone</label>
+						<input type="tel" asp-for="Mobile" class="form-control" placeholder="Phone Number" pattern="[0-9]{10}" required="" maxlength="10" wfd-id="id1">
+						@Html.ValidationMessageFor(model => model.Mobile, "", new { @class = "text-danger" })
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-group">
+						<label id="number-label" for="number">Email</label>
+						<input type="email" class="form-control" asp-for="Email" placeholder="Email ID" required wfd-id="id2" >
+						@Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<div class="form-group">
+						<label asp-for="@Model.PlanType">Plan Type</label>
+						<select asp-for="PlanType" class="form-control" required>
+							<option value="" disabled="">Select Plan Type</option>
+							<option value="Zero2one">Zero To One</option>
+							<option value="Basic">Basic</option>
+							<option value="Comprehensive">Comprehensive</option>
+							<option value="Wealth">Wealth</option>
+						</select>
+						@Html.ValidationMessageFor(model => model.PlanType, "", new { @class = "text-danger" })
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6" style="margin:0 auto;">
+
+					<div class="form-group">
+						<label asp-for="@Model.Password">Password</label>
+						<input type="password" class="form-control" asp-for="Password" placeholder="Enter Password" required wfd-id="id3"  maxlength="30" >
+						@Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+					</div>
+				</div>
+				<div class="col-md-6" style="margin:0 auto;">
+
+					<div class="form-group">
+						<label asp-for="ConfirmPassword">Confirm Password</label>
+						<input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" maxlength="30" />
+							<span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6" style="margin:0 auto;">
+					<button type="submit" class="btn btn-primary btn-block">Submit</button>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6" style="margin:0 auto;">
+					<p>Already have an account? <a href="/login">Sign in</a></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6" style="margin:0 auto;"> 
+					<span class="error-msg"></span>
+					@if (ViewData["Error"] != null)
+					{
+						<p style="color: red;">@ViewData["Error"]</p>
+					}					
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

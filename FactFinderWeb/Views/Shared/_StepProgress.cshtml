@@ -1,0 +1,112 @@
+﻿@model int
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var UserPlan = HttpContextAccessor.HttpContext.Session.GetString("UserPlan") ?? "Comprehensive";
+    var _profileId = HttpContextAccessor.HttpContext.Request.RouteValues["pid"]?.ToString();
+}
+
+<style>
+    .disabled-step {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+</style>
+
+<div class="bg-light bg-gradient bg-opacity-50 py-3">
+    <div class="steps-container mb-4">
+        <ul class="nav justify-content-center stepmenu">
+
+            <!-- Step 1 -->
+            <li class="nav-item">
+                <span class="fs-5 badge rounded-pill @(Model == 1 ? "bg-primary" : "bg-secondary")" title="Awareness">1</span>
+                <span class="d-none d-md-inline">
+                    <a class="@(Model < 1 ? "disabled-step" : "")"
+                       style="font-family: sans-serif; text-decoration: none;color: black;"
+                       href="@(Model < 1 ? "#" : $"/{UserPlan}/Awareness/{_profileId}")">
+                        Awareness
+                    </a>
+                </span>
+            </li>
+            <li class="nav-item d-flex justify-content-center align-items-center"><span class="mx-2">➝</span></li>
+
+            <!-- Step 2 -->
+            <li class="nav-item">
+                <span class="fs-5 badge rounded-pill @(Model == 2 ? "bg-primary" : "bg-secondary")" title="Wings">2</span>
+                <span class="d-none d-md-inline">
+                    <a class="@(Model < 2 ? "disabled-step" : "")"
+                       style="font-family: sans-serif; text-decoration: none;color: black;"
+                       href="@(Model < 2 ? "#" : $"/{UserPlan}/Wings/{_profileId}")">
+                        Wings
+                    </a>
+                </span>
+            </li>
+            <li class="nav-item d-flex justify-content-center align-items-center"><span class="mx-2">➝</span></li>
+
+            <!-- Step 3 -->
+            <li class="nav-item">
+                <span class="fs-5 badge rounded-pill @(Model == 3 ? "bg-primary" : "bg-secondary")"
+                      title="Alertness With Money & Time">3</span>
+                <span class="d-none d-md-inline">
+                    <a class="@(Model < 3 ? "disabled-step" : "")"
+                       style="font-family: sans-serif; text-decoration: none;color: black;"
+                       href="@(Model < 3 ? "#" : $"/{UserPlan}/Alertness/{_profileId}")">
+                        Alertness With Money & Time
+                    </a>
+                </span>
+            </li>
+            <li class="nav-item d-flex justify-content-center align-items-center"><span class="mx-2">➝</span></li>
+
+            <!-- Step 4 -->
+            <li class="nav-item">
+                <span class="fs-5 badge rounded-pill @(Model == 4 ? "bg-primary" : "bg-secondary")"
+                      title="Knowledge That Matters">4</span>
+                <span class="d-none d-md-inline">
+                    <a class="@(Model < 4 ? "disabled-step" : "")"
+                       style="font-family: sans-serif; text-decoration: none;color: black;"
+                       href="@(Model < 4 ? "#" : $"/{UserPlan}/KnowledgeThatMatters/{_profileId}")">
+                        Knowledge That Matters
+                    </a>
+                </span>
+            </li>
+            <li class="nav-item d-flex justify-content-center align-items-center"><span class="mx-2">➝</span></li>
+
+            <!-- Step 5 -->
+            <li class="nav-item">
+                <span class="fs-5 badge rounded-pill @(Model == 5 ? "bg-primary" : "bg-secondary")"
+                      title="Execution With Precision">5</span>
+                <span class="d-none d-md-inline">
+                    <a class="@(Model < 5 ? "disabled-step" : "")"
+                       style="font-family: sans-serif; text-decoration: none;color: black;"
+                       href="@(Model < 5 ? "#" : $"/{UserPlan}/ExecutionWithPrecision/{_profileId}")">
+                        Execution With Precision
+                    </a>
+                </span>
+            </li>
+            <li class="nav-item d-flex justify-content-center align-items-center"><span class="mx-2">➝</span></li>
+
+            <!-- Step 6 -->
+            <li class="nav-item">
+                <span class="fs-5 badge rounded-pill @(Model == 6 ? "bg-primary" : "bg-secondary")"
+                      title="Invest In The Now">6</span>
+                <span class="d-none d-md-inline">
+                    <a class="@(Model < 6 ? "disabled-step" : "")"
+                       style="font-family: sans-serif; text-decoration: none;color: black;"
+                       href="@(Model < 6 ? "#" : $"/{UserPlan}/Invest/{_profileId}")">
+                        Invest In The Now
+                    </a>
+                </span>
+            </li>
+
+        </ul>
+    </div>
+
+    <div class="progress mb-4">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+             role="progressbar"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             style="width: @(Model * 16.66)%;"></div>
+    </div>
+</div>

@@ -1605,37 +1605,45 @@ namespace FactFinderWeb.Controllers
         {
             ModelState.Remove("btnSubmit");
             ModelState.Remove("btnSubmitCompleted");
-
-            if (btnSubmit == "Completed")
+            TblFfAdminUser admin = new TblFfAdminUser();
+            var userProfileData = await _context.TblffAwarenessProfileDetails.FirstOrDefaultAsync(u => u.ProfileId == _profileId);
+            if (userProfileData == null)
             {
-                var user = await _context.TblffAwarenessProfileDetails.FirstOrDefaultAsync(u => u.ProfileId == _profileId);
-                if (user == null)
-                {
-                    return NotFound();
-                }
-                user.ProfileStatus = "Completed";
-                user.Awakenstatus = "Awaken Export Ready";
-                _context.TblffAwarenessProfileDetails.Update(user);
-                await _context.SaveChangesAsync();
+                userProfileData = new TblffAwarenessProfileDetail();
             }
+            var assingUsers = await _context.TblFfRegisterUsers.FirstOrDefaultAsync(u => u.Id == userProfileData.UserId);
+            if (assingUsers != null)
+            {
+                admin = await _context.TblFfAdminUsers.FirstOrDefaultAsync(u => u.Id == assingUsers.Advisorid);
+            }
+            if (admin == null)
+            {
+                admin = new TblFfAdminUser();
+            }
+            //var createduser = await _context.TblFfRegisterUsers.FirstOrDefaultAsync(u => u.Id == userProfileData.UserId);
+
+            
+            
             
             updateRows =  await _investServices.WingsUpdateInvestDataForWings(investViewModel);
 
             if (updateRows > 0)
             {
-                string? userEmail = HttpContext.Session.GetString("Useremail") ?? "agile1021@gmail.com";
-                string? UserName = HttpContext.Session.GetString("UserFullName") ?? "";
+                if (btnSubmit == "Completed" || btnSubmit ==null)
+                {
+                    string? userEmail = HttpContext.Session.GetString("Useremail") ?? "agile1021@gmail.com";
+                    string? UserName = HttpContext.Session.GetString("UserFullName") ?? "";
 
-                await _utilService.SendEmailAsync(
-                    toEmail: userEmail,
-                    subject: "Form Submit Successfully - FactFinder",
-                    templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", "FormSubmitSuccessTemplate.html"),
-                    placeholders: new Dictionary<string, string>
-                    {
+                    await _utilService.SendEmailAsync(
+                        toEmail: userEmail,
+                        subject: "Form Submit Successfully - FactFinder",
+                        templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", "FormSubmitSuccessTemplate.html"),
+                        placeholders: new Dictionary<string, string>
+                        {
                             { "UserName", UserName},
                             { "FormTitle", "Form Submit Successfully - FactFinder" }
-                    });
-
+                        });
+                }
 
                 if (btnSubmit == "Save")
                 {
@@ -1645,8 +1653,57 @@ namespace FactFinderWeb.Controllers
 
                 ViewBag.ShowThankYou = true;
                 TempData["SuccessMessage"] = "Invest data updated successfully.";
+
+
+
+                if (btnSubmit == "Completed")
+                {
+
+                    if (userProfileData == null)
+                    {
+                        return NotFound();
+                    }
+                    userProfileData.Advisorid = Convert.ToInt32(admin.Id);
+                    userProfileData.AdvisorName = admin?.Name;
+                    userProfileData.ProfileStatus = "Completed";
+                    userProfileData.Awakenstatus = "Awaken Export Ready";
+                    _context.TblffAwarenessProfileDetails.Update(userProfileData);
+                    await _context.SaveChangesAsync();
+                }
+                else if (btnSubmit == null) //submit
+                {
+
+                    if (updateRows > 0)
+                    {
+                        if (userProfileData != null)
+                        {
+                            if (admin != null)
+                            {
+                                userProfileData.ProfileStatus = "Assign"; // Data pending for approval once user saved 6 forms
+                                userProfileData.Awakenstatus = "";
+                                userProfileData.Advisorid = Convert.ToInt32(admin.Id);
+                                userProfileData.AdvisorName = admin?.Name;
+                            }
+                            else
+                            {
+                                userProfileData.Awakenstatus = "";
+                                userProfileData.ProfileStatus = "Pending"; // Data pending for approval once user saved 6 forms
+                                userProfileData.Awakenstatus = "";
+
+                            }
+
+                            _context.TblffAwarenessProfileDetails.Update(userProfileData);
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
                 return View("Invest", investViewModel);
                 //return RedirectToAction("dashboard", "user");
+
+
+
+
             }
             else
             {

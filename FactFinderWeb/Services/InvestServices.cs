@@ -260,21 +260,6 @@ namespace FactFinderWeb.Services
             }
             updateRows = await _context.SaveChangesAsync();
 
-            if(updateRows > 0)
-            {
-                // Update the TblffWings table to set NewGoals to 0 for the current profile
-                var userProfileData = await _context.TblffAwarenessProfileDetails
-                    .Where(x => x.ProfileId == _profileId)
-                    .FirstOrDefaultAsync();
-                if (userProfileData != null)
-                {
-                    userProfileData.ProfileStatus = "Pending"; // Data pending for approval once user saved 6 forms
-                    userProfileData.Awakenstatus = ""; 
-                    _context.TblffAwarenessProfileDetails.Update(userProfileData);
-
-                } 
-                await _context.SaveChangesAsync();
-            }
             return updateRows;
         }
     }

@@ -84,12 +84,14 @@
                     <input asp-for="@Model.AvailableLumpsum" class="form-control outline-none w-[40%] rounded-lg mx-[26%] float-end peer focus:outline-secondary amount-input  text-end" placeholder="0.00" />
                 </div>
             </div>
-
-            <legend style="color: #3B3737" class="fw-bold my-2">
+            <div style="height:240px" class="row ">
+                &nbsp;
+            </div>
+            <legend style="color: #3B3737;display:none" class="fw-bold my-2">
                 <h4 class="text-center"> Action plan for Financial Goals</h4>                
             </legend>
 
-            <div style="color:	#006400" class="row " style="display:none">
+            <div style="color:	#006400; display:none" class="row ">
                 <div class="col-0 col-md-1"></div>
                 <div class="col-12 col-md-10">
                     <table class="table table-bordered">
@@ -141,8 +143,8 @@
             </div>
         </fieldset>
 
-        <div class="d-flex justify-content-end mt-3 mx-2 mx-md-5">
-            <a asp-action="executionwithprecision" asp-controller="@userPlan" asp-route-id="@_profileId"  class="btn btn-secondary px-5 py-1 rounded mx-2 mx-md-5">Previous</a>
+        <div class="d-flex justify-content-end mt-3 mx-2 mx-md-6">
+            <a asp-action="executionwithprecision" asp-controller="@userPlan" asp-route-id="@_profileId" class="btn btn-secondary px-2 py-1 rounded mx-1">Previous</a>
 
         @*     <button name="btnSubmit" id="btnSubmit" asp-controller="@userPlan" asp-route-id="@_profileId" class="btn btn-primary px-5 py-1 rounded ">Submit</button> *@
             @if (AdminUserId != 0)
@@ -151,16 +153,15 @@
                 <button name="btnSubmit" id="btnSubmit"
                         asp-controller="@userPlan"
                         asp-route-id="@_profileId"
-                        class="btn btn-primary px-5 py-1 rounded mx-md-5">
+                        class="btn btn-primary px-5 py-1 rounded ">
                     Submit
-                </button>
+                </button> 
                 <form asp-controller="@userPlan" asp-action="Invest" asp-route-id="@_profileId" method="post">
                     <!-- form fields here -->
-
-                    <button type="submit"
+                    &nbsp; <button type="submit"
                             name="btnSubmit"
                             value="Completed"
-                            class="btn btn-primary px-5 py-1 rounded">
+                            class="btn btn-primary px-5 py-1 rounded ">
                         Submit & Mark as Completed
                     </button>
                 </form>

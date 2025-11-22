@@ -5,8 +5,6 @@ VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactFinderWeb", "FactFinderWeb.csproj", "{BFC70C61-F9CE-41DA-BA02-3A76DF9C5F1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactFinderWeb.API", "..\FactFinderWeb.API\FactFinderWeb.API.csproj", "{EFC4617C-D740-40AB-814B-B8FA34948F3F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{BFC70C61-F9CE-41DA-BA02-3A76DF9C5F1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFC70C61-F9CE-41DA-BA02-3A76DF9C5F1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFC70C61-F9CE-41DA-BA02-3A76DF9C5F1A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EFC4617C-D740-40AB-814B-B8FA34948F3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EFC4617C-D740-40AB-814B-B8FA34948F3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EFC4617C-D740-40AB-814B-B8FA34948F3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EFC4617C-D740-40AB-814B-B8FA34948F3F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

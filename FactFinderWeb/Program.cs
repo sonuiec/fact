@@ -37,7 +37,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("FactFinderDbCon"
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddSession(); // for session support
 
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+//builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 
 // Add services to the container.

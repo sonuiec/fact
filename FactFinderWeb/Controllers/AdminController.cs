@@ -84,6 +84,12 @@ namespace FactFinderWeb.Controllers
         [HttpPost("admin/UpdateAdvisor")]
         public async Task<IActionResult> UpdateAdvisor(int id, int advisorid)
         {
+            var profile = await _context.TblffAwarenessProfileDetails.Where(u => u.UserId == id).ToListAsync();
+            if(profile.Count()>0 && advisorid == 0)
+            {
+                return Json(new { success = false });
+            }
+
             var user = await _context.TblFfRegisterUsers.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
             {
@@ -95,12 +101,12 @@ namespace FactFinderWeb.Controllers
 
             await _context.SaveChangesAsync();
 
-            var profile = await _context.TblffAwarenessProfileDetails.Where(u => u.UserId == id).ToListAsync();
+            
 
             foreach (var item in profile)
             {
                 item.Advisorid = advisorid;
-                item.ProfileStatus = "Assign";
+                item.ProfileStatus = advisorid>0? "Assign":"";
                 _context.TblffAwarenessProfileDetails.Update(item);
             }
             

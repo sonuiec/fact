@@ -28,11 +28,11 @@
                 location.reload();
             }, 500); // ✅ half-second delay so alert is visible
         } else {
-        alert("Error updating ManageBy.");
+            alert("This Advisor is already assigned to any plan, so you should not change it.");
         }
         },
         error: function () {
-        alert("Server error while updating.");
+            alert("This Advisor is already assigned to any plan, so you should not change it.");
         }
         });
         });

@@ -1786,7 +1786,7 @@
 
         </legend>
         <legend class="d-flex justify-content-between align-items-center fw-bold" style="color: #3B3737;">
-            Investments
+                Investments (Estimated Current Value)
 
         </legend>
 
@@ -1930,7 +1930,7 @@
             <hr />
 
             <legend class="d-flex justify-content-between align-items-center fw-bold" style="color: #3B3737;">
-                Other Assets
+                    Other Assets (Estimated Current Value)
 
             </legend>
 
@@ -1959,7 +1959,7 @@
                 <!-- Car -->
                 <div class="col-12 col-md-4">
                     <label asp-for="netWorthViewModel.Car" class="form-label fw-semibold"></label>
-                    <input asp-for="netWorthViewModel.Car" class="form-control" placeholder="0.00" maxlength="15" />
+                        <input asp-for="netWorthViewModel.Car" class="form-control amount-input" placeholder="0.00" maxlength="15" />
                     <span asp-validation-for="netWorthViewModel.Car" class="text-danger small"></span>
                 </div>
 
@@ -1980,7 +1980,7 @@
                 <!-- Value Of Business -->
                 <div class="col-12 col-md-4">
                     <label asp-for="netWorthViewModel.ValueOfBusiness" class="form-label fw-semibold"></label>
-                    <input asp-for="netWorthViewModel.ValueOfBusiness" class="form-control" placeholder="0.00" maxlength="15" />
+                        <input asp-for="netWorthViewModel.ValueOfBusiness" class="form-control amount-input" placeholder="0.00" maxlength="15" />
                     <span asp-validation-for="netWorthViewModel.ValueOfBusiness" class="text-danger small"></span>
                 </div>
                 @if (Model.NewOtherAssets != null && Model.NewOtherAssets.Any())
@@ -2065,7 +2065,7 @@
             <legend style="color: #3B3737" class="fw-bold">
             </legend>
             <legend class="d-flex justify-content-between align-items-center fw-bold" style="color: #3B3737;">
-                Liabilities
+                    Liabilities (Expected value as on date)
 
             </legend>
             <div class="row g-3 ">
@@ -2232,7 +2232,7 @@
     </fieldset>
     <!--7. Manage  Debt  -->
     <fieldset class="d-flex flex-column gap-2 fieldset-green">
-        <legend style="color: #3B3737" class="fw-bold"> 💸 3.4 Debt</legend>
+            <legend style="color: #3B3737" class="fw-bold"> 💸 3.4 Debt - "Close the bad loans while good loans may continue."</legend>
 
         <legend style="color: #3B3737" class="fw-bold">Bad Loans</legend>
         <div class="row g-3" style="color:	#006400">

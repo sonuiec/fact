@@ -34,7 +34,7 @@
 
 	.left-box {
 		flex: 1;
-		background: url('/images/ad-login-pg-1.jpg') no-repeat center center;
+		background: url('/images/login-pg-1.jpg') no-repeat center center;
 		background-size: cover;
 		position: relative;
 		padding: 25px;
@@ -85,7 +85,7 @@
 		<div class="left-box">
 			<div class="left-box-content">
 				<div class="login-title">Admin Login</div>
-				<form id="survey-form" method="post" asp-action="Login" asp-controller="admin">
+				<form id="survey-form" method="post" asp-action="Login" asp-controller="Admin">
 
 					<div class="row">
 						<div class="d-flex justify-content-center">
@@ -121,24 +121,13 @@
 						</div>
 					</div>
 
-					<div class="row">
-						<div class="d-flex justify-content-center">
-
-							@if (ViewData["Error"] != null)
-							{
-								<p style="color: red;">@ViewData["Error"]</p>
-							}
-
-						</div>
-					</div>
-			 
 				
 
 					<div class="row">
 						<div class="d-flex justify-content-center">
 							<div class="col-md-8" style="margin:0 auto;">
 						 
-								Forgot Password? <a href="/admin/forgotpassword">Click Here </a>
+								Forgot Password? <a href="/forgotpassword">Click Here </a>
 							</div>
 						</div>
 					</div>

@@ -1606,15 +1606,15 @@ namespace FactFinderWeb.Controllers
             ModelState.Remove("btnSubmit");
             ModelState.Remove("btnSubmitCompleted");
             TblFfAdminUser admin = new TblFfAdminUser();
-            var userProfileData = await _context.TblffAwarenessProfileDetails.FirstOrDefaultAsync(u => u.ProfileId == _profileId);
+            var userProfileData = await _context.TblffAwarenessProfileDetails.Where(u => u.ProfileId == _profileId).FirstOrDefaultAsync();
             if (userProfileData == null)
             {
                 userProfileData = new TblffAwarenessProfileDetail();
             }
-            var assingUsers = await _context.TblFfRegisterUsers.FirstOrDefaultAsync(u => u.Id == userProfileData.UserId);
+            var assingUsers = await _context.TblFfRegisterUsers.Where(u => u.Id == userProfileData.UserId).FirstOrDefaultAsync();
             if (assingUsers != null)
             {
-                admin = await _context.TblFfAdminUsers.FirstOrDefaultAsync(u => u.Id == assingUsers.Advisorid);
+                admin = await _context.TblFfAdminUsers.Where(u => u.Id == assingUsers.Advisorid).FirstOrDefaultAsync();
             }
             if (admin == null)
             {
@@ -1663,26 +1663,28 @@ namespace FactFinderWeb.Controllers
                     {
                         return NotFound();
                     }
-                    userProfileData.Advisorid = Convert.ToInt32(admin.Id);
-                    userProfileData.AdvisorName = admin?.Name;
+                    if (admin.Id != 0)
+                    {
+                       // userProfileData.Advisorid = Convert.ToInt32(admin.Id);
+                        //userProfileData.AdvisorName = admin?.Name;
+                    }
                     userProfileData.ProfileStatus = "Completed";
-                    userProfileData.Awakenstatus = "Awaken Export Ready";
+                    userProfileData.Awakenstatus = "";
                     _context.TblffAwarenessProfileDetails.Update(userProfileData);
                     await _context.SaveChangesAsync();
                 }
                 else if (btnSubmit == null) //submit
                 {
-
                     if (updateRows > 0)
                     {
                         if (userProfileData != null)
                         {
-                            if (admin != null)
+                            if (admin.Id != 0)
                             {
-                                userProfileData.ProfileStatus = "Assign"; // Data pending for approval once user saved 6 forms
+                                userProfileData.ProfileStatus = "Pending"; // Data pending for approval once user saved 6 forms
                                 userProfileData.Awakenstatus = "";
-                                userProfileData.Advisorid = Convert.ToInt32(admin.Id);
-                                userProfileData.AdvisorName = admin?.Name;
+                               // userProfileData.Advisorid = Convert.ToInt32(admin.Id);
+                                //userProfileData.AdvisorName = admin?.Name;
                             }
                             else
                             {

@@ -283,6 +283,7 @@
                     if (description.includes("No of Months") ||
                         description.includes("Every (Years)") ||
                         description.includes("Age of") ||
+                                   
                         description.includes("Duration of") ||
                         description.includes("Expected Age") ||
                         description.includes("Year of")) {
@@ -295,8 +296,8 @@
                             errorMessage = "Please enter a valid number.";
                         }
 
-                        if ( description.includes("No of Months") || description.includes("Age of") || 
-                            description.includes("Expected Age") ) {
+                        if ( description.includes("No of Months") || description.includes("Age of") ||
+                                            description.includes("Expected Age") ||   description.includes("Duration of Higher Education") ) {
                             if (!value || value === '') {
                                 isValid = false;
                                         errorMessage = "<div style='font-size:18px;'>*</div>";

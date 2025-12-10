@@ -603,11 +603,11 @@ namespace FactFinderWeb.ModelsView
         [Range(0, 100, ErrorMessage = "Savings must be between 0 and 100%.")]
         public decimal? SavingsPercent { get; set; }
 
-        [Display(Name = "Projected Growth Rate (Next 5 Years) (%)")]
+        [Display(Name = "Projected Income Growth Rate (Next 5 Years) (%)")]
         [Range(0, 100, ErrorMessage = "Value must be between 0 and 100.")]
         public decimal? ProjectedGrowthRateNext5Years { get; set; }
 
-        [Display(Name = "Projected Growth Rate (6 to 10 Years) (%)")]
+        [Display(Name = "Projected Income Growth Rate (6 to 10 Years) (%)")]
         [Range(0, 100, ErrorMessage = "Value must be between 0 and 100.")]
         public decimal? ProjectedGrowthRate6To10Years { get; set; }
 

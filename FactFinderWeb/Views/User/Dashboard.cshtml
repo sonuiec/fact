@@ -361,7 +361,11 @@
 					<tr>
 							<td>@item.UId</td>
 							<td>@item.UserFullName</td>
-							<td>@item.UserPlan</td>
+							<td>
+								@(item.UserPlan?.ToLower() == "wealth"
+															? "Wealth Management"
+															: item.UserPlan)
+							</td>
 							<td>@item.UserPlanYear</td>
 							<td>@item.AdvisorName</td>
 							<td>@item.PlanCreatedDate</td>
@@ -412,13 +416,13 @@
 					<select class="form-control" id="PlanType" name="PlanType">
 					
 					
-							<option value="Zero2one">Zero To One</option>
+							<option value="Zero2One">Zero2One</option>
 					
 							<option value="Basic">Basic</option>
 						
 							<option value="Comprehensive">Comprehensive</option>
 						
-							<option value="Wealth">Wealth</option>
+							<option value="Wealth">Wealth Management</option>
 						
 					</select>
 

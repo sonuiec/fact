@@ -99,7 +99,14 @@ body {
     width: 100%;
     overflow: hidden;
 }
-
+.header-banner {
+    width: 100%;
+    aspect-ratio: 31 / 3;
+    background-image: url('/images/header.jpg');
+    background-size: cover; /* fills the div properly */
+    background-position: center; /* centers the image */
+    background-repeat: no-repeat;
+}
 .banner-img {
     width: 100%;
     height: auto;

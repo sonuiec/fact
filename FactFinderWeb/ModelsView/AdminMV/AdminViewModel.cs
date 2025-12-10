@@ -125,7 +125,8 @@ namespace FactFinderWeb.ModelsView.AdminMV
         public int? advisorid { get; set; }
 
         public long? UserId { get; set; }
-
+        public string? advisorName { get; set; }
+        
         public List<UserProfileViewModel> ProfileLst { get; set; }
 
         //Name planType planYear email mobile activestatus createddate

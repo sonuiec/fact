@@ -15,6 +15,10 @@ namespace FactFinderWeb.Controllers
             if (string.IsNullOrEmpty(adminUserId) &&
                 actionName != "login" &&
                 actionName != "logout" &&
+                 actionName != "logout" &&
+                  actionName != "resetpassword" &&
+                  actionName != "register" &&
+
                 actionName != "forgotpassword")
             {
                 context.Result = RedirectToAction("Login", "Admin");

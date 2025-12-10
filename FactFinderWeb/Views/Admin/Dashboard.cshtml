@@ -1,7 +1,11 @@
 ﻿@using FactFinderWeb.ModelsView
+@using Microsoft.AspNetCore.Http;
 @removeTagHelper "Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers"
-
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @{
+  
+    var role = HttpContextAccessor.HttpContext.Session.GetString("AdminUserRole") ?? "";
+
     ViewData["Title"] = "User List";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     var currentSort = Context.Request.Query["sortOrder"];
@@ -37,30 +41,53 @@
         });
         });
 
-     $(document).on("change", ".PlanStatus-dropdown", function () {
-         debugger;
-        var profileid = $(this).data("profileid");
-            var Status = $(this).val();
+            // Store previous value before change
+        $(document).on("focus", ".PlanStatus-dropdown", function () {
+            $(this).data("previous", $(this).val());
+        });
 
-        $.ajax({
-            url: '/admin/UpdateSStatus',
-        type: 'POST',
-            data: { profileid: profileid, Status: Status },
-        success: function (res) {
-           if (res.success) {
-        alert("Status updated successfully!");
-        setTimeout(function () {
-            location.reload();
-        }, 500); // ✅ half-second delay so alert is visible
-    } else {
-           alert("Error updating Status.");
-        }
-        },
-        error: function () {
-        alert("Server error while updating.");
-        }
+        $(document).on("change", ".PlanStatus-dropdown", function () {
+            var dropdown = $(this);
+            var previousValue = dropdown.data("previous");
+
+            var profileid = dropdown.data("profileid");
+            var Status = dropdown.val();
+
+            $.ajax({
+                url: '/admin/UpdateSStatus',
+                type: 'POST',
+                data: { profileid: profileid, Status: Status },
+
+                success: function (res) {
+
+                    // If server says NOT allowed → rollback
+                    if (res.success === false) {
+
+                        if (Status.toLowerCase().includes("assign")) {
+                            alert("The Advisor is not assigned to any Client.");
+                        } else {
+                            alert(res.message || "Error updating Status.");
+                        }
+
+                        dropdown.val(previousValue); // 🔥 ROLLBACK
+                        return;
+                    }
+
+                    // Normal success
+                    alert("Status updated successfully!");
+                    setTimeout(function () {
+                        location.reload();
+                    }, 500);
+                },
+
+                error: function () {
+                    // AJAX failure → rollback always
+                    alert("The Advisor is not assigned to any Client.");
+                    dropdown.val(previousValue); // 🔥 ROLLBACK
+                }
+            });
         });
-        });
+
 
     </script>
 }
@@ -75,30 +102,31 @@
             <h1 class="page-title">Client List</h1>
         </div>
 
-        <div class="col-md-5">
+        <div class="col-md-4">
 
          
         </div>
 
-        <div class="col-md-2 text-md-end mt-2 mt-md-0">
+        <div class="col-md-3 text-md-end mt-2 mt-md-0">
             <a href="/admin/register" target="_blank" class="btn btn-primary">+ Add Client</a>
         </div>
     </div>
     <div class="row align-content-center ">
         <br />
         <br />
-
+     
     </div>
     <div class="row ">
+        <br />
         <div class="col-md-5">
             <form method="get" asp-action="Dashboard" >
-                <input type="text" name="search" class="form-control d-inline w-50" placeholder="Search..." value="@search" />
+                <input type="text" name="search" class="form-control d-inline w-50" placeholder="Search..." value="@search" />  <br />  <br />
                 <button type="submit" class="btn btn-primary ms-2">Search</button>    <a href="/admin/dashboard" class="btn btn-outline-secondary">Reset</a>
             </form>
         </div>
-
+      
         <div class="col-md-5">
-
+&nbsp;
          
         </div>
 
@@ -115,7 +143,7 @@
                 <th class="text-center">S. No.</th>
                     <th>Name</th>
                     <th>Email</th>
-                <th>Total Plan</th>
+                        <th style="width:249px">Total Plan</th>
                 <th>Advisor / ManageBy</th>
                 <th class="text-center">Registration Date</th>
                 <th>Status</th>
@@ -149,6 +177,8 @@
                             <td>@user.Name</td>
                             <td>@user.email</td>
                             <td>@user.ProfileLst.Count</td>
+                            @if (role == "superadmin")
+                                    {
                             <td>
                                 <select class="form-control manageby-dropdown" data-userid="@user.Id">
                                     <option value="0">-- Select --</option>
@@ -160,6 +190,11 @@
                                     }
                                 </select>
                             </td>
+                            }else
+                            {
+                                        <td>@user.advisorName</td>
+
+                            }
                             <td class="text-center">@user.createddate.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">@user.activestatus</td>
 
@@ -203,9 +238,14 @@
                                                                         <td>@child.UId</td>
                                                                         <td>@child.UserFullName</td>
                                                                         <td>@child.UserEmail</td>
-                                                                        <td>@child.UserPlan</td>
-                                                                        <td>@child.UserRegisterDate.ToString("dd/MM/yyyy")</td>
                                                                                 <td>
+                                                                                    @(child.UserPlan?.ToLower() == "wealth"
+                                                                                ? "Wealth Management"
+                                                                                : child.UserPlan)
+                                                                                </td>
+
+                                                                        <td>@child.UserRegisterDate.ToString("dd/MM/yyyy")</td>
+                                                                                <td style="text-align:left">
                                                                                     @if (child.ProfileStatus == "Draft" || child.ProfileStatus == "Pending")
                                                                                     {
                                                                                         @(child.ProfileStatus == "Pending" ? "Submitted" : child.ProfileStatus)
@@ -213,7 +253,7 @@
                                                                                     else
                                                                                     {
                                                                                         <select data-profileid="@child.ProfileId" class="form-control mt-1 PlanStatus-dropdown">
-                                                                                            <option value="Assign" @(child.ProfileStatus == "Assign" ? "selected" : "") disabled>Assigned</option>
+                                                                                            <option value="Assign" @(child.ProfileStatus == "Assign" ? "selected" : "") >Assigned</option>
                                                                                             <option value="Completed" @(child.ProfileStatus == "Completed" ? "selected" : "")>Completed</option>
                                                                                         </select>
                                                                                     }
@@ -222,7 +262,7 @@
                                                                                     @child.Awakenstatus
                                                                              </td>
                                                                         <td>
-                                                                            @if (user.activestatus != "Deactive")
+                                                                                    @if (user.activestatus != "Deactive" && child.ProfileStatus != "Assign")
                                                                             {
                                                                                 <a href="/admin/editUserPlan/@child.ProfileId" target="_blank" class=" text-decoration-none me-2">
                                                                                     Edit FactFinder

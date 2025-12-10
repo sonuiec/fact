@@ -24,7 +24,7 @@
     }
      else if (newPlanType == "wealth" )
     {
-        newPlanType = "Wealth";
+        newPlanType = "Wealth Management";
     }
 }
 
@@ -155,7 +155,7 @@
                 </div>
                 <div class="col-12   col-md-4">
                     <label asp-for="ProfileDetail.Aadhaar" class="form-label gap-1 d-flex">
-                        Aadhaar Number 
+                        Aadhaar Number (Optional)
                     </label>
                     <input asp-for="ProfileDetail.Aadhaar"   maxlength="12"
                     placeholder="Enter Aadhar Number" type="text" class="form-control" maxlength="12">
@@ -391,7 +391,8 @@
                         <input asp-for="SpouseDetails.SpouseAltPhone" maxlength="10" type="text" class="form-control">
                     </div>
                     <div class="col-12 col-md-4">
-                        <label asp-for="SpouseDetails.SpouseAadhaar" class="form-label d-flex gap-1">Aadhaar No.
+                        <label asp-for="SpouseDetails.SpouseAadhaar" class="form-label d-flex gap-1">
+                            Aadhaar Number (Optional).
                         </label>
                         <input asp-for="SpouseDetails.SpouseAadhaar" maxlength="12"  type="text" class="form-control">
                     </div>
@@ -526,7 +527,7 @@
                         </div>
                         <div class="row g-3" >
                             <div class="col-12 col-md-3">
-                                <label asp-for="ChildrenDetail.ChildAadhaar" class="form-label d-flex gap-1">Aadhaar No.</label>
+                                    <label asp-for="ChildrenDetail.ChildAadhaar" class="form-label d-flex gap-1">Aadhaar Number (Optional).</label>
                                     <input asp-for="ChildrenDetail.ChildAadhaar" maxlength="12" type="text" class="form-control">
                             </div>
                             <div class="col-12 col-md-3">

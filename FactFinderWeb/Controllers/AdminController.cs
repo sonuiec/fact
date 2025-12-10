@@ -7,6 +7,7 @@ using FactFinderWeb.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Newtonsoft.Json;
 using System.Drawing.Drawing2D;
@@ -84,8 +85,8 @@ namespace FactFinderWeb.Controllers
         [HttpPost("admin/UpdateAdvisor")]
         public async Task<IActionResult> UpdateAdvisor(int id, int advisorid)
         {
-            var profile = await _context.TblffAwarenessProfileDetails.Where(u => u.UserId == id).ToListAsync();
-            if(profile.Count()>0 && advisorid == 0)
+            var profile = await _context.TblffAwarenessProfileDetails.Where(u => u.UserId == id && u.ProfileStatus == "Completed").ToListAsync();
+            if (profile.Count() > 0 && advisorid == 0)
             {
                 return Json(new { success = false });
             }
@@ -97,19 +98,20 @@ namespace FactFinderWeb.Controllers
             }
 
             user.Advisorid = advisorid;
+
             _context.TblFfRegisterUsers.Update(user);
 
             await _context.SaveChangesAsync();
 
-            
+
 
             foreach (var item in profile)
             {
                 item.Advisorid = advisorid;
-                item.ProfileStatus = advisorid>0? "Assign":"";
+                item.ProfileStatus = advisorid > 0 ? "Assign" : "";
+                item.Awakenstatus = "Awaken Export Ready";
                 _context.TblffAwarenessProfileDetails.Update(item);
             }
-            
             await _context.SaveChangesAsync();
 
             return Json(new { success = true });
@@ -119,18 +121,30 @@ namespace FactFinderWeb.Controllers
         [HttpPost("admin/UpdateSStatus")]
         public async Task<IActionResult> UpdateStatus(int profileid, string Status)
         {
+            var profiles = await _context.TblffAwarenessProfileDetails.Where(u => u.ProfileId == profileid && u.Advisorid > 0).ToListAsync();
+
+
             var user = await _context.TblffAwarenessProfileDetails.FirstOrDefaultAsync(u => u.ProfileId == profileid);
+            var advisors = await _context.TblFfRegisterUsers.FirstOrDefaultAsync(u => u.Id == user.UserId && u.Advisorid>0);
+            if (advisors == null)
+            {
+                if (Status == "Assign")
+                {
+                    return NotFound();
+                }
+            }
             if (user == null)
             {
                 return NotFound();
             }
             user.ProfileStatus = Status;
-            user.Awakenstatus = "Awaken Export Ready";
+            user.Advisorid = profiles.Count() > 0 ? profiles[0].Advisorid : 0;
+            user.Awakenstatus = Status == "Completed" ? "" : "Awaken Export Ready";
             _context.TblffAwarenessProfileDetails.Update(user);
 
             await _context.SaveChangesAsync();
 
-           
+
             return Json(new { success = true });
         }
 
@@ -378,14 +392,105 @@ namespace FactFinderWeb.Controllers
 
         [HttpPost]
         [Route("admin/forgotpassword")]
-        public IActionResult ForgotPassword(string email)
+    	public async Task<IActionResult> ForgotPassword(string email)
+		{
+			if (!ModelState.IsValid) {	
+				return View();
+			}
+            var result = await _context.TblFfAdminUsers
+               .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+            string weburl = _utilService.webAppURL();
+            string resetLink = "";
+            //string templatePath = Path.Combine(_env.WebRootPath, "emailtemplates", "ForgotPasswordTemplate.html");
+            if (result != null)
+			{
+                var token = Guid.NewGuid().ToString(); // Secure random token
+                var expiration = DateTime.UtcNow.AddDays(7);
+
+                _context.TblffPasswordResetRequests.Add(new TblffPasswordResetRequest
+                {
+                    UserId = result.Id,
+                    Token = token,
+                    Expiration = expiration
+                });
+
+                //await _emailService.SendResetPasswordEmail(user.Email, resetLink);
+
+                int i = await _context.SaveChangesAsync();
+
+                string? UserName = HttpContext.Session.GetString("UserFullName") ?? "";
+
+                await _utilService.SendEmailAsync(
+                    toEmail: email,
+                    subject: "Reset Admin Password - FactFinder",
+                    templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", "ForgotPasswordTemplate.html"),
+                    placeholders: new Dictionary<string, string>
+                    {
+                            { "UserName", UserName },
+                            { "ResetLink", weburl+"/admin/resetpassword?email="+email+"&token="+token },
+                            { "FormTitle", "Reset Admin Password - FactFinder" }
+                    });
+
+                ViewData["msg"] = "An email has been sent. Please check your inbox to reset your password.";
+            }
+			else
+			{
+                ViewData["msg"] = "No account found with that email address.";
+            }
+
+            return View();
+
+		}
+        [HttpGet]
+        [Route("admin/resetpassword")]
+        public IActionResult ResetPassword(string email = null, string token = null)
+
+        {
+            if (email == null || token == null)
+            {
+                return BadRequest("A code and email must be supplied for password reset.");
+            }
+            var varMVResetPassword = new MVResetPassword
+            {
+                code = token,
+                Email = email
+            };
+            return View(varMVResetPassword);
+        }
+
+        [HttpPost]
+        [Route("admin/resetpassword")]
+        public async Task<IActionResult> ResetPassword(MVResetPassword mVResetPassword)
         {
             if (!ModelState.IsValid)
             {
                 return View();
             }
-            return View();
+         
+            var user = await _context.TblFfAdminUsers.FirstOrDefaultAsync(u => u.Email == mVResetPassword.Email);
+            if (user == null) 
+            {
+                ViewData["msg"] = "user not exist";
+              
+            }
 
+            var confirmData = await _context.TblffPasswordResetRequests.FirstOrDefaultAsync(u => u.UserId == user.Id && u.Token == mVResetPassword.code);
+            if (confirmData != null)
+            {
+                confirmData.CreatedAt = DateTime.Now;
+                confirmData.IsUsed = true;
+                _context.TblffPasswordResetRequests.Update(confirmData);
+
+                string Passwordhashed = UtilityHelperServices.PasswordHash(mVResetPassword.Password);
+                user.Password = Passwordhashed;
+                _context.TblFfAdminUsers.Update(user);
+            }
+
+            await _context.SaveChangesAsync();
+
+            ViewData["msg"] ="Password updated successfully. Please log in with your new password.";
+           
+            return View();
         }
 
 

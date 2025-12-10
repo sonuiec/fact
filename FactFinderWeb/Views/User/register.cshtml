@@ -2,7 +2,7 @@
 @model MVLoginRegister
 @{
 	ViewData["Title"] = "Registration";
-	//Layout = "~/Views/Shared/_Layout.cshtml";
+	Layout = "~/Views/Shared/_LayoutUser.cshtml";
 }
 
 <style>
@@ -158,8 +158,8 @@
 </style>
 
 <div class="container">
-	<div class="text-center"><img src="/images/main.png" class="imgh" alt="Logo"></div>
 
+	<div class="text-center" style="height:80px"></div>
 	<div class="form-wrap">
 		<form id="survey-form" method="post" asp-action="register" asp-controller="User" novalidate>
 			<div class="row">
@@ -203,10 +203,10 @@
 						<label asp-for="@Model.PlanType">Plan Type</label>
 						<select asp-for="PlanType" class="form-control" required>
 							<option value="" disabled="">Select Plan Type</option>
-							<option value="Zero2one">Zero To One</option>
+							<option value="Zero2One">Zero To One</option>
 							<option value="Basic">Basic</option>
 							<option value="Comprehensive">Comprehensive</option>
-							<option value="Wealth">Wealth</option>
+							<option value="Wealth">Wealth Management</option>
 						</select>
 						@Html.ValidationMessageFor(model => model.PlanType, "", new { @class = "text-danger" })
 					</div>

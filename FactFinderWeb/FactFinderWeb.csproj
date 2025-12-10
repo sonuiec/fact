@@ -27,6 +27,7 @@
     <Content Remove="Views\User\UserProfile - Copy %283%29.cshtml" />
     <Content Remove="Views\User\UserProfile - Copy %284%29.cshtml" />
     <Content Remove="Views\User\UserProfile - Copy.cshtml" />
+    <Content Remove="wwwroot\emailtemplates\ForgotPasswordTemplateAdmin.html" />
     <Content Remove="wwwroot\emailtemplates\ResendEmailVerification.html" />
   </ItemGroup>
 
@@ -57,6 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\emailtemplates\ForgotPasswordTemplateAdmin.html" />
     <None Include="wwwroot\emailtemplates\ForgotPasswordTemplate.html" />
     <None Include="wwwroot\emailtemplates\FormSubmitSuccessTemplate.html" />
     <None Include="wwwroot\emailtemplates\ResendEmailVerification.html" />

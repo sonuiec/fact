@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System;
+using System.Runtime.InteropServices;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FactFinderWeb.Services
@@ -169,6 +170,7 @@ namespace FactFinderWeb.Services
                     userFile = ruser.Ptx,
                     advisorid = ruser.Advisorid,
                     Id = ruser.Id,
+                   
                 })
                 .ToListAsync();
 
@@ -196,6 +198,7 @@ namespace FactFinderWeb.Services
                 ).ToListAsync();
 
                 user.ProfileLst= userProfiles;
+                user.advisorName = await _context.TblFfAdminUsers.Where(a => a.Id == user.advisorid).Select(a => a.Name).FirstOrDefaultAsync();
             }
 
 
@@ -387,7 +390,7 @@ namespace FactFinderWeb.Services
             user.Password = Passwordhashed; //user.Password = CommonUtillity.EncryptData(user.Password);
             user.Emailverified = "yesverified";
             user.Createddate = DateTime.Now;
-            user.Advisorid = registerid;
+          //  user.Advisorid = registerid;
             _context.TblFfRegisterUsers.Add(user);
             await _context.SaveChangesAsync();
 

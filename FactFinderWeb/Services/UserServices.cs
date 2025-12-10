@@ -196,35 +196,32 @@ namespace FactFinderWeb.Services
 
 			return "Password updated successfully. Please log in with your new password.";
 		}
-
         public async Task<string> RequestResendVerificationLink(string email)
         {
-            var user = await _context.TblFfRegisterUsers.FirstOrDefaultAsync(u => u.Email == email);
-            if (user == null) return "";
+            var user = await _context.TblFfRegisterUsers
+                                     .FirstOrDefaultAsync(u => u.Email == email);
 
-            var token = Guid.NewGuid().ToString(); // Secure random token
-            var expiration = DateTime.UtcNow.AddDays(7);
+            if (user == null)
+                return "";
+
+            // Generate new verification token
             string emailVerifyToken = UtilityHelperServices.GenerateSecureToken(24);
 
-            _context.TblFfRegisterUsers.Add(new TblFfRegisterUser()
-			{
-				Emailverified = emailVerifyToken,
-				Updatedate = DateTime.Now
-            });
-			 
+            // Update the existing user  
+            user.Emailverified = emailVerifyToken;
+            user.Updatedate = DateTime.Now;
 
-            int i = await _context.SaveChangesAsync();
-            if (i > 0)
-            {
+            int result = await _context.SaveChangesAsync();
 
-                //string resetLink = $"https://yourapp.com/reset-password?token={token}";
-                return token;
-            }
-            else
+            if (result > 0)
             {
-                return "";
+                // Return token for sending in email
+                return emailVerifyToken;
             }
+
+            return "";
         }
+
 
         public async Task<string> ForgotPassword(string email)
 		{

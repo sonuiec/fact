@@ -64,7 +64,7 @@
                     if (res.success === false) {
 
                         if (Status.toLowerCase().includes("assign")) {
-                            alert("The Advisor is not assigned to any Client.");
+                            alert("The Advisor is not assigned to Client.");
                         } else {
                             alert(res.message || "Error updating Status.");
                         }
@@ -82,7 +82,7 @@
 
                 error: function () {
                     // AJAX failure → rollback always
-                    alert("The Advisor is not assigned to any Client.");
+                    alert("The Advisor is not assigned to Client.");
                     dropdown.val(previousValue); // 🔥 ROLLBACK
                 }
             });

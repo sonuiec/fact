@@ -103,7 +103,7 @@ namespace FactFinderWeb.Controllers
 
             await _context.SaveChangesAsync();
 
-
+            var adminUser = await _context.TblFfAdminUsers.Where(u => u.Id == advisorid).FirstOrDefaultAsync();
 
             foreach (var item in profile)
             {
@@ -114,9 +114,24 @@ namespace FactFinderWeb.Controllers
             }
             await _context.SaveChangesAsync();
 
+            foreach (var item in profile)
+            {
+                if (adminUser != null)
+                {
+                    await _utilService.SendEmailAsync(
+                         toEmail: adminUser.Email,
+                         subject: "AWAKEN-plan assigned to you",
+                         templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", "AssignedTemplate.html"),
+                         placeholders: new Dictionary<string, string>
+                         {
+                            { "UserName", adminUser.Name},
+                            { "FormTitle", "AWAKEN-plan assigned to you" },
+                              { "clientName", user.Name},
+                         });
+                }
+            }
             return Json(new { success = true });
         }
-
 
         [HttpPost("admin/UpdateSStatus")]
         public async Task<IActionResult> UpdateStatus(int profileid, string Status)
@@ -125,7 +140,7 @@ namespace FactFinderWeb.Controllers
 
 
             var user = await _context.TblffAwarenessProfileDetails.FirstOrDefaultAsync(u => u.ProfileId == profileid);
-            var advisors = await _context.TblFfRegisterUsers.FirstOrDefaultAsync(u => u.Id == user.UserId && u.Advisorid>0);
+            var advisors = await _context.TblFfRegisterUsers.FirstOrDefaultAsync(u => u.Id == user.UserId && u.Advisorid > 0);
             if (advisors == null)
             {
                 if (Status == "Assign")
@@ -143,8 +158,20 @@ namespace FactFinderWeb.Controllers
             _context.TblffAwarenessProfileDetails.Update(user);
 
             await _context.SaveChangesAsync();
-
-
+            if (Status == "Assign" && user.Advisorid > 0)
+            {
+                var adminUser = await _context.TblFfAdminUsers.Where(u => u.Id == user.Advisorid).FirstOrDefaultAsync();
+                await _utilService.SendEmailAsync(
+               toEmail: adminUser.Email,
+               subject: "AWAKEN-plan assigned to you",
+               templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", "AssignedTemplate.html"),
+               placeholders: new Dictionary<string, string>
+               {
+                  { "UserName", adminUser.Name},
+                  { "FormTitle", "AWAKEN-plan assigned to you" },
+                    { "clientName", user.Name},
+               });
+            }
             return Json(new { success = true });
         }
 

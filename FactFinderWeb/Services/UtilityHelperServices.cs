@@ -210,7 +210,7 @@ namespace FactFinderWeb.Services
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(_config["Smtp:From"]),
+                From = new MailAddress("fact-finder@mainstream.co.in", "Awaken - Fact Finder"),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = true

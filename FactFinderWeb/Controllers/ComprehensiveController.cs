@@ -1633,15 +1633,16 @@ namespace FactFinderWeb.Controllers
                 {
                     string? userEmail = HttpContext.Session.GetString("Useremail") ?? "agile1021@gmail.com";
                     string? UserName = HttpContext.Session.GetString("UserFullName") ?? "";
-
+                    string subject = btnSubmit == "Completed"? "Your Fact Finder form completed successfully" : "Form Submitted Successfully - FactFinder";
+                    string emailtemplates = btnSubmit == "Completed" ? "FormSubmitSuccessTemplateCompleted.html" : "FormSubmitSuccessTemplate.html";
                     await _utilService.SendEmailAsync(
                         toEmail: userEmail,
-                        subject: "Form Submit Successfully - FactFinder",
-                        templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", "FormSubmitSuccessTemplate.html"),
+                        subject: subject,
+                        templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", emailtemplates),
                         placeholders: new Dictionary<string, string>
                         {
                             { "UserName", UserName},
-                            { "FormTitle", "Form Submit Successfully - FactFinder" }
+                            { "FormTitle", subject }
                         });
                 }
 

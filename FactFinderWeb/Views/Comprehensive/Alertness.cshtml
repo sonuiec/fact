@@ -767,13 +767,13 @@
         <legend style="color: #3B3737" class="fw-bold">3.1.3 Expense (Monthly)</legend>
         @if (!isBasicOrZero)
         {
-          
+           
 
             <legend style="color: #3B3737" class="fw-bold">🏠 Home Expenses </legend>
             <div class="row g-3" style="color:	#006400">
                 <div class="col-12 col-md-4">
                     <label asp-for="ExpenseDetail.GroceryProvisionMilk"></label><span class="text-danger fw-bold ">*</span>
-                    <input asp-for="ExpenseDetail.GroceryProvisionMilk" value="@Model.Basic" class="form-control amount-input income-expense-input1" placeholder="0.00" maxlength="15" />
+                    <input asp-for="ExpenseDetail.GroceryProvisionMilk" value="@Model.ExpenseDetail.GroceryProvisionMilk" class="form-control amount-input income-expense-input1" placeholder="0.00" maxlength="15" />
                     <span asp-validation-for="ExpenseDetail.GroceryProvisionMilk" class="text-danger"></span>
                     <input asp-for="ExpenseDetail.Id" name="ExpenseDetail.Id" type="hidden" class="form-control">
                 </div>

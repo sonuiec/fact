@@ -40,7 +40,7 @@ namespace FactFinderWeb.Controllers
         private readonly string _planType;
         int updateRows = 0;
 
-        public ComprehensiveController(ResellerBoyinawebFactFinderWebContext context, AwarenessServices awarenessServices, IHttpContextAccessor httpContextAccessor, WingsServices wingsServices, KnowledgeThatMattersServices knowledgeThatMattersServices, ExecutionServices executionServices, InvestServices investServices, AlertnessMappingService alertnessMappingService, JSONDataUtility jSONDataUtility, UtilityHelperServices utilityHelperServices, IWebHostEnvironment env)
+        public ComprehensiveController(ResellerBoyinawebFactFinderWebContext context, AwarenessServices awarenessServices, IHttpContextAccessor httpContextAccessor, WingsServices wingsServices, KnowledgeThatMattersServices knowledgeThatMattersServices, ExecutionServices executionServices, InvestServices investServices, AlertnessMappingService alertnessMappingService, UtilityHelperServices utilityHelperServices, IWebHostEnvironment env)
         { 
             _context = context;
             _AwarenessServices = awarenessServices;
@@ -893,7 +893,7 @@ namespace FactFinderWeb.Controllers
             {
                 tillWhen = model.CommittedSaving.TillWhenDateParsed.Value;
             }
-            using var transaction = _context.Database.BeginTransaction();
+            //using var transaction = _context.Database.BeginTransaction();
 
             try
             {
@@ -1380,6 +1380,28 @@ namespace FactFinderWeb.Controllers
 
 
 
+                if (model.EmiOneTimeLoanRepayment != null)
+                {
+                    var existingEmiOneTimeLoanRepayment = await _context.TblffAlertnesOneTimeLoanRepayments
+                                                             .FirstOrDefaultAsync(x => x.ProfileId == incomeDetail.ProfileId);
+                    if (existingEmiOneTimeLoanRepayment != null)
+                    {
+                        existingEmiOneTimeLoanRepayment.TotalEmi = model.EmiOneTimeLoanRepayment.TotalEmi;
+                        existingEmiOneTimeLoanRepayment.NetCashflows = model.EmiOneTimeLoanRepayment.NetCashflows;
+                        existingEmiOneTimeLoanRepayment.OneTimeLoanRepayment = model.EmiOneTimeLoanRepayment.OneTimeLoanRepayment;
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        TblffAlertnesOneTimeLoanRepayment obj = new TblffAlertnesOneTimeLoanRepayment();
+                        obj.TotalEmi = model.EmiOneTimeLoanRepayment.TotalEmi;
+                        obj.NetCashflows = model.EmiOneTimeLoanRepayment.NetCashflows;
+                        obj.OneTimeLoanRepayment = model.EmiOneTimeLoanRepayment.OneTimeLoanRepayment;
+                        await _context.SaveChangesAsync();
+
+                    }
+                }
+
 
 
 
@@ -1389,7 +1411,7 @@ namespace FactFinderWeb.Controllers
 
 
                 _context.SaveChanges();
-                transaction.Commit();
+                //transaction.Commit();
 
                 return Json(new
                 {
@@ -1399,7 +1421,7 @@ namespace FactFinderWeb.Controllers
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
+              //  transaction.Rollback();
                 return Json(new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }

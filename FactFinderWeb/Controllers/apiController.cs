@@ -19,17 +19,17 @@ namespace FactFinderWeb.Controllers
         private readonly AwarenessServices _AwarenessServices;
        private readonly long _userID;
         private readonly HttpContext _httpContext;
-        private readonly JSONDataUtility _jsonData;
+    
         private readonly long _profileId;
 
         int updateRows = 0;
 
 
-        public apiController(ResellerBoyinawebFactFinderWebContext context, AwarenessServices awarenessServices, JSONDataUtility jSONDataUtility, IHttpContextAccessor httpContextAccessor)
+        public apiController(ResellerBoyinawebFactFinderWebContext context, AwarenessServices awarenessServices, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _AwarenessServices = awarenessServices;
-            _jsonData = jSONDataUtility;
+          
             
             _httpContext = httpContextAccessor.HttpContext;
             var userIdStr = _httpContext.Session.GetString("UserId");

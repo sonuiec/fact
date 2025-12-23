@@ -856,8 +856,8 @@
             </table>
 
             @{
-                var totalSavings = committedSavings.Sum(x => (double?)x.currentValue ?? 0) +
-                newSavings.Sum(x => (double?)x.currentValue ?? 0);
+                var totalSavings = committedSavings.Sum(x => (double?)x.monthlyContribution ?? 0) +
+                newSavings.Sum(x => (double?)x.monthlyContribution ?? 0);
             }
 
             <p style="font-weight:bold; color:green;">

@@ -199,9 +199,9 @@
                             <td class="text-center">@user.activestatus</td>
 
                             <td class="text-start">
-                                <a href="/admin/UserDetails/@user.Id" target="_blank">View Detail</a>
+                                        <a href="/admin/UserDetails/@user.Id" target="_blank">View Detail</a> &nbsp;| 
                                 <br />
-
+                                        <a href="/admin/LoginasUser/@user.Id" target="_blank">Signed in as: @user.Name</a>
                             </td>
                         </tr>
 
@@ -240,7 +240,7 @@
                                                                         <td>@child.UserEmail</td>
                                                                                 <td>
                                                                                     @(child.UserPlan?.ToLower() == "wealth"
-                                                                                ? "Wealth Management"
+                                                                                ? "Wealth"
                                                                                 : child.UserPlan)
                                                                                 </td>
 

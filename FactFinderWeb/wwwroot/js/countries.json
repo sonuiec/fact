@@ -7256,6 +7256,10 @@
         "name": "Bihar"
       },
       {
+        "code": "CT",
+        "name": "Chhattisgarh"
+      },
+      {
         "code": "GA",
         "name": "Goa"
       },
@@ -7272,8 +7276,8 @@
         "name": "Himachal Pradesh"
       },
       {
-        "code": "JK",
-        "name": "Jammu and Kashmir"
+        "code": "JH",
+        "name": "Jharkhand"
       },
       {
         "code": "KA",
@@ -7308,8 +7312,8 @@
         "name": "Nagaland"
       },
       {
-        "code": "OR",
-        "name": "Orissa"
+        "code": "OD",
+        "name": "Odisha"
       },
       {
         "code": "PB",
@@ -7328,12 +7332,20 @@
         "name": "Tamil Nadu"
       },
       {
+        "code": "TG",
+        "name": "Telangana"
+      },
+      {
         "code": "TR",
         "name": "Tripura"
       },
       {
         "code": "UP",
         "name": "Uttar Pradesh"
+      },
+      {
+        "code": "UT",
+        "name": "Uttarakhand"
       },
       {
         "code": "WB",
@@ -7348,16 +7360,20 @@
         "name": "Chandigarh"
       },
       {
-        "code": "DN",
-        "name": "Dadra and Nagar Haveli"
-      },
-      {
-        "code": "DD",
-        "name": "Daman and Diu"
+        "code": "DH",
+        "name": "Dadra and Nagar Haveli and Daman and Diu"
       },
       {
         "code": "DL",
         "name": "Delhi"
+      },
+      {
+        "code": "JK",
+        "name": "Jammu and Kashmir"
+      },
+      {
+        "code": "LA",
+        "name": "Ladakh"
       },
       {
         "code": "LD",
@@ -7365,7 +7381,7 @@
       },
       {
         "code": "PY",
-        "name": "Pondicherry"
+        "name": "Puducherry"
       }
     ]
   },

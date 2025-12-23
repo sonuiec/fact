@@ -24,7 +24,7 @@
     }
      else if (newPlanType == "wealth" )
     {
-        newPlanType = "Wealth Management";
+        newPlanType = "Wealth";
     }
 }
 
@@ -81,7 +81,7 @@
                         <option value="Zero to one">Zero to one</option>
                         <option value="Basic">Basic</option>
                         <option value="Comprehensive">Comprehensive</option>
-                        <option value="Wealth Management">Wealth Management</option>
+                        <option value="Wealth">Wealth</option>
                     </select> *@
                     <!-- Hidden field that will actually bind to the model -->
                     <input type="hidden" asp-for="ProfileDetail.PlanType" value="@userPlan" />
@@ -729,7 +729,7 @@
                     }
                 }
             </div>
-            <div class="col-12 col-md-3" style="margin:0 auto;">
+            <div >
                 <button name="btnSubmit" id="btnSubmit" class="btn btn-primary px-5 py-1 rounded ">Next</button>
             </div>
         </div>

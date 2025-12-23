@@ -92,7 +92,8 @@ namespace FactFinderWeb.Services
                 Name = committedSavingModel.Name ?? "",
                 CurrentValue = committedSavingModel.CurrentValue ?? 0,
                 MonthlyContribution = committedSavingModel.MonthlyContribution ?? 0,
-                TillWhen = ParseDateDdMmYyyy(committedSavingModel.TillWhen)
+                TillWhen = ParseDateDdMmYyyy(committedSavingModel.TillWhen),
+                FollowUp = committedSavingModel.FollowUp
             };
 
             _context.TblffAlertnesCommittedSavings.Add(newCommittedSaving);
@@ -154,6 +155,16 @@ namespace FactFinderWeb.Services
                 await _context.SaveChangesAsync();
                 return existingEmiOneTimeLoanRepayment.Id;
             }
+            else
+            {
+                TblffAlertnesOneTimeLoanRepayment obj = new TblffAlertnesOneTimeLoanRepayment();
+                obj.TotalEmi = model.EmiOneTimeLoanRepayment.TotalEmi;
+                obj.NetCashflows = model.EmiOneTimeLoanRepayment.NetCashflows;
+                obj.OneTimeLoanRepayment = model.EmiOneTimeLoanRepayment.OneTimeLoanRepayment;
+                await _context.SaveChangesAsync();
+                return obj.Id;
+
+            }
             return 0;
         }
 
@@ -177,7 +188,10 @@ namespace FactFinderWeb.Services
             }
 
             await _context.TblffAlertnesEmiDetails.AddRangeAsync(emiDetails);
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
+            var rows = await _context.SaveChangesAsync();
+            Console.WriteLine($"Rows inserted: {rows}");
+
         }
 
         //Add defalut entry for balnk case
@@ -349,6 +363,7 @@ namespace FactFinderWeb.Services
 
                 // Liabilities
                 existingDetail.Home2Loan = netWorthViewModel.Home2Loan;
+             
                 existingDetail.LandLoan = netWorthViewModel.LandLoan;
                 existingDetail.Home1Loan = netWorthViewModel.Home1Loan;
                 existingDetail.CarLoan = netWorthViewModel.CarLoan;
@@ -389,6 +404,8 @@ namespace FactFinderWeb.Services
                     JewelleryLoan = netWorthViewModel?.JewelleryLoan,
                     BusinessLoan = netWorthViewModel?.BusinessLoan,
                     OtherLoan = netWorthViewModel?.OtherLoan,
+                    Home1Loan = netWorthViewModel?.Home1Loan,
+                    CarLoan = netWorthViewModel?.CarLoan,
 
                     // Optional: override CreatedAt (usually auto-filled by SQL Server)
                     CreatedAt = DateTime.Now

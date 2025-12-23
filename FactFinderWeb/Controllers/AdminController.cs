@@ -19,15 +19,15 @@ namespace FactFinderWeb.Controllers
     {
         private readonly ResellerBoyinawebFactFinderWebContext _context;
         private readonly AdminUserServices _AdminUserServices;
-        private readonly JSONDataUtility _jsonData;
+      
         private readonly UtilityHelperServices _utilService;
         private readonly IWebHostEnvironment _env;
 
-        public AdminController(ResellerBoyinawebFactFinderWebContext context, AdminUserServices AdminuserServices, JSONDataUtility jSONDataUtility, UtilityHelperServices utilityHelperServices, IWebHostEnvironment env)
+        public AdminController(ResellerBoyinawebFactFinderWebContext context, AdminUserServices AdminuserServices, UtilityHelperServices utilityHelperServices, IWebHostEnvironment env)
         {
             _context = context;
             _AdminUserServices = AdminuserServices;
-            _jsonData = jSONDataUtility;
+          
             _utilService = utilityHelperServices;
             _env = env;
         }
@@ -584,6 +584,42 @@ namespace FactFinderWeb.Controllers
             return RedirectToAction("Dashboard", "Admin");
         }
 
+
+
+        [HttpGet]
+        [Route("admin/LoginasUser/{id}")]
+        public IActionResult LoginasUser(long id)
+        {
+            int AdminUserId = Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0");
+            string AdminUserRole = HttpContext.Session.GetString("AdminUserRole");
+            AdminUserRole = string.IsNullOrEmpty(AdminUserRole) ? "advisor" : AdminUserRole;
+
+            if (AdminUserId <= 0)
+                return RedirectToAction("Login", "Admin");
+
+            if (id <= 0)
+                return BadRequest("Invalid user ID.");
+
+
+            var awarenessusers = _context.TblFfRegisterUsers
+                .FirstOrDefault(u => u.Id == id);
+
+ 
+
+            if (awarenessusers == null)
+                return NotFound("User not found.");
+
+
+            HttpContext.Session.SetString("UserFullName", awarenessusers.Name);
+            HttpContext.Session.SetString("Useremail", awarenessusers.Email);
+            HttpContext.Session.SetString("UserStep", "S1");
+            //HttpContext.Session.SetString("UserPlan", awarenessProfileDetail.PlanType);
+            //HttpContext.Session.SetString("profileId", awarenessProfileDetail.ProfileId.ToString());
+            HttpContext.Session.SetString("UserId", awarenessusers.Id.ToString());
+            //HttpContext.Session.SetString("RegisterId", awarenessProfileDetail.Registerid.ToString());
+
+            return RedirectToAction("dashboard", "User");
+        }
 
         [HttpGet]
         [Route("admin/editUserPlan/{ProfileId}")]

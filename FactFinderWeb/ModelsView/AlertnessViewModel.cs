@@ -173,9 +173,8 @@ namespace FactFinderWeb.ModelsView
 
         [Display(Name = "Total Expense")]
         public decimal? TotalExpense { get; set; }
-        
 
-
+       
         ////[Required(ErrorMessage = "IncomeExtras is required.")]
         public List<TblffAlertnesIncomeExtra>? IncomeExtras { get; set; } = new();
         public List<TblffAlertnesSpouseIncomeExtra>? SpouseExtras { get; set; } = new();

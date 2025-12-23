@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FactFinderWeb.Models;
 
@@ -108,4 +109,12 @@ public partial class TblffAwarenessProfileDetail
     public string? AdvisorName { get; set; }
     public string? Uid { get; set; }
     public string? Awakenstatus { get; set; }
+    public DateOnly? PlanStartDate { get; set; }
+    public DateOnly? PlanEndDate { get; set; }
+    public string? PlanStatus { get; set; }
+    public long? RenewedFromProfileId { get; set; }
+    public long? RenewedByUserId { get; set; }
+    public long? CreatedByUserId { get; set; }
+    public long? UpdatedByUserId { get; set; }
+
 }

@@ -1047,6 +1047,37 @@ public partial class ResellerBoyinawebFactFinderWebContext : DbContext
             entity.Property(e => e.UpdateDate)
                 .HasColumnType("datetime")
                 .HasColumnName("updateDate");
+
+            entity.Property(e => e.PlanStartDate)
+    .HasColumnType("date")
+    .HasColumnName("planstartdate");
+
+            entity.Property(e => e.PlanEndDate)
+                .HasColumnType("date")
+                .HasColumnName("planenddate");
+
+            entity.Property(e => e.PlanStatus)
+                .HasMaxLength(50)
+                .HasColumnType("varchar(50)")
+                .HasColumnName("planstatus");
+
+            entity.Property(e => e.RenewedFromProfileId)
+                .HasColumnType("bigint")
+                .HasColumnName("renewedfromprofileid");
+
+            entity.Property(e => e.RenewedByUserId)
+                .HasColumnType("bigint")
+                .HasColumnName("renewedbyuserid");
+
+            entity.Property(e => e.CreatedByUserId)
+                .HasColumnType("bigint")
+                .HasColumnName("createdbyuserid");
+
+            entity.Property(e => e.UpdatedByUserId)
+                .HasColumnType("bigint")
+                .HasColumnName("updatedbyuserid");
+
+
         });
 
         modelBuilder.Entity<TblffAwarenessSpouse>(entity =>

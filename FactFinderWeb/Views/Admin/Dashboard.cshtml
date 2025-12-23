@@ -88,6 +88,27 @@
             });
         });
 
+        function RenewPlan(id){
+
+                  $.ajax({
+        url: '/admin/UpdateAdvisor',
+        type: 'POST',
+        data: { id: userid, advisorid: advisorid },
+        success: function (res) {
+                 if (res.success) {
+                alert("Advisor updated successfully!");
+            setTimeout(function () {
+                location.reload();
+            }, 500); // ✅ half-second delay so alert is visible
+        } else {
+            alert("This Advisor is already assigned to any plan, so you should not change it.");
+        }
+        },
+        error: function () {
+            alert("This Advisor is already assigned to any plan, so you should not change it.");
+        }
+        });
+        }
 
     </script>
 }
@@ -262,7 +283,15 @@
                                                                                     @child.Awakenstatus
                                                                              </td>
                                                                         <td>
-                                                                                    @if (user.activestatus != "Deactive" && child.ProfileStatus != "Assign")
+                                                                           @if (user.activestatus != "Deactive" && child.ProfileStatus == "Assign")
+                                                                            {
+                                                                                        <a  onclick="" class=" text-decoration-none me-2">
+                                                                                            Renew Plan
+                                                                                        </a>
+                                                                                        <span>|</span>
+
+                                                                            }
+                                                                            @if (user.activestatus != "Deactive" && child.ProfileStatus != "Assign")
                                                                             {
                                                                                 <a href="/admin/editUserPlan/@child.ProfileId" target="_blank" class=" text-decoration-none me-2">
                                                                                     Edit FactFinder

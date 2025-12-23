@@ -5,6 +5,7 @@ using FactFinderWeb.ModelsView.AdminMV;
 using FactFinderWeb.Services;
 using FactFinderWeb.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -839,8 +840,34 @@ namespace FactFinderWeb.Controllers
             }
             return View(mVLogin);
         }
-        
 
-       
+
+        [HttpPost]
+        [Route("/admin/renewpolicy/{profileId}")]
+        public async Task<IActionResult> renewpolicy(long profileId)
+        {
+            if (Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0") <= 0)
+                return RedirectToAction("Login", "Admin");
+          
+            int AdminUserId = Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0");
+            var profile = await _context.TblffAwarenessProfileDetails.Where(u => u.ProfileId == profileId ).FirstOrDefaultAsync();
+            if (profile != null)
+            {
+                var oldProfileIdParam = new SqlParameter("@OldProfileId", profileId);
+                var renewedByUserIdParam = new SqlParameter("@RenewedByUserId", AdminUserId);
+
+                long newProfileId = _context.Database
+                    .SqlQueryRaw<long>(
+                        "EXEC dbo.sp_RenewPolicy_FullProfileCopy_Final @OldProfileId, @RenewedByUserId",
+                        oldProfileIdParam,
+                        renewedByUserIdParam
+                    )
+                    .AsEnumerable()
+                    .FirstOrDefault();
+
+            }
+
+            return Json(new { success = true });
+        }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace FactFinderWeb.Services 
@@ -136,8 +137,129 @@ namespace FactFinderWeb.Services
 		}
 
 
+        public async Task<List<UserProfileViewModel>>GetDashBoardUserListAsync(long? _userID)
+        {
+           
+            var query = _context.TblffAwarenessProfileDetails.AsQueryable();
+             query = query.Where(x => x.PlanStatus != "Expired");
+            // Admin filter
+                query = query.Where(x => x.UserId == _userID);
 
-		public async Task<List<DashboardViewModel>> UserDashboard()
+			// Searchvar 
+			var today = DateTime.Today;
+
+            
+
+            // Paging + Projection
+            var users = await query
+                .OrderByDescending(x => x.CreateDate)
+                .Select(profile => new UserProfileViewModel
+                {
+                    UserFullName = profile.Name,
+                    UserPlan = profile.PlanType.ToLower() == "basic" ? "Basic" : profile.PlanType.ToLower() == "comprehensive" ? "Comprehensive" : profile.PlanType.ToLower() == "zero2one" ? "Zero2One" : profile.PlanType.ToLower() == "wealth" ? "Wealth" : profile.PlanType,
+                    UserPlanYear = profile.PlanYear,
+                    RevisionNumber = profile.RevisionNumber,
+                    UserEmail = profile.Email,
+                    UserMobile = profile.Phone,
+                    UserRegisterDate = profile.CreateDate,
+                    ProfileStatus = profile.ProfileStatus,
+                    ProfileId = profile.ProfileId,
+                    UId = profile.Uid,
+                    Awakenstatus = profile.Awakenstatus,
+                    PlanStatus = profile.PlanStatus,
+                    PlanStartDate = profile.PlanStartDate,
+                    PlanEndDate = profile.PlanEndDate,
+                    UIdText = profile.RevisionNumber > 0 ? profile.Uid + "-R" + profile.RevisionNumber : profile.Uid,
+                    PlanYear = profile.PlanYear,
+                    PlanDuration = profile.PlanDuration,
+                    CreateDate = profile.CreateDate,
+                    Advisorid = profile.Advisorid,
+                    PdfPath = profile.PdfPath,
+                    DOB = Convert.ToDateTime(profile.Dob).ToString("MM/dd/yyyy"),
+                    RenewalSent = profile.RenewalSent ?? false,
+                    RenewalStatus =
+                                  profile.RenewalSent == true
+                                ? "renewed"
+                                : profile.PlanEndDate != null && profile.PlanEndDate < today
+                                    ? "overdue"
+                                    : profile.PlanEndDate != null &&
+                                      profile.PlanEndDate >= today &&
+                                      profile.PlanEndDate <= today.AddDays(30)
+                                        ? "due-soon"
+                                        : profile.PlanStartDate != null &&
+                                          profile.PlanEndDate != null &&
+                                          today >= profile.PlanStartDate &&
+                                          today <= profile.PlanEndDate
+                                            ? "active"
+                                            : "inactive",
+                    Status =
+                                  profile.PlanEndDate != null && profile.PlanEndDate < today
+                                    ? "overdue"
+                                    : profile.PlanEndDate != null &&
+                                      profile.PlanEndDate >= today &&
+                                      profile.PlanEndDate <= today.AddDays(30)
+                                        ? "due-soon"
+                                        : profile.PlanStartDate != null &&
+                                          profile.PlanEndDate != null &&
+                                          today >= profile.PlanStartDate &&
+                                          today <= profile.PlanEndDate
+                                            ? "active"
+                                            : "inactive"
+                })
+                .ToListAsync();
+            foreach (var item in users)
+            {
+                item.AdvisorName = await _context.TblFfAdminUsers.Where(a => a.Id == item.Advisorid).Select(a => a.Name).FirstOrDefaultAsync();
+                item.DaysUntilRenewal = item.PlanEndDate != null
+            ? (item.PlanEndDate.Value - today).Days
+            : null;
+            }
+			return users;
+        }
+        public async Task<List<UserProfileViewModel>> GetclientsProfilebbyIdAsync(string? UID = "")
+        {
+            var today = DateTime.Today;
+			var userProfiles = await (
+				from profile in _context.TblffAwarenessProfileDetails
+				where profile.Uid == UID && profile.PlanStatus == "Expired"
+				orderby profile.CreateDate descending
+				select new UserProfileViewModel
+				{
+
+					UserFullName = profile.Name,
+					UserPlan = profile.PlanType.ToLower() == "basic" ? "Basic" : profile.PlanType.ToLower() == "comprehensive" ? "Comprehensive" : profile.PlanType.ToLower() == "zero2one" ? "Zero2One" : profile.PlanType.ToLower() == "wealth" ? "Wealth" : profile.PlanType,
+					UserPlanYear = profile.PlanYear,
+					UserEmail = profile.Email,
+					UserMobile = profile.Phone,
+					UserRegisterDate = profile.CreateDate,
+					ProfileStatus = profile.ProfileStatus, //user submitted =pending or admin locked = locked
+					ProfileId = profile.ProfileId,
+					UIdText = profile.RevisionNumber > 0 ? profile.Uid + "-R" + profile.RevisionNumber : profile.Uid,
+					Awakenstatus = profile.Awakenstatus,
+					UId = profile.Uid,
+					PlanStatus = profile.PlanStatus,
+					PlanStartDate = profile.PlanStartDate,
+					PlanEndDate = profile.PlanEndDate,
+					PlanYear = profile.PlanYear,
+					PlanDuration = profile.PlanDuration,
+					RevisionNumber = profile.RevisionNumber,
+					CreateDate = profile.CreateDate,
+                    Advisorid = profile.Advisorid,
+                    PdfPath = profile.PdfPath
+                }
+			).ToListAsync();
+            foreach (var item in userProfiles)
+            {
+                item.AdvisorName = await _context.TblFfAdminUsers.Where(a => a.Id == item.Advisorid).Select(a => a.Name).FirstOrDefaultAsync();
+                item.DaysUntilRenewal = item.PlanEndDate != null
+            ? (item.PlanEndDate.Value - today).Days
+            : null;
+            }
+
+            return userProfiles;
+        }
+
+        public async Task<List<DashboardViewModel>> UserDashboard()
 		{
 
 
@@ -254,9 +376,53 @@ namespace FactFinderWeb.Services
 			
 		}
 
+        public async Task<string> GeneratePdf(long ProfileId, JSONDataUtility _jsonData, PdfService _pdfService, IViewRenderService _viewRenderService, IWebHostEnvironment _env)
+        {
+            var userProfile = await _context.TblffAwarenessProfileDetails
+                .FirstOrDefaultAsync(p => p.ProfileId == ProfileId);
+            string PdfPath = "";
+            if (userProfile != null)
+            {
 
+                var awakenData = await _jsonData.GetAwakenSection(userProfile.ProfileId);
 
-	}
+                string html = await _viewRenderService.RenderToStringAsync(
+                    "Schedule/assignedpdf",
+                    awakenData
+                );
+
+                byte[] pdfBytes = _pdfService.GeneratePdf(html,  _env);
+                var uniqueId = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+
+                var baseFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "PDFs");
+                var fileName = "FF_" + userProfile.PlanType + "_" + userProfile.Name.Replace(" ", "").Replace("  ", "").Replace("  ", "") + "_" + userProfile.ProfileId + "_" + uniqueId + ".pdf";
+                var savePath = Path.Combine(baseFolder, fileName);
+                if (System.IO.File.Exists(savePath))
+                {
+                    System.IO.File.Delete(savePath);
+                    Console.WriteLine($"🗑️ Existing file deleted: {savePath}");
+                }
+                if (System.IO.File.Exists(savePath))
+                {
+                    System.IO.File.Delete(savePath); // delete the old file
+                    Console.WriteLine($"🗑️ Existing file replaced: {savePath}");
+                }
+
+                await System.IO.File.WriteAllBytesAsync(savePath, pdfBytes);
+                PdfPath = baseFolder + "/" + fileName;
+                userProfile.PdfPath = "/PDFs/" + fileName;
+                userProfile.PdfGeneratedOn = DateTime.Now;
+                if (userProfile.ProfileStatus == "Assign")
+                {
+                    userProfile.Addby = "pdf generted";
+                }
+                await _context.SaveChangesAsync();
+
+            }
+            return PdfPath;
+        }
+
+    }
 }
 
 /*

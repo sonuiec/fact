@@ -1,4 +1,5 @@
 ﻿using FactFinderWeb.BLL;
+using FactFinderWeb.IServices;
 using FactFinderWeb.Models;
 using FactFinderWeb.ModelsView;
 using FactFinderWeb.ModelsView.AdminMV;
@@ -23,14 +24,18 @@ namespace FactFinderWeb.Controllers
       
         private readonly UtilityHelperServices _utilService;
         private readonly IWebHostEnvironment _env;
-
-        public AdminController(ResellerBoyinawebFactFinderWebContext context, AdminUserServices AdminuserServices, UtilityHelperServices utilityHelperServices, IWebHostEnvironment env)
+        private readonly IViewRenderService _viewRenderService;
+        private readonly PdfService _pdfService;
+        private readonly JSONDataUtility _jsonData;
+        public AdminController(ResellerBoyinawebFactFinderWebContext context, AdminUserServices AdminuserServices, UtilityHelperServices utilityHelperServices, IWebHostEnvironment env, JSONDataUtility jSONDataUtility, IViewRenderService viewRenderService, PdfService pdfService)
         {
             _context = context;
             _AdminUserServices = AdminuserServices;
-          
             _utilService = utilityHelperServices;
             _env = env;
+            _viewRenderService = viewRenderService;
+            _pdfService = pdfService;
+            _jsonData = jSONDataUtility;
         }
 
         [HttpGet]
@@ -110,6 +115,8 @@ namespace FactFinderWeb.Controllers
             {
                 item.Advisorid = advisorid;
                 item.ProfileStatus = advisorid > 0 ? "Assign" : "";
+                item.PlanStatus = "Active";
+                item.PlanStartDate = DateTime.Now;
                 item.Awakenstatus = "Awaken Export Ready";
                 _context.TblffAwarenessProfileDetails.Update(item);
             }
@@ -154,8 +161,13 @@ namespace FactFinderWeb.Controllers
                 return NotFound();
             }
             user.ProfileStatus = Status;
-            user.Advisorid = profiles.Count() > 0 ? profiles[0].Advisorid : 0;
+            user.Advisorid = advisors.Advisorid;
             user.Awakenstatus = Status == "Completed" ? "" : "Awaken Export Ready";
+            if (Status == "Assign")
+            {
+                user.PlanStatus = "Active";
+                user.PlanStartDate = DateTime.Now;
+            }
             _context.TblffAwarenessProfileDetails.Update(user);
 
             await _context.SaveChangesAsync();
@@ -177,8 +189,8 @@ namespace FactFinderWeb.Controllers
         }
 
 
-        [HttpGet("admin/dashboard")]
-        public async Task<IActionResult> Dashboard(string? search, int page = 1, int pageSize = 20)
+        [HttpGet("admin/clients")]
+        public async Task<IActionResult> Clients(string? search, int page = 1, int pageSize = 20, string? plantype="")
         {
             string? AdminUserFullName = HttpContext.Session.GetString("AdminUserFullName");
             int AdminUserId = Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0");
@@ -192,7 +204,7 @@ namespace FactFinderWeb.Controllers
 
             ViewData["userID"] = AdminUserId;
             ViewData["Username"] = AdminUserFullName;
-            var (users, totalRecords, totalPages) = await _AdminUserServices.GetUserListAsync(AdminUserRole, AdminUserId,page,pageSize, search);
+            var (users, totalRecords, totalPages) = await _AdminUserServices.GetUserListAsync(AdminUserRole, AdminUserId,page,pageSize, search, plantype);
 
             // Optional: search filteringAdvisoridAdvisorid
         
@@ -208,6 +220,16 @@ namespace FactFinderWeb.Controllers
             ViewData["AdminUsersDropdown"] = adminUsers;
 
             return View(users);
+        }
+        [HttpGet("admin/GetclientsProfilebbyId/{id}")]
+        public async Task<IActionResult> GetclientsProfilebbyId(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest("Invalid UID");
+
+            var result = await _AdminUserServices.GetclientsProfilebbyIdAsync(id);
+
+            return Json(result);   // ✅ MUST be Json
         }
 
 
@@ -263,7 +285,9 @@ namespace FactFinderWeb.Controllers
 
 
         [HttpGet]
-        public IActionResult AddRegisterAdmin()
+        [Route("admin/addeditadminuser/")]
+        [Route("admin/addeditadminuser/{id}")]
+        public async Task<IActionResult> addeditadminuser(long? id)
         {
             var AdminUserRole = HttpContext.Session.GetString("AdminUserRole");
             AdminUserRole = string.IsNullOrEmpty(AdminUserRole) ? "advisor" : AdminUserRole;
@@ -271,80 +295,139 @@ namespace FactFinderWeb.Controllers
             {
                 return RedirectToAction("Dashboard");
             }
-            return View();
+            var adminUser = await _context.TblFfAdminUsers
+              .Where(ruser => ruser.Id == id)
+              .Select(ruser => new AdminRegViewModel
+              {
+                  Id = ruser.Id,
+                  Name = ruser.Name,
+                  Email = ruser.Email,
+                  Mobile = ruser.Mobile,
+                  AdminRole = ruser.AdminRole,
+                  Department = ruser.Department,
+                  Password = "Teasftst1245!@###",
+                  ConfirmPassword = "Teasftst1245!@###",
+                  AccountStatus = ruser.AccountStatus,
+                  //CreateDate = ruser.CreateDate,
+                  //UpdateDate = ruser.UpdateDate
+              })
+              .FirstOrDefaultAsync();
+            if (adminUser == null)
+            {
+                adminUser = new AdminRegViewModel();
+            }
+
+            return View(adminUser);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddRegisterAdmin(AdminRegViewModel mVLogin)
+        public async Task<IActionResult> addeditadminuser(AdminRegViewModel mVLogin)
         {
             if (!ModelState.IsValid)
             {
+
+                var errors = ModelState
+      .Where(x => x.Value.Errors.Count > 0)
+      .Select(x => new
+      {
+          Field = x.Key,
+          Errors = x.Value.Errors.Select(e => e.ErrorMessage).ToList()
+      })
+      .ToList();
                 return View(mVLogin);
             }
-            var AdminUserRole = HttpContext.Session.GetString("AdminUserRole");
-            AdminUserRole = string.IsNullOrEmpty(AdminUserRole) ? "advisor" : AdminUserRole;
-            if (AdminUserRole.ToLower() != "superadmin")
-            {
-                return RedirectToAction("Dashboard");
-            }
-            string UserEmail = _AdminUserServices.checkEmailExist(mVLogin.Email);
 
-            if (UserEmail == null)
+            var adminUserRole = HttpContext.Session.GetString("AdminUserRole") ?? "advisor";
+            if (adminUserRole.ToLower() != "superadmin")
+                return RedirectToAction("Dashboard");
+
+            long userId = 0;
+
+            // 🔍 Email exists check (ignore current user during edit)
+            var existingUser = await _context.TblFfAdminUsers
+                .FirstOrDefaultAsync(x => x.Email == mVLogin.Email && x.Id != mVLogin.Id);
+
+            if (existingUser != null)
             {
+                ViewData["Error"] = "Email already exists.";
+                return View(mVLogin);
+            }
+
+            var adminUser = await _context.TblFfAdminUsers
+                .FirstOrDefaultAsync(ruser => ruser.Id == mVLogin.Id);
+
+            if (adminUser != null)
+            {
+                // 🔁 UPDATE
+                adminUser.Name = mVLogin.Name;
+                //adminUser.Email = mVLogin.Email;
+                adminUser.Mobile = mVLogin.Mobile;
+                adminUser.AdminRole = mVLogin.AdminRole;
+                adminUser.Department = mVLogin.Department;
+                adminUser.UpdateDate = DateTime.Now;
+                adminUser.AccountStatus = mVLogin.AccountStatus;
+                //if (!string.IsNullOrWhiteSpace(mVLogin.Password))
+                //{
+                //    adminUser.Password = mVLogin.Password; // ⚠️ Hash in real app
+                //}
+
+                userId = adminUser.Id;
+            }
+            else
+            {
+                // ➕ ADD
                 var newRegister = new TblFfAdminUser
                 {
                     Name = mVLogin.Name,
                     Email = mVLogin.Email,
-                    Password = mVLogin.Password, // Hash the password in a real application
+                    Password = mVLogin.Password, // ⚠️ Hash in real app
                     Mobile = mVLogin.Mobile,
                     AdminRole = mVLogin.AdminRole,
                     Department = mVLogin.Department,
-                    AccountStatus ="Active",
+                    AccountStatus = "Active",
                     Adminuserid = mVLogin.Mobile,
                     CreateDate = DateTime.Now,
                     UpdateDate = DateTime.Now
                 };
 
-                Int64 UserID = await _AdminUserServices.AdminUserAdd(newRegister);
+                await _context.TblFfAdminUsers.AddAsync(newRegister);
+                await _context.SaveChangesAsync(); // ✅ save first
 
-                if (UserID > 0)
-                {
-                    ViewData["Error"] = "New Admin User Added";
-                    string weburl = _utilService.webAppURL();
-                    await _utilService.SendEmailAsync(toEmail: "agile1021@gmail.com",//mVLogin.Email,// "user@example.com",
-                      subject: "Welcome Team",
-                     templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", "SignupSuccessTemplate.html"),
-                      //templatePath: Path.Combine(_env.WebRootPath, "EmailTemp/ForgotPasswordTemplate.html"),
-                      placeholders: new Dictionary<string, string>
-                      {
-                            { "UserName", mVLogin.Name}, 
-                            { "ResetLink", weburl + "/admin/login" },
-                                { "LoginUrl", weburl+ "/admin/login"  },
-                                 { "Email", mVLogin.Email},
-                                 { "Password", mVLogin.Password},
-
-                      });
-                    return RedirectToAction("Dashboard");
-                }
-                else
-                {
-                    string error = "<b>We're sorry!...</b><br/>Errors occurred. Please correct them and try again.<br/><br/>";
-                    ViewData["Error"] = error;
-                    return BadRequest(new { message = error });
-                }
+                userId = newRegister.Id; // ✅ ID available now
             }
-            else
+
+            if (adminUser != null)
+                await _context.SaveChangesAsync();
+
+            // ✅ SUCCESS
+            if (userId > 0)
             {
-                ViewData["Error"] = "Email already exists.";
-                return View(mVLogin);
-            } 
-            //return View(mVLogin);
+                string weburl = _utilService.webAppURL();
+
+                await _utilService.SendEmailAsync(
+                    toEmail: mVLogin.Email,
+                    subject: "Welcome Team",
+                    templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", "SignupSuccessTemplate.html"),
+                    placeholders: new Dictionary<string, string>
+                    {
+                { "UserName", mVLogin.Name },
+                { "LoginUrl", weburl + "/admin/login" },
+                { "Email", mVLogin.Email },
+                { "Password", mVLogin.Password }
+                    });
+
+                TempData["Success"] = "Admin user saved successfully.";
+                return RedirectToAction("adminusers");
+            }
+
+            ViewData["Error"] = "Something went wrong. Please try again.";
+            return View(mVLogin);
         }
 
 
         [HttpGet]
-        [Route("admin/adminTeamlist")]
-        public async Task<IActionResult> adminTeamlist()
+        [Route("admin/adminusers")]
+        public async Task<IActionResult> adminusers()
         {
             string? AdminUserFullName = HttpContext.Session.GetString("AdminUserFullName");
             string? AdminUserId = HttpContext.Session.GetString("AdminUserId");
@@ -716,16 +799,27 @@ namespace FactFinderWeb.Controllers
             string AdminUserRole = HttpContext.Session.GetString("AdminUserRole");
             AdminUserRole = string.IsNullOrEmpty(AdminUserRole) ? "advisor" : AdminUserRole;
 
-            int updaterow = await _AdminUserServices.UserUpdate(userprofile);
+            //int updaterow = await _AdminUserServices.UserUpdate(userprofile);
 
-            if (updaterow > 0)
-                ViewData["msg"] = "User details updated successfully.";
-            else
-                ViewData["msg"] = "Failed to update user details.";
+            TblFfRegisterUser user = await _context.TblFfRegisterUsers.Where(x => x.Id == userprofile.Id).FirstOrDefaultAsync();
 
-            userprofile.AdvisorListOptions = await _AdminUserServices.GetAdvisorList();
+            if (user == null)
+            {
+                return BadRequest("Invalid user ID.");
+            }
 
-            return View(userprofile);
+            user.Name = userprofile.UserFullName;
+            user.Email = userprofile.UserEmail;
+            user.Mobile = userprofile.UserMobile;
+            user.Activestatus = userprofile.UserActiveStatus;
+            _context.TblFfRegisterUsers.Update(user);
+            await _context.SaveChangesAsync();
+
+            ViewData["msg"] = "User details updated successfully.";
+
+            UserProfileViewModel userdata = await _AdminUserServices.GetUserDetail(userprofile.Id??0);
+            userdata.AdvisorListOptions = await _AdminUserServices.GetAdvisorList();
+            return View(userdata);
         }
 
 
@@ -842,29 +936,245 @@ namespace FactFinderWeb.Controllers
         }
 
 
-        [HttpPost]
-        [Route("/admin/renewpolicy/{profileId}")]
-        public async Task<IActionResult> renewpolicy(long profileId)
-        {
-            if (Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0") <= 0)
-                return RedirectToAction("Login", "Admin");
-          
-            int AdminUserId = Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0");
-            var profile = await _context.TblffAwarenessProfileDetails.Where(u => u.ProfileId == profileId ).FirstOrDefaultAsync();
-            if (profile != null)
-            {
-                var oldProfileIdParam = new SqlParameter("@OldProfileId", profileId);
-                var renewedByUserIdParam = new SqlParameter("@RenewedByUserId", AdminUserId);
 
-                long newProfileId = _context.Database
+        [HttpGet("admin/renewal")]
+        public async Task<IActionResult> Renewal(string? search, int page = 1, int pageSize = 20,  string status = "", string plantype = "", int assignedto = 0)
+        {
+            string? AdminUserFullName = HttpContext.Session.GetString("AdminUserFullName");
+            int AdminUserId = Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0");
+            var AdminUserRole = HttpContext.Session.GetString("AdminUserRole");
+            AdminUserRole = string.IsNullOrEmpty(AdminUserRole) ? "advisor" : AdminUserRole;
+
+            if (AdminUserId <= 0)
+            {
+                return RedirectToAction("Login", "Admin");
+            }
+
+            ViewData["userID"] = AdminUserId;
+            ViewData["Username"] = AdminUserFullName;
+            var (users, totalRecords, totalPages, statusCounts) = await _AdminUserServices.GetReNewUserListAsync(AdminUserRole, AdminUserId, page, pageSize, search , status, plantype, assignedto = 0);
+
+            // Optional: search filteringAdvisoridAdvisorid
+
+            ViewData["CurrentPage"] = page;
+            ViewData["TotalPages"] = totalPages;
+            ViewData["Search"] = search;
+
+            var statusList = new List<StatusCountItem>
+{
+    new() { Status = "Overdue",  Count = statusCounts?.Overdue ?? 0 },
+    new() { Status = "Due Soon", Count = statusCounts?.DueSoon ?? 0 },
+    new() { Status = "Active",   Count = statusCounts?.Active ?? 0 },
+    new() { Status = "Inactive", Count = statusCounts?.Inactive ?? 0 },
+    new() { Status = "Total",    Count = statusCounts?.Total ?? 0 },
+       new() { Status = "Renewal Sent", Count = statusCounts?.RenewalSent ?? 0 },
+};
+
+            ViewData["StatusCounts"] = statusList;
+
+
+            return View(users);
+        }
+
+      
+
+        [HttpGet("admin/SendRenewal/{id}")]
+        public async Task<IActionResult> SendRenewal(long id)
+        {
+            string msg = "";
+
+            try
+            {
+                var profiles = await _context.TblffAwarenessProfileDetails.Where(u => u.ProfileId == id).FirstOrDefaultAsync();
+                if (profiles != null)
+                {
+                    profiles.RenewalSent = true;
+                    profiles.RenewalSentCount = (profiles.RenewalSentCount ?? 0 + 1);
+                    profiles.LastRenewalSentDate = DateTime.Now;
+                    _context.TblffAwarenessProfileDetails.Update(profiles);
+                    await _context.SaveChangesAsync();
+                    string? attachmentPath = null;
+                    
+                    attachmentPath = await _AdminUserServices.GeneratePdf(profiles.ProfileId, _jsonData, _pdfService, _viewRenderService, _env);
+
+                    var users = await _context.TblFfRegisterUsers.FirstOrDefaultAsync(u => u.Id == profiles.UserId);
+                    await _utilService.SendEmailAsync(
+                                toEmail: profiles.Email,
+                                subject: "Renewal Reminder - " + profiles.PlanType + " Plan",
+                                templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", "RenewalReminderTemplate.html"),
+                                placeholders: new Dictionary<string, string>
+                                {
+                                { "planType", profiles.PlanType},
+                                { "Name",profiles.Name },
+                                  { "clientName",profiles.Name },
+                                { "durationLabel", profiles.PlanDuration },
+                                { "renewalDateLabel",profiles.PlanEndDate!=null?Convert.ToDateTime( profiles.PlanEndDate).ToString("dd/MM/yyyy"):""},
+                                }, attachmentPath);
+
+                    await _utilService.SendEmailAsync(
+                                toEmail: users.Email,
+                                subject: "Renewal Reminder - " + profiles.PlanType + " Plan",
+                                templatePath: Path.Combine(_env.WebRootPath, "emailtemplates", "RenewalReminderTemplate.html"),
+                                placeholders: new Dictionary<string, string>
+                                {
+                                { "planType", profiles.PlanType},
+                                { "Name",users.Name },
+                                  { "clientName",profiles.Name },
+                                { "durationLabel", profiles.PlanDuration },
+                                { "renewalDateLabel",profiles.PlanEndDate!=null?Convert.ToDateTime( profiles.PlanEndDate).ToString("dd/MM/yyyy"):""},
+                                }, attachmentPath);
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Renewal reminder email sent successfully."
+                });
+
+            }
+            catch(Exception ex)
+            {
+                msg = ex.ToString();
+                return Json(new { success = false, message = msg });
+            }
+
+           
+        }
+
+        [HttpGet("admin/dashboard")]
+        public async Task<IActionResult> Dashboard(string? search, int page = 1, int pageSize = 20)
+        {
+            string? AdminUserFullName = HttpContext.Session.GetString("AdminUserFullName");
+            int AdminUserId = Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0");
+            var AdminUserRole = HttpContext.Session.GetString("AdminUserRole");
+            AdminUserRole = string.IsNullOrEmpty(AdminUserRole) ? "advisor" : AdminUserRole;
+
+            if (AdminUserId <= 0)
+            {
+                return RedirectToAction("Login", "Admin");
+            }
+
+            ViewData["AdminUserFullName"] = AdminUserFullName;
+            ViewData["AdminUserRole"] = AdminUserRole;
+
+
+            ViewBag.UserName = AdminUserFullName;
+            ViewBag.UserRole = AdminUserRole; // "admin" or planner id
+            List<PlanTypeMetricVM> planTypeMetrics;
+
+            if (AdminUserRole == "admin")
+            {
+                // ✅ Advisor/User: see ONLY assigned clients
+                planTypeMetrics = await _context.TblffAwarenessProfileDetails
+                    .Where(x => x.PlanType != null && x.Advisorid == AdminUserId)
+                    .GroupBy(x => x.PlanType)
+                    .Select(g => new PlanTypeMetricVM
+                    {
+                        PlanType = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+
+            }
+            else
+            {
+              
+
+
+                // ✅ Admin: see ALL clients
+                planTypeMetrics = await _context.TblffAwarenessProfileDetails
+                    .Where(x => x.PlanType != null)
+                    .GroupBy(x => x.PlanType)
+                    .Select(g => new PlanTypeMetricVM
+                    {
+                        PlanType = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+            }
+
+            foreach (var item in planTypeMetrics)
+            {
+                if (item.PlanType == "wealth")
+                {
+                    item.PlanType = "Wealth";
+                }
+                if (item.PlanType == "zero2one")
+                {
+                    item.PlanType = "Zero2One";
+                }
+            }
+
+            return View(planTypeMetrics);
+        }
+
+        [HttpPost("admin/createRenewPlan/{id}")]
+        public async Task<IActionResult> createRenewPlan([FromBody]  ReNewPlan reNewPlan)
+        {
+            long AdminUserId = Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0");
+            var profiles = await _context.TblffAwarenessProfileDetails.Where(u => u.ProfileId == reNewPlan.OldProfileId).FirstOrDefaultAsync(); //&& u.NewReNewedProfileid == null
+            if (profiles != null)
+            {
+                string PlanType = profiles.PlanType;
+                string PlanDuration = profiles.PlanDuration;
+                int? PlanYear = (profiles.PlanYear +1);
+                if (reNewPlan.IsChange == true)
+                {
+                    if (!string.IsNullOrWhiteSpace(profiles.PlanType))
+                    {
+                        PlanType = reNewPlan.PlanType;
+                    }
+                    if (!string.IsNullOrWhiteSpace(profiles.PlanDuration))
+                    {
+                        PlanDuration = reNewPlan.PlanDuration;
+                    }
+                    if (profiles.PlanYear > 0)
+                    {
+                        PlanYear = reNewPlan.PlanYear;
+                    }
+                }
+
+                var oldProfileIdParam = new SqlParameter("@OldProfileId", reNewPlan.OldProfileId);
+                var renewedByUserIdParam = new SqlParameter("@RenewedByUserId", AdminUserId);
+                var planTypeParam = new SqlParameter("@PlanType", PlanType);
+                var planDurationParam = new SqlParameter("@PlanDuration", PlanDuration);
+                var planYearParam = new SqlParameter("@PlanYear", PlanYear);
+
+                var IsAlertnessInclude = new SqlParameter("@IsAlertnessInclude", reNewPlan.ckAlertness);
+                var IsKnowledgeInclude = new SqlParameter("@IsKnowledgeInclude", reNewPlan.ckKnowledge);
+                var IsPrecisionInclude = new SqlParameter("@IsPrecisionInclude", reNewPlan.ckPrecision);
+                var IsInvestNowInclude = new SqlParameter("@IsInvestNowInclude", reNewPlan.ckInvestNow);
+
+
+                var newId = _context.Database
                     .SqlQueryRaw<long>(
-                        "EXEC dbo.sp_RenewPolicy_FullProfileCopy_Final @OldProfileId, @RenewedByUserId",
+                        @"EXEC sp_RenewPolicy_FullProfileCopy_Final
+                          @OldProfileId,
+                          @RenewedByUserId,
+                          @PlanType,
+                          @PlanDuration,
+                          @PlanYear,@IsAlertnessInclude,@IsKnowledgeInclude,@IsPrecisionInclude,@IsInvestNowInclude",
                         oldProfileIdParam,
-                        renewedByUserIdParam
+                        renewedByUserIdParam,
+                        planTypeParam,
+                        planDurationParam,
+                        planYearParam,
+                        IsAlertnessInclude,
+                        IsKnowledgeInclude,
+                        IsPrecisionInclude,
+                        IsInvestNowInclude
                     )
                     .AsEnumerable()
                     .FirstOrDefault();
 
+        
+
+                //profiles.PlanStatus = "Expired";
+               // profiles.LastRenewalSentDate = DateTime.Now;
+                //profiles.NewReNewedProfileid = newId;
+
+               // _context.TblffAwarenessProfileDetails.Update(profiles);
+                //await _context.SaveChangesAsync();
             }
 
             return Json(new { success = true });

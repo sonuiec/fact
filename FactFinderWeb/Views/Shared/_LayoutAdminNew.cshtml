@@ -1,0 +1,171 @@
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    var AdminUserId = Context.Session.GetString("AdminUserId");
+    var AdminUserFullName = Context.Session.GetString("AdminUserFullName");
+    var AdminUserRole = Context.Session.GetString("AdminUserRole");
+    AdminUserRole = string.IsNullOrEmpty(AdminUserRole) ? "advisor" : AdminUserRole;
+    bool isLoggedIn = !string.IsNullOrEmpty(AdminUserId);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FactFinder</title>
+
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link href="~/css/common.css" rel="stylesheet" />
+
+    <link href="~/css/sitenew.css" rel="stylesheet" />
+    <style>
+       td a {
+            --tw-text-opacity: 1;
+            color: #0056C1 !important;
+            color: rgb(18 20 177 / var(--tw-text-opacity, 1)) !important;
+            font-weight: 500;
+        }
+
+        .toggle-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .sidebar-open #menuToggle {
+            display: none;
+        }
+
+        .sidebar-hidden .fixed.left-0 {
+            transform: translateX(-100%);
+        }
+
+
+    </style>
+
+    
+    <script>
+
+
+        function toggleRow(btn) {
+            const icon = btn.querySelector('.toggle-icon');
+            const mainRow = btn.closest('tr');
+            const detailRow = mainRow.nextElementSibling;
+
+            if (!detailRow || !detailRow.classList.contains('detail-row')) return;
+
+            detailRow.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+
+              icon.classList.toggle("rotate-up");
+        }
+    </script>
+    <style>
+        table {
+            width: 100%
+        }
+
+            table td {
+                color: #111827; /* Tailwind gray-900 */
+                font-size: .875rem;
+                line-height: 1.25rem;
+                text-align: left;
+                padding: 0.75rem 0.75rem; /* py-3 px-3 */
+            }
+
+            table th {
+                --tw-text-opacity: 1;
+                color: rgb(107 114 128 / var(--tw-text-opacity, 1));
+                font-size: 0.75rem;
+                line-height: 1rem;
+                font-weight: 500;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                text-align: left;
+                padding: 0.75rem 0.75rem;
+                text-align: left;
+            }
+
+            table tr {
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+        .absolute {
+            position: absolute;
+        }
+
+        /* MVC validation error input */
+        .input-validation-error {
+            border-color: #ef4444 !important; /* Tailwind red-500 */
+            background-color: #fef2f2; /* red-50 */
+        }
+
+            /* Focus state when error */
+            .input-validation-error:focus {
+                border-color: #ef4444 !important;
+            }
+
+            .field-validation-error, .input-validation-error:focus {
+                color: #ef4444 !important;
+            
+            }
+
+
+        .h-full {
+            height: 54%;
+        }
+
+        .rotate-up {
+            transform: rotate(180deg);
+            transition: transform 0.3s ease;
+        }
+
+
+
+    </style>
+
+
+</head>
+<body class="w-full flex">
+
+    @* <span class="">
+
+        <p class="nav-item  text-info">
+            <a class="nav-link text-dark hdrlink" asp-area="" asp-controller="Admin" asp-action="Logout">Logout</a>
+        </p>
+        @{
+            if (AdminUserRole.ToLower() == "superadmin")
+            {
+                <p class="nav-item"><a class="nav-link text-dark hdrlink" asp-controller="Admin" asp-action="adminlist">Admin List</a></p>
+            }
+        }
+        <p class="nav-item text-info">
+            <a class="nav-link text-dark hdrlink" asp-area="" asp-controller="Admin" asp-action="Dashboard">Client List</a>
+        </p>
+        <p class="nav-item text-info ">
+            <a class="nav-link text-dark hdrlink" asp-area="" asp-controller="Admin" asp-action="ProfileDashboard">Dashboard</a>
+        </p>
+        <p class="nav-item">
+            <a class="nav-link text-dark">Welcome, @AdminUserFullName</a>
+        </p>
+    </span> *@
+    
+    <!-- Sidebar -->
+    <div class="h-full flex">
+        @await Html.PartialAsync("_SidebarAdmin")
+    </div>
+
+    <!-- Main Content -->
+    <div class="w-full ml-80 md:ml-64 transition-all duration-300" id="RenderBody" style="        margin-left: 169px;">
+        @RenderBody()
+    </div>
+
+  
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

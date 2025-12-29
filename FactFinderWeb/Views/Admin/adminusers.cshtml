@@ -1,0 +1,97 @@
+﻿@using FactFinderWeb.ModelsView
+
+@{
+    ViewData["Title"] = "Admin Users";
+    Layout = "~/Views/Shared/_LayoutAdminNew.cshtml";
+    var currentSort = Context.Request.Query["sortOrder"];
+}
+
+<style>
+    .formfield {
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+        color: #333;
+        text-align: left;
+    }
+</style>
+<div class="p-6 bg-white rounded-lg shadow-md">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+
+            Admin Users
+        </h2>
+        <div class="text-sm text-gray-600"></div>
+    </div>
+
+    <div class="mb-6 w-full">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+
+            <div class="flex items-center gap-3">
+              &nbsp;
+            </div>
+
+
+            <div>
+                <a href="/Admin/addeditadminuser"  class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
+                    + Add Admin
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="overflow-x-auto max-w-full">
+
+  
+
+    <div class="row " style="margin-top:10px">
+              <table class="w-full bg-white border border-gray-200 rounded-lg table">
+                <thead class="bg-gray-50">
+                    <tr class="bg-gray-100 border-b">
+            <th class="text-center"> <a> S. No. </a> </th>
+                    <th>Name </th>
+                    <th>Email</th>
+            <th> Contact  </th>
+            <th> Admin Role  </th>
+            
+            <th class="text-center">Registration Date</th>
+                        <th> Status </th>
+            <th> Action </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            //@MVAdminProfile  <td> @user.Department</td>  <td class="text-center"> @user.CreateDate.ToString("dd/MM/yyyy")</td><th> Department  </th><td> Department  </td>
+            int dataindex = 1;
+            foreach (var user in Model)
+            {
+                <tr>
+                    <td class="text-center">@dataindex</td>
+                    <td> @user.AdminUserFullName</td>
+                    <td> @user.AdminUserEmail</td>
+                        <td> @user.Mobile  </td>
+                    <td> @user.AdminRole</td>
+                        <td class="text-center">@Convert.ToDateTime(user.CreateDate).ToString("dd/MM/yyyy")</td>
+                    <td class="text-center"> @user.AccountStatus</td>
+                                <td class="text-center"><a href="/admin/addeditadminuser/@user.Id" >Edit</a></td>
+                </tr>
+                dataindex++;
+            }
+        }
+    </tbody>
+</table>
+
+</div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        let goals = JSON.parse(localStorage.getItem("test")) || [];
+
+   
+    </script>
+
+} 

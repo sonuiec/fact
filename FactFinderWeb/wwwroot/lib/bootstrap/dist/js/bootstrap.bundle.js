@@ -4271,7 +4271,7 @@
    * --------------------------------------------------------------------------
    */
   const Default$7 = {
-    className: 'modal-backdrop',
+    class: 'modal-backdrop',
     isVisible: true,
     // if false, we use the backdrop helper without adding any element to the dom
     isAnimated: false,
@@ -4280,7 +4280,7 @@
     clickCallback: null
   };
   const DefaultType$7 = {
-    className: 'string',
+    class: 'string',
     isVisible: 'boolean',
     isAnimated: 'boolean',
     rootElement: '(element|string)',
@@ -4335,7 +4335,7 @@
     _getElement() {
       if (!this._element) {
         const backdrop = document.createElement('div');
-        backdrop.className = this._config.className;
+        backdrop.class = this._config.class;
 
         if (this._config.isAnimated) {
           backdrop.classList.add(CLASS_NAME_FADE$4);
@@ -5084,7 +5084,7 @@
 
     _initializeBackDrop() {
       return new Backdrop({
-        className: CLASS_NAME_BACKDROP,
+        class: CLASS_NAME_BACKDROP,
         isVisible: this._config.backdrop,
         isAnimated: true,
         rootElement: this._element.parentNode,

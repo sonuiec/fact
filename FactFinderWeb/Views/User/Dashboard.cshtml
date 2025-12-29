@@ -1,448 +1,1145 @@
-﻿@using FactFinderWeb.BLL
-@using FactFinderWeb.ModelsView
-@model List<FactFinderWeb.ModelsView.DashboardViewModel>
+﻿@using FactFinderWeb.ModelsView
 
+@model FactFinderWeb.ModelsView.DashboardViewModelNew
+
+@using Microsoft.AspNetCore.Http;
+@removeTagHelper "Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers"
+
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @{
-	ViewData["Title"] = "Dashboard";
-	Layout = "~/Views/Shared/_LayoutUser.cshtml";
-}
+    var statusList = (List<StatusCountItem>)ViewData["StatusCounts"];
 
-
-<style>
-	.form-wrap {
-		background: rgba(255,255,255,1);
-		width: 100%;
-		max-width: 850px;
-		padding: 50px;
-		margin: 0 auto;
-		position: relative;
-		-webkit-border-radius: 10px;
-		-moz-border-radius: 10px;
-		border-radius: 10px;
-		-webkit-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
-		-moz-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
-		box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
-		margin-top: 10px;
-		margin-bottom: 80px;
-	}
-
-		.form-wrap:before {
-			content: "";
-			width: 90%;
-			height: calc(100% + 60px);
-			left: 0;
-			right: 0;
-			margin: 0 auto;
-			position: absolute;
-			top: -30px;
-			background: #101357;
-			z-index: -1;
-			opacity: 0.8;
-			-webkit-border-radius: 10px;
-			-moz-border-radius: 10px;
-			border-radius: 10px;
-			-webkit-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
-			-moz-box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
-			box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.15);
-		}
-
-	.form-group {
-		margin-bottom: 25px;
-	}
-
-		.form-group > label {
-			display: block;
-			font-size: 18px;
-			color: #000;
-			letter-spacing: 1px;
-		}
-
-	.custom-control-label {
-		color: #000;
-		font-size: 16px;
-	}
-
-	.form-control {
-		height: 50px;
-		background: #ecf0f4;
-		border-color: transparent;
-		padding: 0 15px;
-		font-size: 16px;
-		-webkit-transition: all 0.3s ease-in-out;
-		-moz-transition: all 0.3s ease-in-out;
-		-o-transition: all 0.3s ease-in-out;
-		transition: all 0.3s ease-in-out;
-	}
-
-		.form-control:focus {
-			border-color: #00bcd9;
-			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-		}
-
-	textarea.form-control {
-		height: 51px;
-		padding-top: 15px;
-		resize: none;
-	}
-
-	.btn {
-		padding: .657rem .75rem;
-		font-size: 18px;
-		letter-spacing: 0.050em;
-		-webkit-transition: all 0.3s ease-in-out;
-		-moz-transition: all 0.3s ease-in-out;
-		-o-transition: all 0.3s ease-in-out;
-		transition: all 0.3s ease-in-out;
-		width: 48%;
-	}
-
-	.btn-primary {
-		color: #fff;
-		background-color: #FF1D58;
-		border-color: #FF1D58;
-	}
-
-		.btn-primary:hover {
-			color: #101357;
-			background-color: #ffffff;
-			border-color: #101357;
-			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-		}
-
-		.btn-primary:focus, .btn-primary.focus {
-			color: #101357;
-			background-color: #ffffff;
-			border-color: #101357;
-			-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-			-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-			box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-		}
-
-		.btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
-		.show > .btn-primary.dropdown-toggle {
-			color: #101357;
-			background-color: #ffffff;
-			border-color: #101357;
-		}
-
-			.btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus,
-			.show > .btn-primary.dropdown-toggle:focus {
-				-webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-				-moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-				box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
-			}
-
-	.imgh {
-		width: 300px;
-		height: 200px;
-		object-fit: contain;
-	}
-
-	<style >
-	.card-header {
-		background-color: #f8f9fa !important;
-		border-bottom: 1px solid #dee2e6;
-	}
-
-	.table tbody tr:hover {
-		background-color: #f1f1f1;
-	}
-
-	.table th {
-		background-color: #e9ecef;
-		color: #fff
-	}
-
-	.formfield {
-		background-color: #f9f9f9;
-		padding: 10px;
-		border-radius: 10px;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-		font-family: Arial, sans-serif;
-		color: #333;
-		text-align: left;
-	}
-
-	.status-active {
-		background-color: #d1e7dd;
-		color: #0f5132;
-		padding: 4px 10px;
-		border-radius: 8px;
-		font-size: 12px;
-		font-weight: 600;
-	}
-
-	.table thead {
-		background: #0a53be;
-		color: #fff;
-	}
+    var role = HttpContextAccessor.HttpContext.Session.GetString("AdminUserRole") ?? "";
+    var selectedStatus = Context.Request.Query["status"].ToString();
+    var selectedPlanType = Context.Request.Query["plantype"].ToString();
+    var selectedSearch = Context.Request.Query["search"].ToString();
 
 
 
-	.page-title {
-		text-align: left;
-		font-size: 25px;
-		font-weight: 700;
-		color: #202020;
-		text-transform: uppercase;
-		word-spacing: 1px;
-		letter-spacing: 2px;
-	}
+    ViewData["Title"] = "Profile Overview ";
+    Layout = "~/Views/Shared/_LayoutUserdashboard.cshtml";
+    var currentSort = Context.Request.Query["sortOrder"];
 
-
-
-
-	.action-btn a {
-		margin-right: 8px;
-	}
-
-
-	/* Table container */
-	.table-wrapper {
-		width: 100%;
-		overflow-x: auto;
-	}
-
-	/* Main table style */
-	.custom-table {
-		width: 100%;
-		border-collapse: collapse;
-		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-		font-size: 14px;
-	}
-
-		/* Header styling */
-		.custom-table thead tr {
-			background-color: #0056C1;
-			color: #fff;
-			text-align: left;
-		}
-
-		.custom-table th {
-			padding: 12px 10px;
-			border: 1px solid #ddd;
-			font-weight: 600;
-		}
-
-		/* Row styling */
-		.custom-table td {
-			padding: 6px 10px;
-			border: 1px solid #ddd;
-			color: #333;
-		}
-
-		/* Hover effect */
-		.custom-table tbody tr:hover {
-			background-color: #f0f7ff;
-			cursor: pointer;
-		}
-
-		/* S.No column center align */
-		.custom-table td:first-child,
-		.custom-table th:first-child {
-			text-align: center;
-			width: 60px;
-		}
-
-		/* Action link */
-		.custom-table a {
-			color: #0056C1;
-			font-weight: 600;
-			text-decoration: none;
-		}
-
-			.custom-table a:hover {
-				text-decoration: underline;
-			}
-
-		/* Dropdown style inside grid */
-		.custom-table select {
-			width: 140px;
-			padding: 5px;
-			border-radius: 4px;
-			border: 1px solid #aaa;
-		}
-
-	a {
-		color: #0056C1 !important
-	}
-
-	.btn-primary {
-		color: #fff !important
-	}
-
-	.bg-primary1 {
-		background-color: #0056C1 !important;
-	}
-
-	.form-group {
-		margin: 10px;
-	}
-</style>
-</style>
-
-
-
+    int currentPage = (int)(ViewData["CurrentPage"] ?? 1);
+    int totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    string search = ViewData["Search"]?.ToString() ?? "";
+    int serialNo = ((currentPage - 1) * 20) + 1;
  
-<div class="container py-5">
-	<div class="row ">
-		<div class="col-md-5">
-			<h1 class="page-title">Welcome, @Model[0]?.UserFullName!</h1>
-		</div>
-
-	
-	</div>
-
-	<!-- Profile Section -->
-	
-
-	<div class="card shadow-sm">
-		<div class="card-header bg-primary1 text-white">
-			<h5 class="mb-0">Profile Overview</h5>
-		</div>
-		<div class="card-body">
-			<div class="row mb-3">
-				<div class="col-md-6">
-					<strong>Email:</strong> @Model[0]?.UserEmail
-				</div>
-				<div class="col-md-6">
-					<strong>Mobile:</strong> @Model[0]?.UserMobile
-				</div>
-			</div>
-		 
-			<div class="row mb-3">
-				<div class="col-md-6">
-					<strong>Email Verified:</strong> @Model[0]?.UserEmailVerification
-				</div>
-				<div class="col-md-6">
-					<strong>Active Status:</strong>
-					@(string.IsNullOrEmpty(@Model[0].UserActiveStatus) || @Model[0].UserActiveStatus == "0" ? "Inactive" : "Active")
-				</div>
-			</div>
-			<div class="row mb-3">
-				<div class="col-md-6">
-					<strong>Registered Date:</strong> @Model[0].UserRegisterDate?.ToString("dd-MM-yyyy")
-				</div>
-				
-			</div> 
-		</div>
-	</div>
-
-
-	<!-- Plans Section -->
-	<div class="card">
-		<div class="card-header bg-primary1 text-white d-flex justify-content-between align-items-center">
-			<h5 class="mb-0">Your Plans</h5>
-			<a class="text-white" onclick="loadPopup()">Add New Plan</a>
-		</div>
-		<div class="card-body">
-			<table class="custom-table">
-				<thead class="table-light">
-					<tr>
-						<th>UID</th>
-						<th>Name</th>
-						<th>Plan Name</th>
-						<th>Plan Year</th>
-						<th>Advisor Name</th>
-						<th> Created Date</th>
-						<th> Updated Date</th>
-						<th> Status</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var item in Model)
-{
-  
-					<tr>
-							<td>@item.UId</td>
-							<td>@item.UserFullName</td>
-							<td>
-								@(item.UserPlan?.ToLower() == "wealth"
-															? "Wealth"
-															: item.UserPlan)
-							</td>
-							<td>@item.UserPlanYear</td>
-							<td>@item.AdvisorName</td>
-							<td>@item.PlanCreatedDate</td>
-							<td>@item.PlanUpdatedDate</td>
-							<td>
-								@(item.ProfileStatus == "Pending" ? "Submitted" : item.ProfileStatus)
-							
-							</td>
-						<td>
-							<a href="/@item.UserPlan.Trim().ToLower()/awareness/@CryptoHelper.Encrypt(item.ProfileId??0)" class="text-primary mx-2">
-								Edit your fact finder
-							</a> <br />
-								@if (item.UserPlan?.ToLower() == "basic" || item.UserPlan?.ToLower() == "zero2one")
-                                                                              {
-									<a href="/pdf/downloads/@item.ProfileId"
-                                                                                   target="_blank" class="text-success text-decoration-none ms-2">Download PDF</a>
-                                                                              }else {
-									<a href="/pdf/download/@item.ProfileId"
-                                                                                                           target="_blank" class="text-success text-decoration-none ms-2">Download PDF</a>
-                                                                              }
-                                                                           
-
-								 
-						</td>
-					</tr> 
 }
-				</tbody>
-			</table>
-		</div>
-	</div>
 
-</div>
-
-
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-
-			<div class="modal-header">
-				<h5 class="modal-title" id="myModalLabel">Add Family Member </h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<form asp-controller="User" asp-action="SetPlan" method="post">
-			<div class="modal-body">
-				<div class="mb-3">
-						<label for="planDropdown" class="form-label">Choose Plan Type</label>
-					<select class="form-control" id="PlanType" name="PlanType">
-					
-					
-							<option value="Zero2One">Zero2One</option>
-					
-							<option value="Basic">Basic</option>
-						
-							<option value="Comprehensive">Comprehensive</option>
-						
-							<option value="Wealth">Wealth</option>
-						
-					</select>
-
-				</div>
-			</div>
-
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-				<button type="submit" class="btn btn-primary">Continue</button>
-			</div>
-			</form>
-		</div>
-	</div>
-</div>
 <script>
-	function loadPopup() {
-	   $("#popupContent").load("/YourController/YourPartialAction");
-	   var myModal = new bootstrap.Modal(document.getElementById('myModal'));
-	   myModal.show();
-	}
-		
+    $("#btnFilter").on("click", function () {
+
+        var status = $("#statusFilter").val();
+        var planType = $("#planTypeFilter").val();
+        var search = $("#searchFilter").val();
+
+        $.ajax({
+            url: "/admin/RenewalList",
+            type: "GET",
+            data: {
+                status: status,
+                plantype: planType,
+                search: search,
+                pageNumber: 1
+            },
+            success: function (html) {
+                $("#renewalTableContainer").html(html);
+            }
+        });
+    });
+</script>
+<script>
+
+
+
+
+
+            let selectedId = 0;
+
+             document.addEventListener("click", function (e) {
+        const btn = e.target.closest(".renew-btn");
+        if (!btn) return;
+
+        // Assign values
+        document.getElementById("mName").innerText = btn.dataset.name || "NA";
+        document.getElementById("mEmail").innerText = btn.dataset.email || "NA";
+        document.getElementById("mMobile").innerText = btn.dataset.mobile || "NA";
+        document.getElementById("mDob").innerText = btn.dataset.dob || "NA";
+
+        document.getElementById("mPlan").innerText = btn.dataset.plan || "NA";
+        document.getElementById("mDuration").innerText = btn.dataset.duration || "NA";
+        document.getElementById("mStart").innerText = btn.dataset.start || "NA";
+        document.getElementById("mEnd").innerText = btn.dataset.end || "NA";
+
+          document.getElementById("plantypes").value = btn.dataset.plan
+          document.getElementById("plantDuration").value = btn.dataset.duration
+           document.getElementById("planyears").value = btn.dataset.year
+           document.getElementById("profileid").value = btn.dataset.profileid
+
+
+        // Store profile id for submit
+        document.getElementById("modal").dataset.profileid = btn.dataset.profileid;
+
+        // Show modal
+           document.querySelectorAll(".UpdateDetails").forEach(el => {
+        el.classList.add("hidden");
+    });
+        document.getElementById("modal").classList.remove("hidden");
+    });
+
+        function openModal() {
+        resetModalState();   // 🔥 reset first
+        document.getElementById("modal").classList.remove("hidden");
+    }
+
+              function closeModal() {
+        document.getElementById("modal").classList.add("hidden");
+        resetModalState();   // 🔥 reset again
+    }
+  async function submitRenew() {
+
+
+
+        const sections = [
+        { id: "ckAlertness", label: "Alertness with Money & Time" },
+        { id: "ckKnowledge", label: "Knowledge That Matters" },
+        { id: "ckPrecision", label: "Execution With Precision" },
+        { id: "ckInvestNow", label: "Invest In The Now" }
+    ];
+
+    // Find unchecked sections
+    const unchecked = sections.filter(s => !document.getElementById(s.id).checked);
+
+    // If any unchecked → confirmation popup
+    if (unchecked.length > 0) {
+        const message =
+            "You have unchecked the following sections:\n\n" +
+            unchecked.map(s => "• " + s.label).join("\n") +
+            "\n\nAre you sure you want to continue?";
+
+        if (!confirm(message)) {
+            return; // ❌ stop submission
+        }
+    }
+
+
+        const isChange = !document.getElementById("rbKeep").checked;
+
+
+        const payload = {
+            id: selectedId,
+            oldProfileId: document.getElementById("profileid").value,
+            planYear: document.getElementById("planyears").value,
+            planType: document.getElementById("plantypes").value,
+            planDuration: document.getElementById("plantDuration").value,
+            isChange: isChange,
+            ckAlertness: document.getElementById("ckAlertness").checked,
+            ckKnowledge: document.getElementById("ckKnowledge").checked,
+            ckPrecision: document.getElementById("ckPrecision").checked,
+            ckInvestNow: document.getElementById("ckInvestNow").checked,
+
+        };
+          $("#pageLoader").show();
+        const res = await fetch('/user/createRenewPlan/0', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+          $("#pageLoader").hide();
+        if (result.success) {
+            closeModal();
+            location.reload();
+        }
+    }
+
+
+       function togglePolicy(name,value) {
+
+        if(name=="Change"){
+              document.querySelectorAll(".UpdateDetails").forEach(el => {
+        el.classList.remove("hidden");
+    });
+        }
+         if(name=="Keep"){
+        document.querySelectorAll(".UpdateDetails").forEach(el => {
+        el.classList.add("hidden");
+    });
+        }
+    }
+
+        function resetModalState() {
+
+        // 1. Reset radio
+        document.getElementById("rbKeep").checked = true;
+
+        // 2. Hide update section
+        document.querySelectorAll(".UpdateDetails").forEach(el => {
+            el.classList.add("hidden");
+        });
+
+        // 3. Clear inputs
+        document.getElementById("plantypes").value = "";
+        document.getElementById("planyears").value = "";
+        document.getElementById("plantDuration").value = "";
+
+        // 4. Clear text fields
+        ["mName","mEmail","mMobile","mDob","mPlan","mDuration","mStart","mEnd"]
+            .forEach(id => document.getElementById(id).innerText = "");
+
+        document.getElementById("profileid").value = "";
+    }
+
+     $(document)
+      .off("click", ".showexpireplan")
+      .on("click", ".showexpireplan", function () {
+
+        const parentRow = $(this).closest("tr");
+        const uid = parentRow.data("uid");
+        const icon = parentRow.find(".toggle-icon");
+
+        // CLOSE
+        if (parentRow.next().hasClass("child-row")) {
+            parentRow.nextUntil(":not(.child-row)").remove();
+            icon.removeClass("rotate-180");
+            return;
+        }
+
+        icon.addClass("rotate-180");
+
+        $.ajax({
+            url: '/user/GetclientsProfilebbyId/' + uid,
+            type: 'GET',
+            success: function (res) {
+
+                let html = '';
+
+           res.forEach(item => {
+        html += `
+        <tr class="child-row bg-gray-50 border-l-4 border-blue-400">
+            <td class="px-3 py-4 pl-10 text-sm text-gray-600">
+               &nbsp;    &nbsp;${item.uIdText}
+            </td>
+
+            <td class="px-3 py-4 text-sm text-gray-900">
+                 &nbsp; &nbsp;    <div class="font-medium">${item.userFullName}</div>
+                <div class="text-xs text-gray-500">${item.userEmail}</div>
+            </td>
+
+            <td class="px-3 py-4 text-sm text-gray-900">
+                ${item.userPlan}
+            </td>
+
+            <td class="px-3 py-4 text-sm text-gray-900">
+                ${item.planDuration }
+            </td>
+
+            <td class="px-3 py-4 text-sm text-gray-900">
+                ${formatDate(item.userRegisterDate)}
+            </td>
+
+            <td class="px-3 py-4 text-sm text-gray-900"> 
+                ${formatDate(item.planStartDate)}
+            </td>
+
+            <td class="px-3 py-4 text-sm text-gray-900">
+                <div>
+                    ${item.planEndDate ? formatDate(item.planEndDate) : 'NA'}
+                 
+                </div>
+            </td>
+
+            <td class="px-3 py-4 text-sm">
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium
+                    ${item.planStatus === 'Draft' ? 'bg-gray-100 text-gray-700' : 'px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full'}">
+                    ${item.planStatus}
+                </span>
+            </td>
+
+            <td class="px-3 py-4 text-sm text-gray-600">
+                ${item.advisorName || 'Unassigned'}
+            </td>
+
+            <td class="px-3 py-4 text-left text-sm font-medium">
+                  <a href="${item.pdfPath}" target="_blank" class="text-green-600 hover:text-green-900 font-semibold">
+                    Download
+                </a>
+            </td>
+        </tr>`;
+    });
+
+                parentRow.after(html);
+            }
+        });
+    });
+
+                const formatDate = (dateStr) => {
+          const d = new Date(dateStr);
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = d.getFullYear();
+          return `${day}/${month}/${year}`;
+        };
+
+    function loadPopup() {
+       $("#popupContent").load("/YourController/YourPartialAction");
+       var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+       myModal.show();
+    }
+
+
+      $(document).ready(function () {
+
+        // Open modal
+        $("#openModal").on("click", function () {
+            $("#familyModal")
+                .removeClass("hidden")
+                .addClass("flex");
+        });
+
+        // Close modal
+        $(".closeModal").on("click", function () {
+            $("#familyModal")
+                .removeClass("flex")
+                .addClass("hidden");
+        });
+
+        // Close on backdrop click
+        $("#familyModal").on("click", function (e) {
+            if (e.target.id === "familyModal") {
+                $(this).removeClass("flex").addClass("hidden");
+            }
+        });
+
+    });
 
 </script>
+
+<!-- Modal Backdrop -->
+<div id="familyModal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+
+    <!-- Modal Box -->
+    <div class="bg-white w-full max-w-md rounded-xl shadow-lg">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b">
+            <h5 class="text-lg font-semibold text-gray-800">
+                Add Family Member
+            </h5>
+            <button class="closeModal text-gray-400 hover:text-gray-600 text-xl">
+                ✕
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form asp-controller="User" asp-action="SetPlan" method="post">
+            <div class="p-5 space-y-4">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Choose Plan Type
+                    </label>
+                    <select name="PlanType"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+                               focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Zero2One">Zero2One</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Comprehensive">Comprehensive</option>
+                        <option value="Wealth">Wealth</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-end gap-3 px-5 py-4 border-t">
+                <button type="button"
+                        class="closeModal px-4 py-2 text-sm rounded-lg border
+                               border-gray-300 text-gray-700 hover:bg-gray-100">
+                    Close
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 text-sm rounded-lg bg-blue-600
+                               text-white hover:bg-blue-700">
+                    Continue
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+
+    <div class="p-6 bg-white rounded-lg shadow-md">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+               
+                 Overview
+            </h2>
+
+
+            <!-- Modal Backdrop -->
+            <!-- Modal Backdrop -->
+            <div id="modal"
+                 class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+
+                <!-- Modal Box -->
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl p-8 relative">
+
+                    <!-- Close Button -->
+                    <button onclick="closeModal()"
+                            class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">
+                        &times;
+                    </button>
+                    <h3 class="font-semibold mb-2">Renew Plan</h3>
+
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-blue-600" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M332.64 64.58C313.18 43.57 286 32 256 32c-30.16 0-57.43 11.5-76.8 32.38-19.58 21.11-29.12 49.8-26.88 80.78C156.76 206.28 203.27 256 256 256s99.16-49.71 103.67-110.82c2.27-30.7-7.33-59.33-27.03-80.6zM432 480H80a31 31 0 0 1-24.2-11.13c-6.5-7.77-9.12-18.38-7.18-29.11C57.06 392.94 83.4 353.61 124.8 326c36.78-24.51 83.37-38 131.2-38s94.42 13.5 131.2 38c41.4 27.6 67.74 66.93 76.18 113.75 1.94 10.73-.68 21.34-7.18 29.11A31 31 0 0 1 432 480z"></path>
+                                </svg>
+                                Personal Details
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span class="text-sm font-medium text-gray-600">Full Name:</span>
+                                        <p class="text-sm text-gray-900" id="mName"></p>
+
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-medium text-gray-600">Email:</span>
+                                        <p class="text-sm text-gray-900" id="mEmail"></p>
+
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-medium text-gray-600">Mobile:</span>
+                                        <p class="text-sm text-gray-900" id="mMobile"></p>
+
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-medium text-gray-600">Date of Birth:</span>
+                                        <p class="text-sm text-gray-900" id="mDob"></p>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-green-600" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M428 224H288a48 48 0 0 1-48-48V36a4 4 0 0 0-4-4h-92a64 64 0 0 0-64 64v320a64 64 0 0 0 64 64h224a64 64 0 0 0 64-64V228a4 4 0 0 0-4-4zm-92 160H176a16 16 0 0 1 0-32h160a16 16 0 0 1 0 32zm0-80H176a16 16 0 0 1 0-32h160a16 16 0 0 1 0 32z"></path>
+                                    <path d="M419.22 188.59 275.41 44.78a2 2 0 0 0-3.41 1.41V176a16 16 0 0 0 16 16h129.81a2 2 0 0 0 1.41-3.41z"></path>
+                                </svg>
+                                Financial &amp; Plan Details
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span class="text-sm font-medium text-gray-600">Plan Type:</span>
+                                        <p class="text-sm text-gray-900" id="mPlan"></p>
+
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-medium text-gray-600">Duration:</span>
+                                        <p class="text-sm text-gray-900" id="mDuration"></p>
+
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-medium text-gray-600">Plan Start Date:</span>
+                                        <p class="text-sm text-gray-900" id="mStart"></p>
+
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-medium text-gray-600">Renewal Date:</span>
+                                        <p class="text-sm text-gray-900" id="mEnd"></p>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg border border-gray-200 lg:col-span-2">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-600">
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                </svg>
+                                Update Details
+                            </h4>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" checked
+                                           name="policyOption"
+                                           id="rbKeep"
+                                           value="same" onchange="togglePolicy('Keep',this.value)"
+                                           class="text-blue-600 focus:ring-blue-500" />
+                                    <span class="text-sm text-gray-900">Keep same Plan</span>
+                                </label>
+
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio"
+                                           name="policyOption" onchange="togglePolicy('Change',this.value)"
+                                           value="change"
+                                           class="text-blue-600 focus:ring-blue-500" />
+                                    <span class="text-sm text-gray-900">Change Plan</span>
+                                </label>
+
+                                <input type="hidden" id="profileid" />
+
+                                <div class="UpdateDetails">
+                                    <span class="text-sm font-medium text-gray-600">Plan Type:</span>
+                                    <select name="plantypes" id="plantypes" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="" selected="selected">
+                                            All Plans
+                                        </option>
+
+                                        <option value="Basic">
+                                            Basic
+                                        </option>
+
+                                        <option value="Comprehensive">
+                                            Comprehensive
+                                        </option>
+
+                                        <option value="Zero2One">
+                                            Zero2One
+                                        </option>
+
+                                        <option value="Wealth">
+                                            Wealth
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="UpdateDetails">
+                                    <span class="text-sm font-medium text-gray-600">Plan Year:</span>
+                                    <input type="text" id="planyears" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64" />
+                                </div>
+                                <div class="UpdateDetails">
+                                    <span class="text-sm font-medium text-gray-600">Plan Duration:</span>
+                                    <select name="plantDuration" id="plantDuration" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select</option>
+                                        <option value="Half Yearly">Half Yearly</option>
+                                        <option value="Quarterly">Quarterly</option>
+                                        <option value="Annually">Annually</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="bg-white p-4 rounded-lg border border-gray-200 lg:col-span-2">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-600">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                Section Copy from Previous Plan
+                            </h4>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" checked disabled
+                                           name="policyOption"
+                                           id="rbAwareness"
+                                           value="same"
+                                           class="text-blue-600 focus:ring-blue-500" />
+                                    <p class="text-sm text-gray-900">Awareness</p>
+                                </label>
+
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" checked disabled
+                                           name="policyOption"
+                                           value="change"
+                                           id="rbWings"
+                                           class="text-blue-600 focus:ring-blue-500" />
+                                    <span class="text-sm text-gray-900">Wings</span>
+                                </label>
+
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox"
+                                           name="policyOption" checked
+                                           value="change"
+                                           id="ckAlertness"
+                                           class="text-blue-600 focus:ring-blue-500" />
+                                    <span class="text-sm text-gray-900">Alertness with Money & Time</span>
+                                </label>
+
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox"
+                                           name="policyOption" checked
+                                           value="change"
+                                           id="ckKnowledge"
+                                           class="text-blue-600 focus:ring-blue-500" />
+                                    <span class="text-sm text-gray-900">Knowledge That Matters</span>
+                                </label>
+
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox"
+                                           name="policyOption" checked
+                                           value="change"
+                                           id="ckPrecision"
+                                           class="text-blue-600 focus:ring-blue-500" />
+                                    <span class="text-sm text-gray-900">Execution With Precision</span>
+                                </label>
+
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox"
+                                           name="policyOption" checked
+                                           value="change"
+                                           id="ckInvestNow"
+                                           class="text-blue-600 focus:ring-blue-500" />
+                                    <span class="text-sm text-gray-900">Invest In The Now</span>
+                                </label>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button onclick="closeModal()"
+                                class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+                            Cancel
+                        </button>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" onclick="submitRenew()">
+                            Submit
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+        </div>
+  
+   
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        <div class="bg-white p-4 rounded-lg border border-gray-200">
+            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-blue-600" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M332.64 64.58C313.18 43.57 286 32 256 32c-30.16 0-57.43 11.5-76.8 32.38-19.58 21.11-29.12 49.8-26.88 80.78C156.76 206.28 203.27 256 256 256s99.16-49.71 103.67-110.82c2.27-30.7-7.33-59.33-27.03-80.6zM432 480H80a31 31 0 0 1-24.2-11.13c-6.5-7.77-9.12-18.38-7.18-29.11C57.06 392.94 83.4 353.61 124.8 326c36.78-24.51 83.37-38 131.2-38s94.42 13.5 131.2 38c41.4 27.6 67.74 66.93 76.18 113.75 1.94 10.73-.68 21.34-7.18 29.11A31 31 0 0 1 432 480z"></path>
+                </svg>
+                Profile
+            </h4>
+            <div class="space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Name</label>
+                        <p class="view-mode text-gray-900">@Model.dashboardViewModel?.UserFullName</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Email</label>
+                        <p class="text-gray-900">@Model.dashboardViewModel?.UserEmail</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Mobile Number</label>
+                        <p class="view-mode text-gray-900">@Model.dashboardViewModel?.UserMobile</p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">Status</p>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+      @(string.IsNullOrEmpty(Model.dashboardViewModel.UserActiveStatus)
+                                                            || Model.dashboardViewModel.UserActiveStatus == "0"
+                                                            ? "bg-red-100 text-red-700"
+                                                            : "bg-green-100 text-green-700")">
+                            @(string.IsNullOrEmpty(Model.dashboardViewModel.UserActiveStatus)
+                                                        || Model.dashboardViewModel.UserActiveStatus == "0"
+                                                        ? "Inactive"
+                                                        : "Active")
+                        </span>
+                    </div>
+
+                @*     <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Registered Date</label>
+                        <p class="view-mode text-gray-900">
+                            @Model.dashboardViewModel.UserRegisterDate?.ToString("dd-MM-yyyy")
+                        </p>
+                    </div> *@
+                </div>
+            </div>
+
+        </div>
+    </div>
+        <div> 
+            <br />
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center justify-between">
+            <span>Plan Details</span>
+
+            <a id="openModal"
+               class="px-4 py-2 text-sm rounded-lg bg-blue-600
+              text-white hover:bg-blue-700">
+                Add New Plan
+            </a>
+        </h2>
+
+    <br />
+        <div class="overflow-x-auto max-w-full">
+            <table class="w-full bg-white border border-gray-200 rounded-lg table-fixed">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">UID</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="inline mr-1" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M332.64 64.58C313.18 43.57 286 32 256 32c-30.16 0-57.43 11.5-76.8 32.38-19.58 21.11-29.12 49.8-26.88 80.78C156.76 206.28 203.27 256 256 256s99.16-49.71 103.67-110.82c2.27-30.7-7.33-59.33-27.03-80.6zM432 480H80a31 31 0 0 1-24.2-11.13c-6.5-7.77-9.12-18.38-7.18-29.11C57.06 392.94 83.4 353.61 124.8 326c36.78-24.51 83.37-38 131.2-38s94.42 13.5 131.2 38c41.4 27.6 67.74 66.93 76.18 113.75 1.94 10.73-.68 21.34-7.18 29.11A31 31 0 0 1 432 480z"></path>
+                            </svg>
+                            Client Name
+                        </th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Plan Type</th>
+                      
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Duration</th>
+
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="inline mr-1" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M480 128a64 64 0 0 0-64-64h-16V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 368 48v16H144V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 112 48v16H96a64 64 0 0 0-64 64v12a4 4 0 0 0 4 4h440a4 4 0 0 0 4-4zM32 416a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V179a3 3 0 0 0-3-3H35a3 3 0 0 0-3 3zm344-208a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24z"></path>
+                            </svg>
+                            Created Date
+                        </th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="inline mr-1" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M480 128a64 64 0 0 0-64-64h-16V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 368 48v16H144V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 112 48v16H96a64 64 0 0 0-64 64v12a4 4 0 0 0 4 4h440a4 4 0 0 0 4-4zM32 416a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V179a3 3 0 0 0-3-3H35a3 3 0 0 0-3 3zm344-208a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24z"></path>
+                            </svg>
+                            Plan Start dt
+                        </th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="inline mr-1" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M480 128a64 64 0 0 0-64-64h-16V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 368 48v16H144V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 112 48v16H96a64 64 0 0 0-64 64v12a4 4 0 0 0 4 4h440a4 4 0 0 0 4-4zM32 416a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V179a3 3 0 0 0-3-3H35a3 3 0 0 0-3 3zm344-208a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24z"></path>
+                            </svg>
+                            Renewal dt
+                        </th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Status</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Assigned To</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+
+                    @foreach (var uses in Model.userProfileViewModel)
+                    {
+                        <tr class="hover:bg-gray-50 cursor-pointer parent-row" data-uid="@uses.UId" >
+                            <td class="px-3 py-4 text-sm text-gray-900 showexpireplan" style="        width: 200px; display: inline-flex;padding-top: 24px;">
+                             
+                                @if (@uses.RevisionNumber > 0)
+                                {
+                                    <svg class="toggle-icon w-4 h-4"
+                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <!-- DOWN arrow -->
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                }
+                                else
+                                {
+                                    <p>  &nbsp;</p>
+                                }
+    @uses.UIdText
+                            </td>
+                            <td class="px-3 py-4 text-sm text-gray-900 truncate" title="@uses.UserFullName ">
+                                
+                                <button class="text-blue-600 hover:text-blue-800 p-1 rounded-full hover:bg-blue-50" onclick="toggleRow(this)">
+                                    <svg class="toggle-icon w-4 h-4"
+                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <!-- DOWN arrow -->
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                @uses.UserFullName  </td>
+                            <td class="px-3 py-4 text-sm text-gray-900"><span>@uses.UserPlan</span></td>
+                            <td class="px-3 py-4 text-sm text-gray-900">@uses.PlanDuration</td>
+                            <td class="px-3 py-4 text-sm text-gray-900">
+                                @(uses != null && uses.CreateDate != null
+                                                            ? Convert.ToDateTime(uses.CreateDate).ToString("dd/MM/yyyy")
+                                                            : "NA")
+                            </td>
+                            <td class="px-3 py-4 text-sm text-gray-900">
+                                @(uses != null && uses.PlanStartDate != null
+                                                            ?Convert.ToDateTime( uses.PlanStartDate).ToString("dd/MM/yyyy")
+                                                            : "NA")
+                            </td>
+                            <td class="px-3 py-4 text-sm text-gray-900">
+                                <div>
+                                    <div>
+                                        @(uses != null && uses.PlanEndDate != null
+                                                                            ? Convert.ToDateTime(uses.PlanEndDate).ToString("dd/MM/yyyy")
+                                                                            : "NA")
+
+                                        <div class="text-xs text-gray-500">Due in @uses.DaysUntilRenewal days</div>
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td class="px-3 py-4 text-sm text-gray-900">
+                                    @if (uses.ProfileStatus == "Draft" || uses.ProfileStatus == "Pending")
+                                    {
+                                    <span class="px-2.5 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                                        @(uses.ProfileStatus == "Pending" ? "Submitted" : uses.ProfileStatus)
+                                    </span>
+                                    }
+                                    else
+                                    @if (uses.PlanStatus == "Expired")
+                                    {
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">  Expired</span>
+                                    }
+                                    else
+                                    @if (uses.PlanStatus == "Active")
+                                    {
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                            Active
+                                        </span>
+
+                                       
+                                    }
+                                    else
+                                    @if (uses.PlanStatus == "Expired")
+                                    {
+                                        {
+                                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full"> Expired</span>
+                                        }
+                                    }
+                                    else
+                                    @if (uses.ProfileStatus == "Completed")
+                                    {
+                                        <select @(uses.ProfileStatus == "Assign" ? "disabled" : "") data-profileid="@uses.ProfileId" class="form-control mt-1 PlanStatus-dropdown">
+                                            <option value="Assign" @(uses.ProfileStatus == "Assign" ? "selected" : "")>Assigned</option>
+                                            <option value="Completed" @(uses.ProfileStatus == "Completed" ? "selected" : "")>Completed</option>
+                                        </select>
+                                    }
+                                @if (uses.Status == "overdue")
+                                {
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                                        Overdue
+                                    </span>
+                                }
+                                else if (uses.Status == "due-soon")
+                                {
+                                    <br />
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                                        Due Soon
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="px-3 py-4 text-sm text-gray-900 truncate" title="Srinivas B">@uses.AdvisorName</td>
+                            <td class="px-3 py-4 text-left text-sm font-medium">
+
+                                @if (!uses.RenewalSent??false &&
+                                                            (uses.RenewalStatus == "overdue" || uses.RenewalStatus == "due-soon"))
+                                {
+                                    @* <button type="button"
+                                            onclick="sendRenewal(@uses.ProfileId)"
+                                            class="text-blue-600 hover:text-blue-900 px-3 py-1 rounded
+                                           border border-blue-600 hover:bg-blue-50
+                                           flex items-center gap-1 mx-auto text-xs">
+
+                                        <i class="fa fa-envelope text-sm"></i>
+                                        Send Renewal
+                                    </button> *@
+                                }
+                                else if (uses.RenewalSent ?? false)
+                                {
+                                    <!-- Status Badge -->
+                                @*     <span class="text-green-600 px-3 py-1 rounded
+                                         border border-green-600 bg-green-50
+                                         flex items-center gap-1 mx-auto text-xs">
+                                        <i class="fa fa-envelope text-sm"></i>
+                                        Renewal Sent
+                                    </span> *@
+
+                                    <!-- Action Button -->
+                                    
+                                    <a class="text-success text-decoration-none ms-2 renew-btn"
+                                                data-profileid="@uses.ProfileId"
+                                                data-name="@uses.UserFullName"
+                                                data-email="@uses.UserEmail"
+                                                data-mobile="@uses.UserMobile"
+                                                data-dob="@uses.DOB"
+                                                data-plan="@uses.UserPlan"
+                                                data-year="@uses.PlanYear"
+                                                data-duration="@uses.PlanDuration"
+                                                data-start="@uses.PlanStartDate?.ToString("dd/MM/yyyy")"
+                                                data-end="@uses.PlanEndDate?.ToString("dd/MM/yyyy")">
+                                            <i class="fa fa-envelope text-sm"></i>
+                                            Renew Plan |
+                                        </a>
+
+                                   
+                                }
+
+
+
+                                @if (uses.ProfileStatus != "Assign")
+                                           {
+                                    <a href="/admin/editUserPlan/@uses.ProfileId" target="_blank" class=" text-decoration-none me-2">
+                                                   Edit FactFinder |
+                                     </a>
+                                                   
+                                           }
+
+                                @if (uses.ProfileStatus == "Assign" && (uses.PdfPath != "" && uses.PdfPath != null))
+                                {
+                                    <a href="@Url.Content(uses.PdfPath)"
+                                       target="_blank"
+                                       class="text-success text-decoration-none ms-2">
+                                        Download
+                                    </a>
+                                }
+                                else
+                                {
+                                    @if (uses.UserPlan?.ToLower() == "basic" || uses.UserPlan?.ToLower() == "zero2one")
+
+                                    {
+                                        <a href="/pdf/downloads/@uses.ProfileId"
+                                           target="_blank" class="text-success text-decoration-none ms-2">Download </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="/pdf/download/@uses.ProfileId"
+                                           target="_blank" class="text-success text-decoration-none ms-2">Download </a>
+                                    }
+                                    
+                                }
+                            </td>
+
+                    </tr>
+
+                    <tr class="detail-row hidden">
+                        <td colspan="10" class="px-0 py-0">
+                            <div class="bg-gray-50 border-t border-gray-200 p-6">
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-blue-600" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M332.64 64.58C313.18 43.57 286 32 256 32c-30.16 0-57.43 11.5-76.8 32.38-19.58 21.11-29.12 49.8-26.88 80.78C156.76 206.28 203.27 256 256 256s99.16-49.71 103.67-110.82c2.27-30.7-7.33-59.33-27.03-80.6zM432 480H80a31 31 0 0 1-24.2-11.13c-6.5-7.77-9.12-18.38-7.18-29.11C57.06 392.94 83.4 353.61 124.8 326c36.78-24.51 83.37-38 131.2-38s94.42 13.5 131.2 38c41.4 27.6 67.74 66.93 76.18 113.75 1.94 10.73-.68 21.34-7.18 29.11A31 31 0 0 1 432 480z"></path>
+                                            </svg>
+                                            Personal Details
+                                        </h4>
+                                        <div class="space-y-3">
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-600">Full Name:</span>
+                                                    <p class="text-sm text-gray-900">@uses.UserFullName </p>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-600">Email:</span>
+                                                    <p class="text-sm text-gray-900">@uses.UserEmail</p>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-600">Mobile:</span>
+                                                    <p class="text-sm text-gray-900">@uses.UserMobile</p>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-600">Date of Birth:</span>
+                                                    <p class="text-sm text-gray-900">@uses.DOB</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                        <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-green-600" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M428 224H288a48 48 0 0 1-48-48V36a4 4 0 0 0-4-4h-92a64 64 0 0 0-64 64v320a64 64 0 0 0 64 64h224a64 64 0 0 0 64-64V228a4 4 0 0 0-4-4zm-92 160H176a16 16 0 0 1 0-32h160a16 16 0 0 1 0 32zm0-80H176a16 16 0 0 1 0-32h160a16 16 0 0 1 0 32z"></path>
+                                                <path d="M419.22 188.59 275.41 44.78a2 2 0 0 0-3.41 1.41V176a16 16 0 0 0 16 16h129.81a2 2 0 0 0 1.41-3.41z"></path>
+                                            </svg>
+                                            Financial &amp; Plan Details 
+                                        </h4>
+                                        <div class="space-y-3">
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-600">Plan Type:</span>
+                                                    <p class="text-sm text-gray-900">@uses.UserPlan</p>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-600">Duration:</span>
+                                                    <p class="text-sm text-gray-900">@uses.PlanDuration</p>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-600">Plan Start Date:</span>
+                                                    <p class="text-sm text-gray-900">
+                                                        @(uses != null && uses.PlanStartDate != null
+                                                                                                                ?Convert.ToDateTime( uses.PlanStartDate).ToString("dd/MM/yyyy")
+                                                                                                                : "NA")
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-sm font-medium text-gray-600">Renewal Date:</span>
+                                                        <p class="text-sm text-gray-900">
+                                                            @(uses != null && uses.PlanEndDate != null
+                                                                                                                    ? Convert.ToDateTime(uses.PlanEndDate).ToString("dd/MM/yyyy")
+                                                                                                                    : "NA")
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white p-4 rounded-lg border border-gray-200 lg:col-span-2">
+                                            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-purple-600" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M480 128a64 64 0 0 0-64-64h-16V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 368 48v16H144V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 112 48v16H96a64 64 0 0 0-64 64v12a4 4 0 0 0 4 4h440a4 4 0 0 0 4-4zM32 416a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V179a3 3 0 0 0-3-3H35a3 3 0 0 0-3 3zm344-208a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24z"></path>
+                                                </svg>
+                                                Additional Information
+                                            </h4>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-600">Assigned To:</span>
+                                                    <p class="text-sm text-gray-900">@uses.AdvisorName</p>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-600">Renewal Status:</span>
+                                                    <p class="text-sm text-gray-900">
+                                                        @if (uses.RenewalSent??false)
+                                                        {
+                                                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                                                Renewal Sent
+                                                            </span>
+                                                        }
+                                                        else if (uses.RenewalStatus == "overdue")
+                                                        {
+                                                            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                                                                Overdue
+                                                            </span>
+                                                        }
+                                                        else if (uses.RenewalStatus == "due-soon")
+                                                        {
+                                                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                                                                Due Soon
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                                                Active
+                                                            </span>
+                                                        }
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-600">Days Until Renewal:</span>
+                                                    @if (uses.DaysUntilRenewal != null)
+                                                    {
+                                                        <p class="text-sm text-gray-900">
+                                                            Due in @uses.DaysUntilRenewal days
+                                                        </p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="text-sm text-gray-400">N/A</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+
+        @{
+            int startPage = Math.Max(1, currentPage - 2);
+            int endPage = Math.Min(totalPages, currentPage + 2);
+        }
+
+        <div class="flex justify-end mt-6">
+            <nav aria-label="Page navigation">
+                <ul class="flex items-center gap-2 text-sm">
+
+                    <!-- First -->
+                    <li>
+                        <a href="?page=1&status=@selectedStatus&plantype=@selectedPlanType&search=@search"
+                           class="px-3 py-1.5 rounded-md border
+                   @(currentPage == 1 ? "pointer-events-none text-gray-400" : "text-blue-600 hover:bg-blue-50")">
+                            First
+                        </a>
+                    </li>
+
+                    <!-- Previous -->
+                    <li>
+                        <a href="?page=@(Math.Max(1, currentPage - 1))&status=@selectedStatus&plantype=@selectedPlanType&search=@search"
+                           class="px-3 py-1.5 rounded-md border
+                   @(currentPage == 1 ? "pointer-events-none text-gray-400" : "text-blue-600 hover:bg-blue-50")">
+                            Previous
+                        </a>
+                    </li>
+
+                    <!-- Dots before -->
+                    @if (startPage > 1)
+                    {
+                        <li class="px-2 text-gray-400">…</li>
+                    }
+
+                    <!-- Page Numbers -->
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li>
+                            <a href="?page=@i&status=@selectedStatus&plantype=@selectedPlanType&search=@search"
+                               class="px-3 py-1.5 rounded-md border
+                                   @(i == currentPage
+                                                                                                                         ? "bg-blue-600 text-white border-blue-600"
+                                                                                                                         : "text-gray-700 hover:bg-gray-100")">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <!-- Dots after -->
+                    @if (endPage < totalPages)
+                    {
+                        <li class="px-2 text-gray-400">…</li>
+                    }
+
+                    <!-- Next -->
+                    <li>
+                        <a href="?page=@(Math.Min(totalPages, currentPage + 1))&status=@selectedStatus&plantype=@selectedPlanType&search=@search"
+                           class="px-3 py-1.5 rounded-md border
+                   @(currentPage == totalPages ? "pointer-events-none text-gray-400" : "text-blue-600 hover:bg-blue-50")">
+                            Next
+                        </a>
+                    </li>
+
+                    <!-- Last -->
+                    <li>
+                        <a href="?page=@totalPages&status=@selectedStatus&plantype=@selectedPlanType&search=@search"
+                           class="px-3 py-1.5 rounded-md border
+                   @(currentPage == totalPages ? "pointer-events-none text-gray-400" : "text-blue-600 hover:bg-blue-50")">
+                            Last
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+        </div>
+
+        <div id="pageLoader" class="loading" style="display:none;">
+            <div class="loader"></div>
+        </div>
+    </div>
+
+
+</div>
+
+@section Scripts {
+    <script>
+        let goals = JSON.parse(localStorage.getItem("test")) || [];
+
+
+    </script>
+}

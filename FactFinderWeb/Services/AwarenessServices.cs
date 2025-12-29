@@ -3,6 +3,7 @@ using FactFinderWeb.Models;
 using FactFinderWeb.ModelsView;
 using FactFinderWeb.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
@@ -481,11 +482,73 @@ namespace FactFinderWeb.Services
                                     .Select(o => o.Email).FirstOrDefault();
             return ExistsUsername;
         }
-        public bool checkPANExist(string PAN, long profileID)
+        public bool checkPANExist(string pan, long profileId)
         {
-            bool ExistsPAN = _context.TblffAwarenessProfileDetails.Any(o =>o.Pan == PAN && o.ProfileId != profileID);
+            // Get UID of current profile
+            var currentUid = _context.TblffAwarenessProfileDetails
+                .Where(x => x.ProfileId == profileId)
+                .Select(x => x.Uid)
+                .FirstOrDefault();
 
-            return ExistsPAN;
+            if (string.IsNullOrEmpty(currentUid))
+                return false; // profile not found → no conflict
+
+            // PAN exists for another user (different UID)
+            bool panExistsForOtherUser = _context.TblffAwarenessProfileDetails
+                .Any(x =>
+                    x.Pan == pan &&
+                    x.Uid != currentUid
+                );
+
+            return panExistsForOtherUser;
+        }
+
+
+        public async Task<string> GeneratePdf(long ProfileId, JSONDataUtility _jsonData, PdfService _pdfService, IViewRenderService _viewRenderService, IWebHostEnvironment _env)
+        {
+            var userProfile = await _context.TblffAwarenessProfileDetails
+                .FirstOrDefaultAsync(p => p.ProfileId == ProfileId);
+            string PdfPath = "";
+            if (userProfile != null)
+            {
+
+                var awakenData = await _jsonData.GetAwakenSection(userProfile.ProfileId);
+
+                string html = await _viewRenderService.RenderToStringAsync(
+                    "Schedule/assignedpdf",
+                    awakenData
+                );
+
+                byte[] pdfBytes = _pdfService.GeneratePdf(html, _env);
+
+                var uniqueId = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+
+                var baseFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "PDFs");
+                var fileName = "FF_" + userProfile.PlanType + "_" + userProfile.Name.Replace(" ", "").Replace("  ", "").Replace("  ", "") + "_" + userProfile.ProfileId+"_"+ uniqueId + ".pdf";
+                var savePath = Path.Combine(baseFolder, fileName);
+                if (System.IO.File.Exists(savePath))
+                {
+                    System.IO.File.Delete(savePath);
+                    Console.WriteLine($"🗑️ Existing file deleted: {savePath}");
+                }
+                if (System.IO.File.Exists(savePath))
+                {
+                    System.IO.File.Delete(savePath); // delete the old file
+                    Console.WriteLine($"🗑️ Existing file replaced: {savePath}");
+                }
+
+                await System.IO.File.WriteAllBytesAsync(savePath, pdfBytes);
+                PdfPath = baseFolder+ "/" + fileName;
+                userProfile.PdfPath = "/PDFs/" + fileName;
+                userProfile.PdfGeneratedOn = DateTime.Now;
+                if (userProfile.ProfileStatus == "Assign")
+                {
+                    userProfile.Addby = "pdf generted";
+                }
+                await _context.SaveChangesAsync();
+
+            }
+            return PdfPath;
         }
     }
 }

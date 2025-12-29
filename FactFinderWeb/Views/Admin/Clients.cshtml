@@ -1,0 +1,670 @@
+﻿@using FactFinderWeb.ModelsView
+@using Microsoft.AspNetCore.Http;
+@removeTagHelper "Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers"
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+  
+    var role = HttpContextAccessor.HttpContext.Session.GetString("AdminUserRole") ?? "";
+
+    ViewData["Title"] = "Clients";
+    Layout = "~/Views/Shared/_LayoutAdminNew.cshtml";
+    var currentSort = Context.Request.Query["sortOrder"];
+    var selectedPlanType = Context.Request.Query["plantype"].ToString()?.ToLower();
+     
+    int currentPage = (int)(ViewData["CurrentPage"] ?? 1);
+    int totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    string search = ViewData["Search"]?.ToString() ?? "";
+    int serialNo = ((currentPage - 1) * 20) + 1;
+
+    <script>
+        $(document).on("change", ".manageby-dropdown", function () {
+
+        var userid = $(this).data("userid");
+        var advisorid = $(this).val();
+
+        $.ajax({
+        url: '/admin/UpdateAdvisor',
+        type: 'POST',
+        data: { id: userid, advisorid: advisorid },
+        success: function (res) {
+                 if (res.success) {
+                alert("Financial Planner updated successfully!");
+            setTimeout(function () {
+                location.reload();
+            }, 500); // ✅ half-second delay so alert is visible
+        } else {
+            alert("This Financial Planner is already assigned to any plan, so you should not change it.");
+        }
+        },
+        error: function () {
+            alert("This Financial Planner is already assigned to any plan, so you should not change it.");
+        }
+        });
+        });
+
+            // Store previous value before change
+        $(document).on("focus", ".PlanStatus-dropdown", function () {
+            $(this).data("previous", $(this).val());
+        });
+
+        $(document).on("change", ".PlanStatus-dropdown", function () {
+            var dropdown = $(this);
+            var previousValue = dropdown.data("previous");
+
+            var profileid = dropdown.data("profileid");
+            var Status = dropdown.val();
+
+            $.ajax({
+                url: '/admin/UpdateSStatus',
+                type: 'POST',
+                data: { profileid: profileid, Status: Status },
+
+                success: function (res) {
+
+                    // If server says NOT allowed → rollback
+                    if (res.success === false) {
+
+                        if (Status.toLowerCase().includes("assign")) {
+                            alert("The Advisor is not assigned to Client.");
+                        } else {
+                            alert(res.message || "Error updating Status.");
+                        }
+
+                        dropdown.val(previousValue); // 🔥 ROLLBACK
+                        return;
+                    }
+
+                    // Normal success
+                    alert("Status updated successfully!");
+                    setTimeout(function () {
+                        location.reload();
+                    }, 500);
+                },
+
+                error: function () {
+                    // AJAX failure → rollback always
+                    alert("The Advisor is not assigned to Client.");
+                    dropdown.val(previousValue); // 🔥 ROLLBACK
+                }
+            });
+        });
+
+        function RenewPlan(id){
+
+        $.ajax({
+        url: '/admin/UpdateAdvisor',
+        type: 'POST',
+        data: { id: userid, advisorid: advisorid },
+        success: function (res) {
+                 if (res.success) {
+                alert("Financial Planner updated successfully!");
+            setTimeout(function () {
+                location.reload();
+            }, 500); // ✅ half-second delay so alert is visible
+        } else {
+            alert("This Financial Planner is already assigned to any plan, so you should not change it.");
+        }
+        },
+        error: function () {
+            alert("This Financial Planner is already assigned to any plan, so you should not change it.");
+        }
+        });
+        }
+
+        $(document).on("click", ".showexpireplan", function () {
+
+            const parentRow = $(this).closest("tr");
+            const uid = parentRow.data("uid");
+
+            // TOGGLE: remove if already loaded
+            if (parentRow.next().hasClass("child-row")) {
+                parentRow.nextUntil(":not(.child-row)").remove();
+                return;
+            }
+                $(this).find(".toggle-icon").toggleClass("rotate-up");
+
+            $.ajax({
+                url: '/user/GetclientsProfilebbyId/' + uid,
+                type: 'GET',
+                success: function (res) {
+
+                    let html = '';
+
+                    res.forEach(item => {
+                        html += `
+                        <tr class="child-row bg-gray-50">
+
+                            <td style="padding-left:30px;">
+                                ${item.uIdText}
+                            </td>
+
+                            <td>${item.userFullName}</td>
+                            <td>${item.userEmail}</td>
+
+                            <td>
+                                <p style="font-size:11px;margin:0;">
+                                    Type: <b>${item.userPlan}</b>
+                                </p>
+                                <p style="font-size:11px;margin:0;">
+                                    Year: <b>${item.userPlanYear}</b>
+                                </p>
+                            </td>
+
+                            <td>
+                                <p style="font-size:11px;margin:0;">
+                                    End Dt: ${formatDate(item.planEndDate)}
+                                </p>
+                                <p style="font-size:11px;margin:0;">
+                                    Start Dt: ${formatDate(item.planStartDate)}
+                                </p>
+                            </td>
+
+                            <td>${formatDate(item.userRegisterDate)}</td>
+                            <td> <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full"> ${item.planStatus}</span></td>
+
+                            <td>
+                             
+                            </td>
+
+                        </tr>`;
+                    });
+
+                    // INSERT AFTER CURRENT ROW
+                    parentRow.after(html);
+                },
+                error: function () {
+                    alert("Unable to load data.");
+                }
+            });
+        });
+                const formatDate = (dateStr) => {
+          const d = new Date(dateStr);
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = d.getFullYear();
+          return `${day}/${month}/${year}`;
+        };
+
+    </script>
+}
+<style>
+    table{
+        width:100%
+    }
+    table td {
+        color: #111827; /* Tailwind gray-900 */
+        font-size: .875rem;
+        line-height: 1.25rem;
+            text-align: left;
+            padding: 0.75rem 0.75rem; /* py-3 px-3 */
+    }
+
+    table th {
+        --tw-text-opacity: 1;
+        color: rgb(107 114 128 / var(--tw-text-opacity, 1));
+        font-size: 0.75rem;
+        line-height: 1rem;
+        font-weight: 500; 
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        text-align: left;
+        padding: 0.75rem 0.75rem;
+        text-align:left;
+    }
+
+        table tr {
+   
+        }
+</style>
+
+    <div class="p-6 bg-white rounded-lg shadow-md">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+               
+                    Client List
+            </h2>
+            <div class="text-sm text-gray-600"></div>
+        </div>
+    <br />   <br />
+    <div class="mb-6 w-full">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+
+            <div class="flex items-center gap-3">
+                <form method="get" asp-action="clients" class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-600">Search:</label>
+                    <input type="text" name="search"
+                           placeholder="Search by client name..."
+                           class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+                           value="@search" />
+
+                               <div class="flex items-center gap-2">
+                        <label class="text-sm font-medium text-gray-600">Plan Type:</label>
+                        <select name="plantype" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                            <option value="" selected="@(string.IsNullOrEmpty(selectedPlanType))">
+                                All Plans
+                            </option>
+
+                            <option value="basic"
+                                    selected="@(selectedPlanType == "basic")">
+                                Basic
+                            </option>
+
+                            <option value="comprehensive"
+                                    selected="@(selectedPlanType == "comprehensive")">
+                                Comprehensive
+                            </option>
+
+                            <option value="zero2one"
+                                    selected="@(selectedPlanType == "zero2one")">
+                                Zero2One
+                            </option>
+
+                            <option value="wealth"
+                                    selected="@(selectedPlanType == "wealth")">
+                                Wealth
+                            </option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Search
+                    </button>
+                </form>
+
+                <a href="/admin/clients" class="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200 flex items-center gap-2">
+                    <svg stroke="currentColor" fill="none" stroke-width="32" viewBox="0 0 512 512" class="text-sm" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-miterlimit="10" d="M320 146s24.36-12-64-12a160 160 0 1 0 160 160"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m256 58 80 80-80 80"></path>
+                    </svg>
+                    Refresh
+                </a>
+            </div>
+
+            <div>
+                <a href="/admin/register" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
+                    + Add Client
+                </a>
+            </div>
+
+        </div>
+    </div>
+        <div class="overflow-x-auto max-w-full">
+
+
+
+
+
+        <table class="w-full bg-white border border-gray-200 rounded-lg table">
+            <thead class="bg-gray-50">
+                <tr class="bg-gray-100 border-b">
+                    <th class="">
+                        S. No.
+                    </th>
+
+                    <th >
+                        Name
+                    </th>
+
+                    <th >
+                        Email
+                    </th>
+
+                    <th >
+                        Total Plan
+                    </th>
+
+                    <th >
+                        Financial Planner
+                    </th>
+
+                    <th >
+                        Created Date
+                    </th>
+
+                    <th >
+                        Status
+                    </th>
+
+                    <th >
+                        Action
+                    </th>
+                </tr>
+
+        </thead>
+
+        <tbody>
+            @{
+                var users = Model as List<FactFinderWeb.ModelsView.AdminMV.MVADUserDetails>;
+                var hasRows = users != null && users.Count > 0;
+
+                if (!hasRows)
+                {
+                    <tr><td colspan="10" class="text-center text-muted py-4">No records found</td></tr>
+                    
+                }
+                else
+                {
+                    foreach (var user in Model)
+                    {
+                        var collapseId = $"collapse_{user.Id}";
+                            <tr class="hover:bg-gray-50 cursor-pointer">
+                                <td class="text-left px-2 py-2 text-sm text-gray-900">
+                                    <button type="button" style="display: flex;"
+                                            class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                                            onclick="toggleRow(this)">
+
+                                        <svg class="toggle-icon w-4 h-4"
+                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <!-- DOWN arrow -->
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+
+                                        <span>@serialNo</span>
+                                    </button>
+
+
+
+
+                            </td>
+                            <td>@user.Name</td>
+                            <td>@user.email</td>
+                            <td>@user.ProfileLst.Count</td>
+                            @if (role == "superadmin")
+                                    {
+                            <td>
+                                <select class="form-control manageby-dropdown" data-userid="@user.Id">
+                                    <option value="0">-- Select --</option>
+                                    @foreach (var admin in (IEnumerable<dynamic>)ViewData["AdminUsersDropdown"])
+                                    {
+                                        <option value="@admin.Id" @Html.Raw(user.advisorid == admin.Id ? "selected=\"selected\"" : "")>
+                                            @admin.Name
+                                        </option>
+                                    }
+                                </select>
+                            </td>
+                            }else
+                            {
+                                        <td>@user.advisorName</td>
+
+                            }
+                            <td class="text-center">@user.createddate.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">@user.activestatus</td>
+
+                            <td class="text-start">
+                                        <a href="/admin/UserDetails/@user.Id" target="_blank">View Detail</a> &nbsp;| 
+                                <br />
+                                        <a href="/admin/LoginasUser/@user.Id" target="_blank">Signed in as: @user.Name</a>
+                            </td>
+                        </tr>
+
+                            <tr class=" detail-row">
+                                <td colspan="10" >
+
+
+                                    <div id="@collapseId" class="space-y-2">
+                                        <div class="bg-gray-50 border-t border-gray-200 p-6">
+                                        <div >
+                                            <div class="card-header bg-light fw-bold text-start">
+                                                    <i class="bi bi-file-earmark-text"></i><h4 class="font-semibold text-gray-700 mb-3">Plan Details:</h4>
+                                            </div>
+                                            <div class="">
+                                                <div class="table-responsive">
+                                                        <table class="w-full bg-white border border-gray-200 rounded-lg table">
+                                                        <thead class="">
+                                                                <tr class="bg-gray-100 border-b">
+                                                                <th >UID</th>
+                                                                <th>Client Name</th>
+                                                             
+                                                                <th>Plan </th>
+                                                                  <th> </th>
+                                                                <th>Created Date</th>
+                                                                <th> Status</th>
+                                                               
+                                                                    
+                                                                <th style="">Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @{
+                                                                int childSerial = 1;
+                                                                foreach (var child in user.ProfileLst)
+                                                                {
+                                                                        <tr style=" border-bottom: 1px solid #e5e7eb;" class="parent-row" data-uid="@child.UId">
+
+                                                                            <td style="    display: inline-flex;" class="showexpireplan">
+                                                                                @if (@child.RevisionNumber > 0)
+                                                                                {
+                                                                                    <svg class="toggle-icon w-4 h-4"
+                                                                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <!-- DOWN arrow -->
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                                              d="M19 9l-7 7-7-7"></path>
+                                                                                    </svg>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <p>  &nbsp;</p>
+                                                                                }
+
+                                                                            
+                                                                           &nbsp; @child.UIdText </td>
+                                                        <td>@child.UserFullName 
+                                                            <div class="text-xs text-gray-500">@child.UserEmail</div>
+                                                        
+                                                        </td>
+                                                                      
+                                                                                <td>
+                                                                                  
+                                                                               
+                                                                                  <p style="font-size: 11px;">
+                                                                                    Type:
+                                                                                       @(child.UserPlan?.ToLower() == "wealth"
+                                                                                ? "Wealth"
+                                                                                : child.UserPlan)
+                                                                                </p>
+
+                                                                                  <p style="font-size: 11px;">
+                                                                                    Year:
+                                                                                  @(child != null && child.PlanYear != null ? child.PlanYear : "NA")
+                                                                                </p>
+                                                                              
+
+                                                                                </td>
+                                                                            <td>
+                                                                                <p style="font-size: 11px;">
+                                                                                    End Dt:
+                                                                                   
+                                                                                        @(child != null && child.PlanEndDate != null
+                                                                                                                                                            ? child.PlanEndDate.ToString("dd/MM/yyyy")
+                                                                                                                                                            : "NA")
+                                                                                   
+                                                                                </p>
+
+                                                                                <p style="font-size: 11px;">
+                                                                                    Start Dt:
+                                                                                   
+                                                                                        @(child != null && child.PlanStartDate != null
+                                                                                                                                                            ? child.PlanStartDate.ToString("dd/MM/yyyy")
+                                                                                                                                                            : "NA")
+                                                                                   
+                                                                                </p>
+
+                                                                               
+                                                                            </td>
+                                                                        <td>@child.UserRegisterDate.ToString("dd/MM/yyyy")</td>
+                                                                                <td style="text-align:left">
+                                                                             
+                                                                                    @if (child.ProfileStatus == "Draft" || child.ProfileStatus == "Pending")
+                                                                                    {
+                                                                                        @(child.ProfileStatus == "Pending" ? "Submitted" : child.ProfileStatus)
+                                                                                    }
+                                                                                    else @if (child.PlanStatus == "Expired" )
+                                                                                    {
+                                                                                    <p>   Expired</p>
+                                                                                    }
+                                                                                    else @if (child.PlanStatus == "Active" )
+                                                                                    {
+                                                                                    <span  class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                                                                        Active
+                                                                                    </span>
+                                                                                   
+                                                                                    <span class="px-2 py-1  text-blue-800 text-xs rounded-full" style="font-size: 10px;    display: block;">   Assigned</span>
+                                                                                }
+                                                                                else
+                                                                                  @if (child.PlanStatus == "Expired")
+                                                                                {
+                                                                                    {
+                                                                                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full"> Expired</span>
+                                                                                    }
+                                                                                }
+                                                                                else 
+                                                                    @if (child.ProfileStatus == "Completed")
+                                                                                    {
+                                                                                    <select @(child.ProfileStatus == "Assign" ? "disabled" : "") data-profileid="@child.ProfileId" class="form-control mt-1 PlanStatus-dropdown">
+                                                                                            <option value="Assign" @(child.ProfileStatus == "Assign" ? "selected" : "") >Assigned</option>
+                                                                                            <option value="Completed" @(child.ProfileStatus == "Completed" ? "selected" : "")>Completed</option>
+                                                                                        </select>
+                                                                                    }
+                                                                                </td>
+                                                                       
+                                                                           
+                                                                          
+                                                                        <td>
+
+                                                                            @if (user.activestatus != "Deactive" && child.ProfileStatus != "Assign")
+                                                                            {
+                                                                                <a href="/admin/editUserPlan/@child.ProfileId" target="_blank" class=" text-decoration-none me-2">
+                                                                                    Edit FactFinder
+                                                                                </a>
+                                                                                    <br />
+                                                                            }
+                                                                                @if (child.ProfileStatus == "Assign" && (child.PdfPath != "" && child.PdfPath != null))
+                                                                                {
+                                                                                    <a href="@Url.Content(child.PdfPath)"
+                                                                                    target="_blank"
+                                                                                    class="text-success text-decoration-none ms-2">
+                                                                                        Download
+                                                                                    </a>
+                                                                                }
+                                                                                else
+                                                                                {
+
+                                                                                    @if (child.UserPlan?.ToLower() == "basic" || child.UserPlan?.ToLower() == "zero2one")
+                                                                                    {
+                                                                                        <a href="/pdf/downloads/@child.ProfileId"
+                                                                                        target="_blank" class="text-success text-decoration-none ms-2">Download PDF</a>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <a href="/pdf/download/@child.ProfileId"
+                                                                                        target="_blank" class="text-success text-decoration-none ms-2">Download PDF</a>
+                                                                                    }
+                                                                                }
+                                                                            </td>
+                                                                        
+                                                                    </tr>
+                                                                    childSerial++;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                
+                            </td>
+                        </tr>
+
+
+                        serialNo++;
+                    }
+                }
+            }
+        </tbody>
+    </table>
+
+        
+
+        </div>
+
+    <div class="flex justify-end mt-6">
+        <nav aria-label="Page navigation">
+            <ul class="flex flex-row flex-wrap items-center gap-2 text-sm">
+
+                <!-- First -->
+                <li>
+                    <a href="?page=1&search=@search&plantype=@selectedPlanType"
+                       class="px-3 py-1.5 rounded-md border transition
+                   @(currentPage == 1
+                                               ? "pointer-events-none text-gray-400 border-gray-200"
+                                               : "text-blue-600 border-gray-300 hover:bg-blue-50")">
+                        First
+                    </a>
+                </li>
+
+                <!-- Previous -->
+                <li>
+                    <a href="?page=@(currentPage - 1)&search=@search&plantype=@selectedPlanType"
+                       class="px-3 py-1.5 rounded-md border transition
+                   @(currentPage == 1
+                                               ? "pointer-events-none text-gray-400 border-gray-200"
+                                               : "text-blue-600 border-gray-300 hover:bg-blue-50")">
+                        Previous
+                    </a>
+                </li>
+
+                <!-- Page Numbers -->
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li>
+                        <a href="?page=@i&search=@search&plantype=@selectedPlanType"
+                           class="px-3 py-1.5 rounded-md border transition
+                           @(i == currentPage
+                                                       ? "bg-blue-600 text-white border-blue-600"
+                                                       : "text-gray-700 border-gray-300 hover:bg-gray-100")">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                <!-- Next -->
+                <li>
+                    <a href="?page=@(currentPage + 1)&search=@search&plantype=@selectedPlanType"
+                       class="px-3 py-1.5 rounded-md border transition
+                   @(currentPage == totalPages
+                                               ? "pointer-events-none text-gray-400 border-gray-200"
+                                               : "text-blue-600 border-gray-300 hover:bg-blue-50")">
+                        Next
+                    </a>
+                </li>
+
+                <!-- Last -->
+                <li>
+                    <a href="?page=@totalPages&search=@search&plantype=@selectedPlanType"
+                       class="px-3 py-1.5 rounded-md border transition
+                   @(currentPage == totalPages
+                                               ? "pointer-events-none text-gray-400 border-gray-200"
+                                               : "text-blue-600 border-gray-300 hover:bg-blue-50")">
+                        Last
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+
+    </div>
+ 
+
+@section Scripts {
+    <script>
+        let goals = JSON.parse(localStorage.getItem("test")) || [];
+        
+         
+    </script>
+}

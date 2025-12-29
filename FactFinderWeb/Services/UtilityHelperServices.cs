@@ -1,24 +1,22 @@
 ﻿using FactFinderWeb.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using System.Net.Mail;
 using Microsoft.Data.SqlClient;
-using System.Net;
-
-
-using System.Data;
-using System.IO;
-using System.Data.SqlClient;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Configuration;
-using System.Text.RegularExpressions;
+using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
+using System.IO;
+using System.Net;
+using System.Net.Mail;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Security.Policy;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-
-using System.Security.Cryptography;
 
 
 
@@ -192,7 +190,7 @@ namespace FactFinderWeb.Services
 
 
 
-        public async Task SendEmailAsync(string toEmail, string subject, string templatePath, Dictionary<string, string> placeholders)
+        public async Task SendEmailAsync(string toEmail, string subject, string templatePath, Dictionary<string, string> placeholders, string? attachmentPath = null)
         {
             string body = await File.ReadAllTextAsync(templatePath);
 
@@ -217,6 +215,17 @@ namespace FactFinderWeb.Services
             };
 
             mailMessage.To.Add(toEmail);
+
+
+            
+
+            if (!string.IsNullOrEmpty(attachmentPath) && File.Exists(attachmentPath))
+            {
+                var attachment = new Attachment(attachmentPath);
+                mailMessage.Attachments.Add(attachment);
+            }
+
+
             await smtpClient.SendMailAsync(mailMessage);
         }
 

@@ -1,0 +1,110 @@
+﻿@model FactFinderWeb.ModelsView.AdminMV.AdminRegViewModel
+@{
+    ViewData["Title"] = "Add Admin";
+    Layout = "~/Views/Shared/_LayoutAdminNew.cshtml";
+    var isEdit = Model.Id > 0;
+
+}
+
+<div class="relative w-full min-h-screen bg-white">
+
+    <div class="relative w-full h-[25vh] overflow-hidden">
+        <img src="https://admin.awaken.mainstream.co.in/static/media/homeBannner.2c3db03f3380f60a69f3.png"
+             alt="homeBanner"
+             class="w-full h-full object-cover" />
+
+        <!-- HIDE TOP-LEFT DOTS -->
+        <div class="absolute top-0 left-0 w-[220px] h-[90px] bg-[#5aa7f7]"></div>
+    </div>
+
+
+
+    <div class="relative -mt-24 flex justify-center w-full px-4">
+
+        <div class="bg-white border-2 rounded-lg shadow-xl p-8 w-full
+            max-w-3xl lg:max-w-[60rem]">
+
+            <p class="pb-6 font-semibold text-2xl text-gray-800">
+                @(isEdit ? "Edit Admin" : "Add Admin")
+            </p>
+            <span class="block min-h-[20px] text-sm text-red-600">  @ViewData["Error"]</span>
+            <form asp-action="addeditadminuser" asp-controller="admin" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-red-500 mb-4"></div>
+
+                <div class="space-y-4">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="Name" class="block text-sm text-gray-500 mb-1"></label>
+                        <input asp-for="Name" class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" value="@Model.Name" />
+
+                        <span asp-validation-for="Name" class="block min-h-[20px] text-sm text-red-600" ></span>
+                    </div>
+                        <div>
+                            <label asp-for="Mobile" class="block text-sm text-gray-500 mb-1"></label>
+                            <input asp-for="Mobile" class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" value="@Model.Mobile" />
+                            <span asp-validation-for="Mobile" class="block min-h-[20px] text-sm text-red-600"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <label asp-for="Email" class="block text-sm text-gray-500 mb-1"></label>
+                        <input asp-for="Email" class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" value="@Model.Email" readonly="@(isEdit ? "readonly" : null)" />
+                        <span asp-validation-for="Email" class="block min-h-[20px] text-sm text-red-600" ></span>
+                    </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 @(isEdit ? "hidden" : "")">
+                        <div>
+                            <label asp-for="Password" class="block text-sm text-gray-500 mb-1"></label>
+                            <input asp-for="Password" type="password" class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" value="@Model.Password"  />
+                            <span asp-validation-for="Password" class="block min-h-[20px] text-sm text-red-600" ></span>
+                        </div>
+                        <div>
+                            <label asp-for="ConfirmPassword" class="block text-sm text-gray-500 mb-1"></label>
+                            <input asp-for="ConfirmPassword" type="password" class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" value="@Model.ConfirmPassword" />
+                            <span asp-validation-for="Password" class="block min-h-[20px] text-sm text-red-600"></span>
+                        </div>
+                    </div>
+
+                   
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label asp-for="AdminRole" class="block text-sm text-gray-500 mb-1"></label>
+                            <select asp-for="AdminRole" class="w-full border rounded-md px-3 py-2 outline-none" value="@Model.AdminRole">
+                                <option value="">-- Role --</option>
+                                <option value="admin">Admin</option>
+                                <option value="superadmin">SuperAdmin</option>
+                            </select>
+                            <span asp-validation-for="AdminRole" class="block min-h-[20px] text-sm text-red-600"></span>
+                        </div>
+                            @if(isEdit)
+                            {
+                                <div>
+                                <label class="block text-sm text-gray-500 mb-1" asp-for="AccountStatus">Account Status</label>
+                                <select class="w-full border rounded-md px-3 py-2 outline-none" asp-for="AccountStatus" value="@Model.AccountStatus">
+                                        <option value="Active">Active</option>
+                                        <option value="Deactive">Deactive</option>
+                                    </select>
+                                </div>
+                            }
+                        </div>
+
+                    <div class="pt-4">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2" style="    display: inline;">
+                            Save Changes
+                        </button>
+                        <a href="/admin/adminusers" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

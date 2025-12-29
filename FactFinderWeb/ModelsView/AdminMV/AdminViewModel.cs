@@ -22,6 +22,9 @@ namespace FactFinderWeb.ModelsView.AdminMV
     }
     public class AdminRegViewModel
     {
+
+        public long? Id { get; set; }   // ✅ Required for Edit
+
         [Required]
         public string Name { get; set; }
 
@@ -45,8 +48,11 @@ namespace FactFinderWeb.ModelsView.AdminMV
         [Required]
         public string AdminRole { get; set; }
 
-        [Required]
-        public string Department { get; set; }
+        //[Required]
+        public string? Department { get; set; }
+
+        public string? AccountStatus { get; set; }
+        
     }
 
 
@@ -128,6 +134,12 @@ namespace FactFinderWeb.ModelsView.AdminMV
         public string? advisorName { get; set; }
         
         public List<UserProfileViewModel> ProfileLst { get; set; }
+
+
+        public DateTime? PlanStartDate { get; set; }
+        public DateTime? PlanEndDate { get; set; }
+        public string? PlanStatus { get; set; }
+
 
         //Name planType planYear email mobile activestatus createddate
     }

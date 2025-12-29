@@ -26,8 +26,22 @@ namespace FactFinderWeb.ModelsView
 		public string UserPlan { get; set; }
 
 	}
+    public class ReNewPlan
+    {
+        public long? Id { get; set; }
+        public int? RenewedByUserId { get; set; }
+        public int? OldProfileId { get; set; }
+        public int? PlanYear { get; set; }
+        public string? PlanType { get; set; } = null!;
+        public string? PlanDuration { get; set; }
+        public bool? IsChange { get; set; }
+        public bool? ckAlertness { get; set; }
+        public bool? ckKnowledge { get; set; }
+        public bool? ckPrecision { get; set; }
+        public bool? ckInvestNow { get; set; }
+    }
 
-	public class MVLoginRegister
+        public class MVLoginRegister
 	{
 		[Required(ErrorMessage = "Please enter name.")]
 		public string Name { get; set; }
@@ -59,7 +73,11 @@ namespace FactFinderWeb.ModelsView
 
 	}
 
-
+    public class PlanTypeMetricVM
+    {
+        public string PlanType { get; set; }
+        public int Count { get; set; }
+    }
 
     public class MVResetPassword
     {

@@ -108,7 +108,6 @@ namespace FactFinderWeb.Controllers
             return View(awakenData);
         }
 
-        
 
         [HttpPost]
         [Route("pdf/SaveGeneratedPdf/{profileId}")]
@@ -130,6 +129,11 @@ namespace FactFinderWeb.Controllers
 
                 // Define full file path
                 var savePath = Path.Combine(baseFolder, fileName);
+                if (System.IO.File.Exists(savePath))
+                {
+                    System.IO.File.Delete(savePath);
+                    Console.WriteLine($"🗑️ Existing file deleted: {savePath}");
+                }
                 if (System.IO.File.Exists(savePath))
                 {
                     System.IO.File.Delete(savePath); // delete the old file

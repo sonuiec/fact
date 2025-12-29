@@ -109,12 +109,22 @@ public partial class TblffAwarenessProfileDetail
     public string? AdvisorName { get; set; }
     public string? Uid { get; set; }
     public string? Awakenstatus { get; set; }
-    public DateOnly? PlanStartDate { get; set; }
-    public DateOnly? PlanEndDate { get; set; }
+    public DateTime? PlanStartDate { get; set; }
+    public DateTime? PlanEndDate { get; set; }
     public string? PlanStatus { get; set; }
     public long? RenewedFromProfileId { get; set; }
     public long? RenewedByUserId { get; set; }
     public long? CreatedByUserId { get; set; }
     public long? UpdatedByUserId { get; set; }
+
+    public bool? RenewalSent { get; set; }
+    public int? RenewalSentCount { get; set; }
+
+    public DateTime? LastRenewalSentDate { get; set; }
+
+    public long? NewReNewedProfileid { get; set; }
+
+    public int? RevisionNumber { get; set; }
+    public DateTime? PdfGeneratedOn { get; set; }
 
 }

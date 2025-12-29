@@ -2,217 +2,222 @@
 @model TblFfAdminUser
 
 @{
-    ViewData["Title"] = "Security — Change Password";
-    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_LayoutAdminNew.cshtml";
     var statusText = string.Equals(Model?.AccountStatus, "Active", StringComparison.OrdinalIgnoreCase) ? "Active" : "Deactive";
     var statusClass = statusText == "Active" ? "badge-active" : "badge-deactive";
 }
-
+ 
 <style>
-    .page-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin: 1rem 0 1.5rem
-    }
-
-    .avatar {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 22px;
-        background: #101357;
-        color: #fff;
-        box-shadow: 0 8px 24px rgba(16,19,87,.25)
-    }
-
-    .badge-pill {
-        border-radius: 999px;
-        padding: .35rem .7rem
-    }
-
-    .badge-active {
-        background: #e8fff3;
-        color: #0f7a43;
-        border: 1px solid #b7efcf
-    }
-
-    .badge-deactive {
-        background: #fff3f2;
-        color: #a32020;
-        border: 1px solid #f5c0bd
-    }
-
-    .card + .card {
-        margin-top: 1rem
-    }
-
-    .strength {
-        height: 8px;
-        border-radius: 8px;
-        background: #e9ecef;
-        overflow: hidden
-    }
-
-        .strength > div {
-            height: 100%;
-            width: 0%;
-            transition: width .25s ease
-        }
-
-    .strength-weak {
-        background: #dc3545
-    }
-
-    .strength-fair {
-        background: #fd7e14
-    }
-
-    .strength-good {
-        background: #ffc107
-    }
-
-    .strength-strong {
-        background: #28a745
-    }
-
-    .form-hint {
-        font-size: .85rem;
-        color: #6c757d
+    input {
+        max-width:80%
     }
 </style>
 
-<div class="container py-4">
+<div class="p-6 bg-white rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Profile </h2>
+    <div class=" ">
 
-   
-
-    <div class="page-head" style="margin:0">
-        <div>
-            <h1 class="page-title">Dashboard</h1>
-            <div class="text-muted">Change your account password</div>
-        </div>
-        <div class="avatar" aria-hidden="true">
-            @((Model?.Name ?? "U").Trim().Substring(0, 1).ToUpper())
-        </div>
-    </div>
-
-    @if (TempData["msg"] != null)
-    {
-        <div class="alert alert-info">@TempData["msg"]</div>
-    }
-    @if (ViewData["Error"] != null)
-    {
-        <div class="alert alert-danger">@ViewData["Error"]</div>
-    }
-
-    <div class="row g-3">
-        <!-- Left: Profile summary (read-only) -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="mb-3">Profile</h5>
-                    <div class="table-responsive">
-                        <table class="custom-table">
-                            <tbody>
-                                <tr>
-                                    <th scope="row" style="width:35%;">Name</th>
-                                    <td>@Model?.Name</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Email</th>
-                                    <td>@Model?.Email</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Mobile</th>
-                                    <td>@Model?.Mobile</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Status</th>
-                                    <td><span class="">@statusText</span></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Registered</th>
-                                    <td>@Model?.CreateDate?.ToString("dd-MMM-yyyy")</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">Role</th>
-                                    <td><span>@Model?.AdminRole</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="w-full ">
+            <div class="flex justify-between items-center mb-4">
+            
+               
             </div>
-        </div>
-
-        <!-- Right: Change Password only -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="mb-3">Change Password</h5>
-
-                    <form asp-action="ProfileDashboard" asp-controller="Admin" method="post" id="changePasswordForm" class="needs-validation" novalidate>
-                        @Html.AntiForgeryToken()
-                        <input asp-for="Id" type="hidden" />
 
 
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label for="CurrentPassword" class="form-label">Current Password</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" name="CurrentPassword" id="CurrentPassword" autocomplete="current-password" required />
-                                    <button class="btn btn-outline-secondary" type="button" data-toggle-visibility="#CurrentPassword">Show</button>
-                                </div>
-                                <div class="invalid-feedback">Enter your current password.</div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-blue-600" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M332.64 64.58C313.18 43.57 286 32 256 32c-30.16 0-57.43 11.5-76.8 32.38-19.58 21.11-29.12 49.8-26.88 80.78C156.76 206.28 203.27 256 256 256s99.16-49.71 103.67-110.82c2.27-30.7-7.33-59.33-27.03-80.6zM432 480H80a31 31 0 0 1-24.2-11.13c-6.5-7.77-9.12-18.38-7.18-29.11C57.06 392.94 83.4 353.61 124.8 326c36.78-24.51 83.37-38 131.2-38s94.42 13.5 131.2 38c41.4 27.6 67.74 66.93 76.18 113.75 1.94 10.73-.68 21.34-7.18 29.11A31 31 0 0 1 432 480z"></path>
+                        </svg>
+                        Personal Details
+                    </h4>
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Name</label>
+                                <p class="view-mode text-gray-900">@Model.Name</p>
                             </div>
 
-                            <div class="col-md-6">
-                                <label for="NewPassword" class="form-label">New Password</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" name="NewPassword" id="NewPassword"
-                                           autocomplete="new-password" required minlength="8"
-                                           pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$" />
-                                    <button class="btn btn-outline-secondary" type="button" data-toggle-visibility="#NewPassword">Show</button>
-                                </div>
-                                <div class="strength mt-2" aria-hidden="true"><div id="pwdMeterBar"></div></div>
-                                <div class="form-hint mt-1">8+ chars with uppercase, lowercase, number & symbol.</div>
-                                <div class="invalid-feedback">Use a stronger password (see hint).</div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Email</label>
+                                <p class=" text-gray-900">@Model.Email</p>
+
                             </div>
 
-                            <div class="col-md-6">
-                                <label for="ConfirmPassword" class="form-label">Confirm New Password</label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" name="ConfirmPassword" id="ConfirmPassword" autocomplete="new-password" required />
-                                    <button class="btn btn-outline-secondary" type="button" data-toggle-visibility="#ConfirmPassword">Show</button>
-                                </div>
-                                <div class="invalid-feedback">Passwords must match.</div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Mobile Number</label>
+                                <p class="view-mode text-gray-900">@Model.Mobile</p>
+
+
                             </div>
 
-                            <div class="col-12 d-flex gap-2 justify-content-end">
-                                <div>	
-                                    @if (ViewData["msg"] != null)
-						            {
-							            <p style="color: dodgerblue;">@ViewData["msg"]</p>
-						            }
-                                </div>
-                                <button type="reset" class="btn btn-outline-secondary">Reset</button>
-                                <button type="submit" class="btn btn-primary">Update Password</button>
+                            <div>
+
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                                <p class="text-gray-900">@statusText</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Registered</label>
+                                <p class="view-mode  text-gray-900">
+                                    @Model?.CreateDate?.ToString("dd-MMM-yyyy")
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Role</label>
+                                <p class="view-mode  text-gray-900">
+                                    @Model?.AdminRole
+                                </p>
                             </div>
                         </div>
-                    </form>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-green-600" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M428 224H288a48 48 0 0 1-48-48V36a4 4 0 0 0-4-4h-92a64 64 0 0 0-64 64v320a64 64 0 0 0 64 64h224a64 64 0 0 0 64-64V228a4 4 0 0 0-4-4zm-92 160H176a16 16 0 0 1 0-32h160a16 16 0 0 1 0 32zm0-80H176a16 16 0 0 1 0-32h160a16 16 0 0 1 0 32z"></path>
+                            <path d="M419.22 188.59 275.41 44.78a2 2 0 0 0-3.41 1.41V176a16 16 0 0 0 16 16h129.81a2 2 0 0 0 1.41-3.41z"></path>
+                        </svg>
+                        Change Password
+                    </h4>
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-2 gap-4">
+                            <form asp-action="ProfileDashboard"
+                                  asp-controller="Admin"
+                                  method="post"
+                                  id="changePasswordForm"
+                                  class="space-y-4">
+
+                                @Html.AntiForgeryToken()
+                                <input asp-for="Id" type="hidden" />
+
+                                <!-- Current Password -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">
+                                        Current Password
+                                    </label>
+
+                                    <div class="relative w-full md:w-3/4">
+                                        <input type="password"
+                                               id="CurrentPassword"
+                                               name="CurrentPassword"
+                                               autocomplete="current-password"
+                                               required
+                                               class="w-full border rounded-md px-3 py-2 pr-12 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+
+                                        <button type="button"
+                                                data-toggle-visibility="#CurrentPassword"
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-600 hover:underline">
+                                            Show
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- New Password -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">
+                                        New Password
+                                    </label>
+
+                                    <div class="relative w-full md:w-3/4">
+                                        <input type="password"
+                                               id="NewPassword"
+                                               name="NewPassword"
+                                               autocomplete="new-password"
+                                               required
+                                               minlength="8"
+                                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$"
+                                               class="w-full border rounded-md px-3 py-2 pr-12 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+
+                                        <button type="button"
+                                                data-toggle-visibility="#NewPassword"
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-600 hover:underline">
+                                            Show
+                                        </button>
+                                    </div>
+
+                                    <!-- Password Hint -->
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        8+ chars with uppercase, lowercase, number & symbol.
+                                    </p>
+
+                                    <!-- Strength Meter -->
+                                    <div class="mt-2 h-1 bg-gray-200 rounded w-full md:w-3/4">
+                                        <div id="pwdMeterBar" class="h-1 rounded transition-all"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Confirm Password -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-600 mb-1">
+                                        Confirm New Password
+                                    </label>
+
+                                    <div class="relative w-full md:w-3/4">
+                                        <input type="password"
+                                               id="ConfirmPassword"
+                                               name="ConfirmPassword"
+                                               autocomplete="new-password"
+                                               required
+                                               class="w-full border rounded-md px-3 py-2 pr-12 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+
+                                        <button type="button"
+                                                data-toggle-visibility="#ConfirmPassword"
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-600 hover:underline">
+                                            Show
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Message -->
+                                @if (ViewData["msg"] != null)
+                                {
+                                    <p class="text-sm text-blue-600">
+                                        @ViewData["msg"]
+                                    </p>
+                                }
+
+                                <!-- Actions -->
+                                <div class="flex justify-end gap-3 pt-3">
+                                    <button type="reset"
+                                            class="px-4 py-2 border rounded-md text-sm hover:bg-gray-50">
+                                        Reset
+                                    </button>
+                                    <button type="submit"
+                                            class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
+                                        Update Password
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+
+
+               
 
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-2">
-        </div>
+               
+      
 
+          
+        </div>
+   <br />
+
+    
     </div>
 </div>
+
+
 
 @section Scripts {
     <script>
@@ -267,7 +272,7 @@
           if (!meterBar) return;
           const widths = ['10%','35%','60%','80%','100%'];
           const classes = ['strength-weak','strength-fair','strength-good','strength-strong','strength-strong'];
-          meterBar.className = classes[score];
+          meterBar.class = classes[score];
           meterBar.style.width = widths[score];
         }
         if (newPwd) newPwd.addEventListener('input', () => renderStrength(scorePassword(newPwd.value)));

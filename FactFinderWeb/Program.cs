@@ -1,12 +1,16 @@
-﻿using FactFinderWeb.Models;
+﻿using DinkToPdf;
+using DinkToPdf.Contracts;
+using FactFinderWeb.IServices;
+using FactFinderWeb.Models;
 using FactFinderWeb.Services;
 using FactFinderWeb.Utils;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Configuration;
 using System.Globalization;
-using Microsoft.AspNetCore.Mvc;
-
+using DinkToPdf;
+using DinkToPdf.Contracts;
 var builder = WebApplication.CreateBuilder(args);
 
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
@@ -30,6 +34,12 @@ builder.Services.AddScoped<ExecutionServices>();
 builder.Services.AddScoped<AlertnessMappingService>();
 builder.Services.AddScoped<InvestServices>();
 builder.Services.AddScoped<JSONDataUtility>();
+builder.Services.AddScoped<IViewRenderService, ViewRenderService>();
+builder.Services.AddSingleton<IConverter>(
+    new SynchronizedConverter(new PdfTools())
+);
+builder.Services.AddScoped<PdfService>();
+
 builder.Services.AddScoped<UtilityHelperServices>();
 builder.Services.AddDbContext<ResellerBoyinawebFactFinderWebContext>(options => 
 options.UseSqlServer(builder.Configuration.GetConnectionString("FactFinderDbCon")));
@@ -37,7 +47,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("FactFinderDbCon"
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddSession(); // for session support
 
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+//builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 
 // Add services to the container.

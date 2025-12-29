@@ -1,0 +1,141 @@
+﻿@using FactFinderWeb.ModelsView
+@using Microsoft.AspNetCore.Http;
+@removeTagHelper "Microsoft.AspNetCore.Mvc.TagHelpers.OptionTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers"
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var currentRoute = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower();
+    var role = HttpContextAccessor.HttpContext.Session.GetString("AdminUserRole") ?? "";
+
+}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        debugger;
+        const toggle = document.getElementById("menuToggle");
+        const leftmenuToggle = document.getElementById("LeftmenuToggle");
+        const renderBody = document.getElementById("RenderBody");
+
+        // 🔹 Restore state on page load
+        const sidebarState = sessionStorage.getItem("sidebar-hidden");
+        if (sidebarState === "true") {
+            document.body.classList.add("sidebar-hidden");
+            renderBody.className = "w-full transition-all duration-300";
+            leftmenuToggle?.classList.remove("hidden");
+        } else {
+            document.body.classList.remove("sidebar-hidden");
+            renderBody.className = "w-full ml-80 md:ml-64 transition-all duration-300";
+            leftmenuToggle?.classList.add("hidden");
+        }
+
+        if (toggle) {
+            toggle.addEventListener("click", function () {
+                document.body.classList.toggle("sidebar-hidden");
+
+                const isHidden = document.body.classList.contains("sidebar-hidden");
+                sessionStorage.setItem("sidebar-hidden", isHidden);
+                renderBody.removeAttribute("style");
+
+                renderBody.className = "w-full transition-all duration-300";
+                leftmenuToggle.classList.remove("hidden");
+            });
+        }
+
+        if (leftmenuToggle) {
+            leftmenuToggle.addEventListener("click", function () {
+                document.body.classList.toggle("sidebar-hidden");
+
+                const isHidden = document.body.classList.contains("sidebar-hidden");
+                sessionStorage.setItem("sidebar-hidden", isHidden);
+                renderBody.style.marginLeft = "169px";
+
+                renderBody.className =
+                    "w-full ml-80 md:ml-64 transition-all duration-300";
+                leftmenuToggle.classList.add("hidden");
+            });
+        }
+    });
+</script>
+
+ 
+<style>
+    .top-3 {
+        top: .75rem;
+    }
+
+    .right-3 {
+        right: .75rem;
+    }
+
+    .absolute {
+        position: absolute;
+    }
+</style>
+<!-- Sidebar -->
+
+<div class="h-full flex " id="LeftmenuToggle"><div class="p-2 top-3 left-3 rounded-full z-20 bg-white shadow-lg border border-gray-200 fixed hover:bg-gray-50 cursor-pointer"><svg stroke="currentColor" fill="none" stroke-width="0" viewBox="0 0 15 15" class="text-gray-600" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 3C1.22386 3 1 3.22386 1 3.5C1 3.77614 1.22386 4 1.5 4H13.5C13.7761 4 14 3.77614 14 3.5C14 3.22386 13.7761 3 13.5 3H1.5ZM1 7.5C1 7.22386 1.22386 7 1.5 7H13.5C13.7761 7 14 7.22386 14 7.5C14 7.77614 13.7761 8 13.5 8H1.5C1.22386 8 1 7.77614 1 7.5ZM1 11.5C1 11.2239 1.22386 11 1.5 11H13.5C13.7761 11 14 11.2239 14 11.5C14 11.7761 13.7761 12 13.5 12H1.5C1.22386 12 1 11.7761 1 11.5Z" fill="currentColor"></path></svg></div></div>
+
+<div class="fixed left-0 top-0 h-screen w-52 bg-white border-r border-gray-200 flex flex-col justify-between pb-4 shadow-md">
+    <div class="absolute top-3 right-3"><button id="menuToggle" class="p-2 hover:bg-gray-100 rounded-full"><svg stroke="currentColor" fill="none" stroke-width="0" viewBox="0 0 15 15" class="text-xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 3C1.22386 3 1 3.22386 1 3.5C1 3.77614 1.22386 4 1.5 4H13.5C13.7761 4 14 3.77614 14 3.5C14 3.22386 13.7761 3 13.5 3H1.5ZM1 7.5C1 7.22386 1.22386 7 1.5 7H13.5C13.7761 7 14 7.22386 14 7.5C14 7.77614 13.7761 8 13.5 8H1.5C1.22386 8 1 7.77614 1 7.5ZM1 11.5C1 11.2239 1.22386 11 1.5 11H13.5C13.7761 11 14 11.2239 14 11.5C14 11.7761 13.7761 12 13.5 12H1.5C1.22386 12 1 11.7761 1 11.5Z" fill="currentColor"></path></svg></button></div>
+
+    <!-- Logo -->
+    <div class="pt-10 pb-2 px-3">
+        <img src="~/assets/mainStream.png" class="w-36" alt="MainStream Logo" />
+    </div>
+  
+    <!-- Navigation -->
+    <div class="mt-10 flex flex-col text-gray-500 flex-grow">
+
+        <!-- Dashboard -->
+        <a href="/admin/dashboard"
+           class="flex px-5 py-2 items-center gap-2 font-semibold
+           @(currentRoute == "allawakens" ? "bg-blue-200 border-l-4 border-blue-900 text-blue-900" : "")">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" class="text-2xl h-7 w-7 " height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M946.5 505L560.1 118.8l-25.9-25.9a31.5 31.5 0 0 0-44.4 0L77.5 505a63.9 63.9 0 0 0-18.8 46c.4 35.2 29.7 63.3 64.9 63.3h42.5V940h691.8V614.3h43.4c17.1 0 33.2-6.7 45.3-18.8a63.6 63.6 0 0 0 18.7-45.3c0-17-6.7-33.1-18.8-45.2zM568 868H456V664h112v204zm217.9-325.7V868H632V640c0-22.1-17.9-40-40-40H432c-22.1 0-40 17.9-40 40v228H238.1V542.3h-96l370-369.7 23.1 23.1L882 542.3h-96.1z"></path></svg> DashBoard
+        </a>
+
+         
+        <a href="/admin/clients"
+               class="flex px-5 py-2 items-center gap-2 font-semibold
+               @(currentRoute == "settings" ? "bg-blue-200 border-l-4 border-blue-900 text-blue-900" : "")">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 640 512" class="text-2xl h-7 w-7 " height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M192 256c61.9 0 112-50.1 112-112S253.9 32 192 32 80 82.1 80 144s50.1 112 112 112zm76.8 32h-8.3c-20.8 10-43.9 16-68.5 16s-47.6-6-68.5-16h-8.3C51.6 288 0 339.6 0 403.2V432c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48v-28.8c0-63.6-51.6-115.2-115.2-115.2zM480 256c53 0 96-43 96-96s-43-96-96-96-96 43-96 96 43 96 96 96zm48 32h-3.8c-13.9 4.8-28.6 8-44.2 8s-30.3-3.2-44.2-8H432c-20.4 0-39.2 5.9-55.7 15.4 24.4 26.3 39.7 61.2 39.7 99.8v38.4c0 2.2-.5 4.3-.6 6.4H592c26.5 0 48-21.5 48-48 0-61.9-50.1-112-112-112z"></path></svg>
+            Clients
+            </a>
+       
+
+        
+        <!-- Create New -->
+        <a href="/admin/adminusers"
+           class="flex px-5 py-2 items-center gap-2 font-semibold
+           @(currentRoute == "createnew" ? "bg-blue-200 border-l-4 border-blue-900 text-blue-900" : "")">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 24 24"
+                 fill="currentColor"
+                 class="text-2xl h-7 w-7">
+                <path d="M7 7a3 3 0 1 1 6 0a3 3 0 0 1-6 0zM2 20a5 5 0 0 1 10 0H2zM14 7a2.5 2.5 0 1 1 5 0a2.5 2.5 0 0 1-5 0zM14 20h8a4 4 0 0 0-8 0z" />
+            </svg>
+            Admin Users
+           
+        </a>
+
+        <!-- Renewal -->
+        <a href="/admin/renewal"
+           class="flex px-5 py-2 items-center gap-2 font-semibold
+           @(currentRoute == "renewal" ? "bg-blue-200 border-l-4 border-blue-900 text-blue-900" : "")">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-2xl h-7 w-7 " height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M320 146s24.36-12-64-12a160 160 0 1 0 160 160"></path><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="m256 58 80 80-80 80"></path></svg> Renewal
+        </a>
+
+        <!-- Profile -->
+        <a href="/admin/profiledashboard"
+           class="flex px-5 py-2 items-center gap-2 font-semibold
+           @(currentRoute == "profile" ? "bg-blue-200 border-l-4 border-blue-900 text-blue-900" : "")">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-2xl h-7 w-7 " height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M258.9 48C141.92 46.42 46.42 141.92 48 258.9c1.56 112.19 92.91 203.54 205.1 205.1 117 1.6 212.48-93.9 210.88-210.88C462.44 140.91 371.09 49.56 258.9 48zm126.42 327.25a4 4 0 0 1-6.14-.32 124.27 124.27 0 0 0-32.35-29.59C321.37 329 289.11 320 256 320s-65.37 9-90.83 25.34a124.24 124.24 0 0 0-32.35 29.58 4 4 0 0 1-6.14.32A175.32 175.32 0 0 1 80 259c-1.63-97.31 78.22-178.76 175.57-179S432 158.81 432 256a175.32 175.32 0 0 1-46.68 119.25z"></path><path d="M256 144c-19.72 0-37.55 7.39-50.22 20.82s-19 32-17.57 51.93C191.11 256 221.52 288 256 288s64.83-32 67.79-71.24c1.48-19.74-4.8-38.14-17.68-51.82C293.39 151.44 275.59 144 256 144z"></path></svg> Profile
+        </a>
+ 
+    </div>
+
+    <!-- Logout -->
+    <div class="px-5 py-2 text-gray-700 font-semibold">
+        <a href="/admin/logout" class="flex items-center gap-2 hover:text-red-500">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" class="text-2xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><g id="Logout"><g><path d="M20.968,18.448a2.577,2.577,0,0,1-2.73,2.5c-2.153.012-4.306,0-6.459,0a.5.5,0,0,1,0-1c2.2,0,4.4.032,6.6,0,1.107-.016,1.589-.848,1.589-1.838V5.647A1.546,1.546,0,0,0,19,4.175a3.023,3.023,0,0,0-1.061-.095H11.779a.5.5,0,0,1,0-1c2.224,0,4.465-.085,6.687,0a2.567,2.567,0,0,1,2.5,2.67Z"></path><path d="M3.176,11.663a.455.455,0,0,0-.138.311c0,.015,0,.028-.006.043s0,.027.006.041a.457.457,0,0,0,.138.312l3.669,3.669a.5.5,0,0,0,.707-.707L4.737,12.516H15.479a.5.5,0,0,0,0-1H4.737L7.552,8.7a.5.5,0,0,0-.707-.707Z"></path></g></g></svg> Logout
+        </a>
+    </div>
+
+</div>

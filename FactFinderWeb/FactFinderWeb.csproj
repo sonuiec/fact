@@ -27,6 +27,8 @@
     <Content Remove="Views\User\UserProfile - Copy %283%29.cshtml" />
     <Content Remove="Views\User\UserProfile - Copy %284%29.cshtml" />
     <Content Remove="Views\User\UserProfile - Copy.cshtml" />
+    <Content Remove="wwwroot\css\input.css" />
+    <Content Remove="wwwroot\emailtemplates\AssignedTemplate - Copy.html" />
     <Content Remove="wwwroot\emailtemplates\AssignedTemplate.html" />
     <Content Remove="wwwroot\emailtemplates\ForgotPasswordTemplateAdmin.html" />
     <Content Remove="wwwroot\emailtemplates\FormSubmitSuccessTemplateCompleted.html" />
@@ -38,7 +40,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.20" />
+    <Content Include="footer.html">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="header.html">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.14">
       <PrivateAssets>all</PrivateAssets>
@@ -55,12 +68,15 @@
 
   <ItemGroup>
     <Folder Include="DTOs\" />
+    <Folder Include="NewFolder1\" />
     <Folder Include="NewFolder\" />
     <Folder Include="wwwroot\emailtemplates\NewFolder\" />
     <Folder Include="wwwroot\PDFs\" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\css\input.css" />
+    <None Include="wwwroot\emailtemplates\AssignedTemplate - Copy.html" />
     <None Include="wwwroot\emailtemplates\ForgotPasswordTemplateAdmin.html" />
     <None Include="wwwroot\emailtemplates\ForgotPasswordTemplate.html" />
     <None Include="wwwroot\emailtemplates\AssignedTemplate.html" />

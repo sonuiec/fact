@@ -6,6 +6,7 @@ using FactFinderWeb.Services;
 using FactFinderWeb.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
@@ -26,16 +27,23 @@ namespace FactFinderWeb.Controllers
         private readonly UtilityHelperServices _utilService;
         private readonly JSONDataUtility _jsonData;
         private readonly IWebHostEnvironment _env;
-        public UserController(ResellerBoyinawebFactFinderWebContext context, UserServices userServices, UtilityHelperServices utilityHelperServices, IWebHostEnvironment env, JSONDataUtility jSONDataUtility)
+        private readonly IViewRenderService _viewRenderService;
+        private readonly PdfService _pdfService;
+
+
+        public UserController(ResellerBoyinawebFactFinderWebContext context, UserServices userServices, UtilityHelperServices utilityHelperServices, IWebHostEnvironment env, JSONDataUtility jSONDataUtility, IViewRenderService viewRenderService, PdfService pdfService)
         {
             _context = context;
             _UserServices = userServices;
             _utilService = utilityHelperServices;
             _env = env;
+            _viewRenderService = viewRenderService;
+            _pdfService = pdfService;
             _jsonData = jSONDataUtility;
+
         }
 
-		[HttpGet]
+        [HttpGet]
         [Route("register")]  // Custom Route: /register
         public IActionResult register()
         {
@@ -191,25 +199,108 @@ namespace FactFinderWeb.Controllers
             }
         }
 
-		[HttpGet]
-		[Route("dashboard")]
+
+
+//        [HttpGet("admin/dashboard")]
+//        public async Task<IActionResult> Dashboard(string? search, int page = 1, int pageSize = 20, string status = "", string plantype = "", int assignedto = 0)
+//        {
+//            string? AdminUserFullName = HttpContext.Session.GetString("AdminUserFullName");
+//            int AdminUserId = Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0");
+//            var AdminUserRole = HttpContext.Session.GetString("AdminUserRole");
+//            AdminUserRole = string.IsNullOrEmpty(AdminUserRole) ? "advisor" : AdminUserRole;
+
+//            if (AdminUserId <= 0)
+//            {
+//                return RedirectToAction("Login", "Admin");
+//            }
+
+//            ViewData["userID"] = AdminUserId;
+//            ViewData["Username"] = AdminUserFullName;
+//            var users = await _AdminUserServices.GetReNewUserListAsync(AdminUserRole, AdminUserId, page, pageSize, search, status, plantype, assignedto = 0);
+
+//            // Optional: search filteringAdvisoridAdvisorid
+
+//            ViewData["CurrentPage"] = page;
+//            ViewData["TotalPages"] = totalPages;
+//            ViewData["Search"] = search;
+
+//            var statusList = new List<StatusCountItem>
+//{
+//    new() { Status = "Overdue",  Count = statusCounts?.Overdue ?? 0 },
+//    new() { Status = "Due Soon", Count = statusCounts?.DueSoon ?? 0 },
+//    new() { Status = "Active",   Count = statusCounts?.Active ?? 0 },
+//    new() { Status = "Inactive", Count = statusCounts?.Inactive ?? 0 },
+//    new() { Status = "Total",    Count = statusCounts?.Total ?? 0 },
+//       new() { Status = "Renewal Sent", Count = statusCounts?.RenewalSent ?? 0 },
+//};
+
+//            ViewData["StatusCounts"] = statusList;
+
+
+//            return View(users);
+//        }
+
+
+        [HttpGet]
+        [Route("dashboard")]
         public async Task<IActionResult> Dashboard()
         {
 
-            string? username = HttpContext.Session.GetString("UserId");
+            string userIdStr = HttpContext.Session.GetString("UserId");
 
-            if (string.IsNullOrEmpty(username))
+
+
+            if (string.IsNullOrEmpty(userIdStr))
             {
                 return RedirectToAction("Login");
             }
+            long? _userID = 0;
+            if (long.TryParse(userIdStr, out long parsedUserId))
+            {
+                _userID = parsedUserId;
+            }
 
-            List<DashboardViewModel> dashboardViewModel = new List<DashboardViewModel>();
 
-            dashboardViewModel = await  _UserServices.UserDashboard();
+          
+            List<UserProfileViewModel> userprofileviewmodel = await _UserServices.GetDashBoardUserListAsync(_userID);
+            
+            var user = await (from o in _context.TblFfRegisterUsers
+                              where o.Id == _userID
+                              select new DashboardViewModel
+                              {
+                                  UserEmail = o.Email,
+                                  UserRegisterDate = o.Createddate,
+                                  UserActiveStatus = o.Activestatus,
+                                  UserEmailVerification = o.Emailverified,
+                                  Userptx = o.Password,
+                                  UserFullName =o.Name,
+                                  UserMobile =o.Mobile,
 
-			// ViewData["Username"] = username;
-			return View(dashboardViewModel);
+                              }).FirstOrDefaultAsync();
+
+            
+
+            var model = new DashboardViewModelNew
+            {
+                dashboardViewModel = user,
+                userProfileViewModel = userprofileviewmodel
+            };
+
+            // ViewData["Username"] = username;
+            return View(model);
         }
+
+        [HttpGet("user/GetclientsProfilebbyId/{id}")]
+        public async Task<IActionResult> GetclientsProfilebbyId(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest("Invalid UID");
+
+            var result = await _UserServices.GetclientsProfilebbyIdAsync(id);
+
+            return Json(result);   // ✅ MUST be Json
+        }
+
 
         //        [HttpGet]
         //        [Route("userprofile/data/{profileId}")]
@@ -558,6 +649,78 @@ namespace FactFinderWeb.Controllers
             return RedirectToAction("Dashboard");
         }
 
+
+        [HttpPost("user/createRenewPlan/{id}")]
+        public async Task<IActionResult> createRenewPlan([FromBody] ReNewPlan reNewPlan)
+        {
+            long AdminUserId = Convert.ToInt32(HttpContext.Session.GetString("AdminUserId") ?? "0");
+            var profiles = await _context.TblffAwarenessProfileDetails.Where(u => u.ProfileId == reNewPlan.OldProfileId).FirstOrDefaultAsync(); //&& u.NewReNewedProfileid == null
+            if (profiles != null)
+            {
+                string PlanType = profiles.PlanType;
+                string PlanDuration = profiles.PlanDuration;
+                int? PlanYear = (profiles.PlanYear + 1);
+                if (reNewPlan.IsChange == true)
+                {
+                    if (!string.IsNullOrWhiteSpace(profiles.PlanType))
+                    {
+                        PlanType = reNewPlan.PlanType;
+                    }
+                    if (!string.IsNullOrWhiteSpace(profiles.PlanDuration))
+                    {
+                        PlanDuration = reNewPlan.PlanDuration;
+                    }
+                    if (profiles.PlanYear > 0)
+                    {
+                        PlanYear = reNewPlan.PlanYear;
+                    }
+                }
+
+                var oldProfileIdParam = new SqlParameter("@OldProfileId", reNewPlan.OldProfileId);
+                var renewedByUserIdParam = new SqlParameter("@RenewedByUserId", AdminUserId);
+                var planTypeParam = new SqlParameter("@PlanType", PlanType);
+                var planDurationParam = new SqlParameter("@PlanDuration", PlanDuration);
+                var planYearParam = new SqlParameter("@PlanYear", PlanYear);
+
+                var IsAlertnessInclude = new SqlParameter("@IsAlertnessInclude", reNewPlan.ckAlertness);
+                var IsKnowledgeInclude = new SqlParameter("@IsKnowledgeInclude", reNewPlan.ckKnowledge);
+                var IsPrecisionInclude = new SqlParameter("@IsPrecisionInclude", reNewPlan.ckPrecision);
+                var IsInvestNowInclude = new SqlParameter("@IsInvestNowInclude", reNewPlan.ckInvestNow);
+
+
+                var newId = _context.Database
+                    .SqlQueryRaw<long>(
+                        @"EXEC sp_RenewPolicy_FullProfileCopy_Final
+                          @OldProfileId,
+                          @RenewedByUserId,
+                          @PlanType,
+                          @PlanDuration,
+                          @PlanYear,@IsAlertnessInclude,@IsKnowledgeInclude,@IsPrecisionInclude,@IsInvestNowInclude",
+                        oldProfileIdParam,
+                        renewedByUserIdParam,
+                        planTypeParam,
+                        planDurationParam,
+                        planYearParam,
+                        IsAlertnessInclude,
+                        IsKnowledgeInclude,
+                        IsPrecisionInclude,
+                        IsInvestNowInclude
+                    )
+                    .AsEnumerable()
+                    .FirstOrDefault();
+
+
+
+                //profiles.PlanStatus = "Expired";
+                // profiles.LastRenewalSentDate = DateTime.Now;
+                //profiles.NewReNewedProfileid = newId;
+
+                // _context.TblffAwarenessProfileDetails.Update(profiles);
+                //await _context.SaveChangesAsync();
+            }
+
+            return Json(new { success = true });
+        }
     }
 
 }

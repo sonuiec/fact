@@ -239,7 +239,7 @@
 							<div class="col-md-8  pt-2">
 								<div class="form-group">
 									<label asp-for="Password">Password</label>
-									<input type="password" asp-for="Password" class="form-control" placeholder="Enter Password" value="Test1234" required maxlength="30" />
+									<input type="password" asp-for="Password" class="form-control" placeholder="Enter Password" value="" required maxlength="30" />
 									@Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
 								</div>
 							</div>

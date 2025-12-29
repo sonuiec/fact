@@ -1049,11 +1049,11 @@ public partial class ResellerBoyinawebFactFinderWebContext : DbContext
                 .HasColumnName("updateDate");
 
             entity.Property(e => e.PlanStartDate)
-    .HasColumnType("date")
+    .HasColumnType("datetime")
     .HasColumnName("planstartdate");
 
             entity.Property(e => e.PlanEndDate)
-                .HasColumnType("date")
+                .HasColumnType("datetime")
                 .HasColumnName("planenddate");
 
             entity.Property(e => e.PlanStatus)
@@ -1073,11 +1073,33 @@ public partial class ResellerBoyinawebFactFinderWebContext : DbContext
                 .HasColumnType("bigint")
                 .HasColumnName("createdbyuserid");
 
+            entity.Property(e => e.RenewalSent)
+                .HasColumnType("bit")
+                .HasColumnName("renewalsent");
+
+            entity.Property(e => e.RenewalSentCount)
+               .HasColumnType("int")
+               .HasColumnName("renewalsentcount");
+
+            entity.Property(e => e.LastRenewalSentDate)
+               .HasColumnType("datetime")
+               .HasColumnName("lastrenewalsentdate");
+
+            entity.Property(e => e.NewReNewedProfileid)
+               .HasColumnType("bigint")
+               .HasColumnName("newrenewedprofileid");
+
             entity.Property(e => e.UpdatedByUserId)
-                .HasColumnType("bigint")
-                .HasColumnName("updatedbyuserid");
+    .HasColumnType("bigint")
+    .HasColumnName("updatedbyuserid"); // ✅ CORRECT
 
+            entity.Property(e => e.RevisionNumber)
+    .HasColumnType("int")
+    .HasColumnName("revisionnumber"); // ✅ CORRECT
 
+            entity.Property(e => e.PdfGeneratedOn)
+             .HasColumnType("datetime")
+             .HasColumnName("pdfgeneratedon");
         });
 
         modelBuilder.Entity<TblffAwarenessSpouse>(entity =>

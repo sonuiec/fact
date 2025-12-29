@@ -1,4 +1,5 @@
 ﻿using FactFinderWeb.BLL;
+using FactFinderWeb.IServices;
 using FactFinderWeb.Models;
 using FactFinderWeb.ModelsView;
 using FactFinderWeb.Services;
@@ -38,16 +39,22 @@ namespace FactFinderWeb.Controllers
         private readonly UtilityHelperServices _utilService;
         private readonly IWebHostEnvironment _env;
         private readonly string _planType;
+        private readonly IViewRenderService _viewRenderService;
+        private readonly PdfService _pdfService;
+        private readonly JSONDataUtility _jsonData;
         int updateRows = 0;
 
-        public ComprehensiveController(ResellerBoyinawebFactFinderWebContext context, AwarenessServices awarenessServices, IHttpContextAccessor httpContextAccessor, WingsServices wingsServices, KnowledgeThatMattersServices knowledgeThatMattersServices, ExecutionServices executionServices, InvestServices investServices, AlertnessMappingService alertnessMappingService, UtilityHelperServices utilityHelperServices, IWebHostEnvironment env)
+        public ComprehensiveController(ResellerBoyinawebFactFinderWebContext context, AwarenessServices awarenessServices, IHttpContextAccessor httpContextAccessor, WingsServices wingsServices, KnowledgeThatMattersServices knowledgeThatMattersServices, ExecutionServices executionServices, InvestServices investServices, AlertnessMappingService alertnessMappingService, UtilityHelperServices utilityHelperServices, IWebHostEnvironment env, JSONDataUtility jSONDataUtility, IViewRenderService viewRenderService, PdfService pdfService)
         { 
             _context = context;
             _AwarenessServices = awarenessServices;
             _WingsServices = wingsServices;
             _KnowledgeThatMattersServices = knowledgeThatMattersServices;
+            _viewRenderService = viewRenderService;
+            _pdfService = pdfService;
+            _jsonData = jSONDataUtility;
 
-           _httpContext = httpContextAccessor.HttpContext;
+            _httpContext = httpContextAccessor.HttpContext;
            // var userIdStr = _httpContext.Session.GetString("UserId");
 
           //  _planType = _httpContext.Session.GetString("UserPlan");
@@ -1645,14 +1652,16 @@ namespace FactFinderWeb.Controllers
             //var createduser = await _context.TblFfRegisterUsers.FirstOrDefaultAsync(u => u.Id == userProfileData.UserId);
 
             
-            
-            
             updateRows =  await _investServices.WingsUpdateInvestDataForWings(investViewModel);
 
             if (updateRows > 0)
             {
                 if (btnSubmit == "Completed" || btnSubmit ==null)
                 {
+                    string? attachmentPath = null;
+                    attachmentPath= await _AwarenessServices.GeneratePdf(userProfileData.ProfileId, _jsonData, _pdfService, _viewRenderService,  _env);
+
+
                     string? userEmail = HttpContext.Session.GetString("Useremail") ?? "agile1021@gmail.com";
                     string? UserName = HttpContext.Session.GetString("UserFullName") ?? "";
                     string subject = btnSubmit == "Completed"? "Your Fact Finder form completed successfully" : "Form Submitted Successfully - FactFinder";
@@ -1665,7 +1674,7 @@ namespace FactFinderWeb.Controllers
                         {
                             { "UserName", UserName},
                             { "FormTitle", subject }
-                        });
+                        }, attachmentPath);
                 }
 
                 if (btnSubmit == "Save")

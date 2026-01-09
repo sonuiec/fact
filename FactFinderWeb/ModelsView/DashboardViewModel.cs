@@ -115,6 +115,8 @@ namespace FactFinderWeb.ModelsView
 
         public int? RevisionNumber { get; set; }
 
+        public bool? IsRenewal { get; set; }
+
     }
 
     public class AdvisorList

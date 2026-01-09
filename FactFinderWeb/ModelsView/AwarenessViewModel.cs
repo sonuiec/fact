@@ -107,6 +107,8 @@ namespace FactFinderWeb.ModelsView
         public string? Payment { get; set; }
         public string? Holiday { get; set; }
         public string? Shopping { get; set; }
+
+       
     }
 
     public class Address

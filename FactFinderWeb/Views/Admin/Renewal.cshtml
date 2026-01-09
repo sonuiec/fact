@@ -310,12 +310,10 @@
             </td>
 
             <td class="px-3 py-4 text-sm text-gray-900">
-                ${item.userPlan}
+                ${item.userPlan}<br><span class="text-xs text-gray-500">${item.planDuration }</span>
             </td>
 
-            <td class="px-3 py-4 text-sm text-gray-900">
-                ${item.planDuration }
-            </td>
+            
 
            
 
@@ -680,7 +678,7 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <label class="text-sm font-medium text-gray-600">Search:</label>
-                        <input name="search" type="text" placeholder="Search by client name or plan type..." class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64" value="">
+                        <input name="search" type="text" placeholder="Search by client name or plan type..." class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64" value=@search >
                     </div>
 
 
@@ -727,10 +725,10 @@
             </div>
         </div>
         <div class="overflow-x-auto max-w-full">
-            <table class="w-full bg-white border border-gray-200 rounded-lg table-fixed">
+            <table class="w-full table-fixed whitespace-nowrap">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">UID</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">UID</th>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                             <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="inline mr-1" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M332.64 64.58C313.18 43.57 286 32 256 32c-30.16 0-57.43 11.5-76.8 32.38-19.58 21.11-29.12 49.8-26.88 80.78C156.76 206.28 203.27 256 256 256s99.16-49.71 103.67-110.82c2.27-30.7-7.33-59.33-27.03-80.6zM432 480H80a31 31 0 0 1-24.2-11.13c-6.5-7.77-9.12-18.38-7.18-29.11C57.06 392.94 83.4 353.61 124.8 326c36.78-24.51 83.37-38 131.2-38s94.42 13.5 131.2 38c41.4 27.6 67.74 66.93 76.18 113.75 1.94 10.73-.68 21.34-7.18 29.11A31 31 0 0 1 432 480z"></path>
@@ -738,7 +736,7 @@
                             Client Name
                         </th>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Plan Type</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Duration</th>
+                   @*      <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Duration</th> *@
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
                             <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="inline mr-1" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M480 128a64 64 0 0 0-64-64h-16V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 368 48v16H144V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 112 48v16H96a64 64 0 0 0-64 64v12a4 4 0 0 0 4 4h440a4 4 0 0 0 4-4zM32 416a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V179a3 3 0 0 0-3-3H35a3 3 0 0 0-3 3zm344-208a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm-80-80a24 24 0 1 1-24 24 24 24 0 0 1 24-24zm0 80a24 24 0 1 1-24 24 24 24 0 0 1 24-24z"></path>
@@ -751,7 +749,7 @@
                             </svg>
                             Renewal dt
                         </th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">Status</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Status</th>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Assigned To</th>
                         <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Actions</th>
                     </tr>
@@ -761,9 +759,8 @@
                     @foreach (var uses in Model)
                     {
                         <tr class="hover:bg-gray-50 cursor-pointer" parent-row" data-uid="@uses.UId">
-                            <td class="px-3 py-4 text-sm text-gray-900 showexpireplan" style="    padding: 0;    display: inline-flex;
-        padding-top: 24px;">
-                              
+                            <td class=" showexpireplan" style="   ">
+                                <div class="" style="display:inline-flex">
                                &nbsp; @if (@uses.RevisionNumber > 0)
                                 {
                                     <svg class="toggle-icon w-4 h-4"
@@ -778,6 +775,19 @@
                                     <p>  &nbsp;</p>
                                 }
                               @uses.UIdText
+                                </div>
+                                @if (uses.IsRenewal == true)
+                                                                                {
+                                                                                    <div class="ml-5 mt-1">
+                                                                            <span class="inline-flex items-center justify-center
+                                                                            rounded-full px-3 py-1
+                                                                            text-xs font-semibold
+                                                                            bg-yellow-100 text-yellow-800">
+                                                                            🔄  Renewal
+                                                                            </span>
+                                                                            </div>
+                                                                                }
+
                             </td>
                             <td class="px-3 py-4 text-sm text-gray-900 truncate" title="@uses.UserFullName ">
                                 <button class="text-blue-600 hover:text-blue-800 p-1 rounded-full hover:bg-blue-50" onclick="toggleRow(this)">
@@ -789,8 +799,8 @@
                                     </svg>
                                 </button>@uses.UserFullName
                             </td>
-                            <td class="px-3 py-4 text-sm text-gray-900"><span>@uses.UserPlan</span></td>
-                            <td class="px-3 py-4 text-sm text-gray-900">@uses.PlanDuration</td>
+                        <td class="px-3 py-4 text-sm text-gray-900"><span>@uses.UserPlan</span><br /><span class="text-xs text-gray-500">@uses.PlanDuration<span></td>
+                        @*     <td class="px-3 py-4 text-sm text-gray-900"></td> *@
                             <td class="px-3 py-4 text-sm text-gray-900">
                                 @(uses != null && uses.PlanStartDate != null
                                                             ? uses.PlanStartDate.ToString("dd/MM/yyyy")
@@ -808,7 +818,9 @@
 
                                 </div>
                             </td>
-                            <td class="px-3 py-4 text-sm text-gray-900">
+                            <td class="px-3 py-4 text-sm text-gray-900" style="
+        display: inline-grid;
+    ">
                                 @if (uses.ProfileStatus == "Draft" || uses.ProfileStatus == "Pending")
                                 {
                                     <span class="px-2.5 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
@@ -913,7 +925,7 @@
                     </tr>
 
                     <tr class="detail-row hidden">
-                        <td colspan="9" class="px-0 py-0">
+                        <td colspan="8" class="px-0 py-0">
                             <div class="bg-gray-50 border-t border-gray-200 p-6">
                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     <div class="bg-white p-4 rounded-lg border border-gray-200">

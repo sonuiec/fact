@@ -5,6 +5,7 @@
 @{
     var UserPlan = HttpContextAccessor.HttpContext.Session.GetString("UserPlan") ?? "Comprehensive";
     var _profileId = HttpContextAccessor.HttpContext.Request.RouteValues["pid"]?.ToString();
+    var renewedFromProfileId = Context.Session.GetString("RenewedFromProfileId");
 }
 
 <style>
@@ -14,7 +15,7 @@
     }
 </style>
 
-<div class="bg-light bg-gradient bg-opacity-50 py-3">
+<div class="bg-light bg-gradient bg-opacity-50 ">
     <div class="steps-container mb-4">
         <ul class="nav justify-content-center stepmenu">
 
@@ -109,4 +110,18 @@
              aria-valuemax="100"
              style="width: @(Model * 16.66)%;"></div>
     </div>
+    @if (renewedFromProfileId == "1")
+{
+    <div style="
+  background:#FFF4E5;
+  border-left:5px solid #FF9800;
+  padding:6px 15px;
+  color:#E65100;
+  font-size:14px;
+  margin-bottom:16px;
+">
+        🔄 <strong>Your plan is currently being renewed.</strong>
+     
+    </div>
+}
 </div>

@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pag
 using System;
 using System.Drawing.Drawing2D;
 using System.Globalization;
+using System.Security.Cryptography;
 //Comprehensive
 namespace FactFinderWeb.Controllers
 {
@@ -110,6 +111,20 @@ namespace FactFinderWeb.Controllers
                     // invalid id - ignore or log
                 }
             }
+            var profile =  _context.TblffAwarenessProfileDetails
+                          .Where(p => p.ProfileId == _profileId).FirstOrDefault();
+            if (profile != null)
+            {
+                if (profile.RenewedFromProfileId > 0)
+                {
+                    _httpContext.Session.SetString("RenewedFromProfileId", "1");
+                }
+                else
+                {
+                    _httpContext.Session.SetString("RenewedFromProfileId", "0");
+                }
+            }
+
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -130,6 +145,8 @@ namespace FactFinderWeb.Controllers
 		[HttpGet]
         public async Task<IActionResult> Awareness(string id)
         {
+
+           
             //string checkEmail = _AwarenessServices.checkEmailExistProfileTbl(id);
             //if (checkEmail == null)
             //{ 

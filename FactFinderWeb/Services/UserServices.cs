@@ -177,6 +177,7 @@ namespace FactFinderWeb.Services
                     PdfPath = profile.PdfPath,
                     DOB = Convert.ToDateTime(profile.Dob).ToString("MM/dd/yyyy"),
                     RenewalSent = profile.RenewalSent ?? false,
+                    IsRenewal = profile.RenewedFromProfileId > 0,
                     RenewalStatus =
                                   profile.RenewalSent == true
                                 ? "renewed"

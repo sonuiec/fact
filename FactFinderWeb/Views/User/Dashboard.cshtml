@@ -1,5 +1,5 @@
 ﻿@using FactFinderWeb.ModelsView
-
+@using FactFinderWeb.BLL
 @model FactFinderWeb.ModelsView.DashboardViewModelNew
 
 @using Microsoft.AspNetCore.Http;
@@ -230,12 +230,10 @@
             </td>
 
             <td class="px-3 py-4 text-sm text-gray-900">
-                ${item.userPlan}
+                   ${item.userPlan}<br><span class="text-xs text-gray-500">${item.planDuration }</span>
             </td>
 
-            <td class="px-3 py-4 text-sm text-gray-900">
-                ${item.planDuration }
-            </td>
+         
 
             <td class="px-3 py-4 text-sm text-gray-900">
                 ${formatDate(item.userRegisterDate)}
@@ -626,7 +624,7 @@
         </div>
   
    
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+    <div class="grid grid-cols-1  lg:grid-cols-3 gap-6 w-full" >
         <div class="bg-white p-4 rounded-lg border border-gray-200">
             <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="text-blue-600" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
@@ -702,7 +700,7 @@
                         </th>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Plan Type</th>
                       
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Duration</th>
+                       
 
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
                             <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="inline mr-1" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
@@ -732,8 +730,8 @@
                     @foreach (var uses in Model.userProfileViewModel)
                     {
                         <tr class="hover:bg-gray-50 cursor-pointer parent-row" data-uid="@uses.UId" >
-                            <td class="px-3 py-4 text-sm text-gray-900 showexpireplan" style="        width: 200px; display: inline-flex;padding-top: 24px;">
-                             
+                            <td class=" showexpireplan" >
+                                <div class="" style="display:inline-flex">
                                 @if (@uses.RevisionNumber > 0)
                                 {
                                     <svg class="toggle-icon w-4 h-4"
@@ -748,6 +746,19 @@
                                     <p>  &nbsp;</p>
                                 }
     @uses.UIdText
+
+      </div>
+                                @if (uses.IsRenewal == true)
+                                                                                {
+                                                                                    <div class="ml-5 mt-1">
+                                                                            <span class="inline-flex items-center justify-center
+                                                                            rounded-full px-3 py-1
+                                                                            text-xs font-semibold
+                                                                            bg-yellow-100 text-yellow-800">
+                                                                            🔄  Renewal
+                                                                            </span>
+                                                                            </div>
+                                                                                }
                             </td>
                             <td class="px-3 py-4 text-sm text-gray-900 truncate" title="@uses.UserFullName ">
                                 
@@ -760,8 +771,8 @@
                                     </svg>
                                 </button>
                                 @uses.UserFullName  </td>
-                            <td class="px-3 py-4 text-sm text-gray-900"><span>@uses.UserPlan</span></td>
-                            <td class="px-3 py-4 text-sm text-gray-900">@uses.PlanDuration</td>
+                        <td class="px-3 py-4 text-sm text-gray-900"><span>@uses.UserPlan</span> <br /><span class="text-xs text-gray-500">@uses.PlanDuration</span></td>
+                   
                             <td class="px-3 py-4 text-sm text-gray-900">
                                 @(uses != null && uses.CreateDate != null
                                                             ? Convert.ToDateTime(uses.CreateDate).ToString("dd/MM/yyyy")
@@ -815,7 +826,8 @@
                                     else
                                     @if (uses.ProfileStatus == "Completed")
                                     {
-                                        <select @(uses.ProfileStatus == "Assign" ? "disabled" : "") data-profileid="@uses.ProfileId" class="form-control mt-1 PlanStatus-dropdown">
+                                    <select @(uses.ProfileStatus == "Assign" ? "disabled" : "") data-profileid="@uses.ProfileId" readonly="true"
+                                            class="form-control mt-1 PlanStatus-dropdown">
                                             <option value="Assign" @(uses.ProfileStatus == "Assign" ? "selected" : "")>Assigned</option>
                                             <option value="Completed" @(uses.ProfileStatus == "Completed" ? "selected" : "")>Completed</option>
                                         </select>
@@ -885,9 +897,11 @@
 
                                 @if (uses.ProfileStatus != "Assign")
                                            {
-                                    <a href="/admin/editUserPlan/@uses.ProfileId" target="_blank" class=" text-decoration-none me-2">
-                                                   Edit FactFinder |
-                                     </a>
+
+ <a href="/@uses.UserPlan.Trim().ToLower()/awareness/@CryptoHelper.Encrypt(uses.ProfileId??0)" class="text-primary mx-2">
+								Edit your fact finder
+							</a>
+
                                                    
                                            }
 
@@ -919,7 +933,7 @@
                     </tr>
 
                     <tr class="detail-row hidden">
-                        <td colspan="10" class="px-0 py-0">
+                        <td colspan="9" class="px-0 py-0">
                             <div class="bg-gray-50 border-t border-gray-200 p-6">
                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     <div class="bg-white p-4 rounded-lg border border-gray-200">

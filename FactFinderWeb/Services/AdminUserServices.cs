@@ -216,6 +216,7 @@ namespace FactFinderWeb.Services
                         RevisionNumber = profile.RevisionNumber,
                         PdfPath = profile.PdfPath,
                         UIdText = profile.RevisionNumber > 0 ? profile.Uid + "-R" + profile.RevisionNumber : profile.Uid,
+                        IsRenewal = profile.RenewedFromProfileId > 0
                     }
                 ).ToListAsync();
 
@@ -439,6 +440,7 @@ namespace FactFinderWeb.Services
                     Advisorid = profile.Advisorid,
                     DOB = Convert.ToDateTime(profile.Dob).ToString("MM/dd/yyyy"),
                     RenewalSent = profile.RenewalSent ?? false,
+                    IsRenewal = profile.RenewedFromProfileId > 0,
                     RenewalStatus =
                                   profile.RenewalSent == true
                                 ? "renewed"

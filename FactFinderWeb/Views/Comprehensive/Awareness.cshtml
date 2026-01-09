@@ -8,7 +8,8 @@
     Layout = "~/Views/Shared/_LayoutUser.cshtml";
     var userPlan = HttpContextAccessor.HttpContext.Session.GetString("UserPlan") ?? "Comprehensive";
     var _profileId = HttpContextAccessor.HttpContext.Request.RouteValues["pid"]?.ToString();
-
+     var renewedFromProfileId = Context.Session.GetString("RenewedFromProfileId");
+    bool isRenewed = renewedFromProfileId == "1";
     var newPlanType = @Model.ProfileDetail.PlanType.ToLower();
     if (newPlanType == "zero to one" || newPlanType == "zero2one")
     {
@@ -177,9 +178,9 @@
                     <label asp-for="ProfileDetail.PAN" class="form-label gap-1 d-flex">
                         PAN Card No.<span class="text-danger fw-bold ">*</span>
                     </label>
-                    <input asp-for="ProfileDetail.PAN" required placeholder="Enter PAN Card Number" type="text"
+                    <input asp-for="ProfileDetail.PAN" readonly="@(isRenewed ? "readonly" : null)" placeholder="Enter PAN Card Number" type="text"
                     class="form-control" maxlength="10" oninput="this.value = this.value.toUpperCase();"
-                    onkeypress="return /^[a-zA-Z0-9]$/.test(String.fromCharCode(event.which));">
+                    onkeypress="return /^[a-zA-Z0-9]$/.test(String.fromCharCode(event.which));"   >
                     @Html.ValidationMessageFor(model => model.ProfileDetail.PAN, "", new { @class = "text-danger" })
                 </div>
                 <div class="col-12 col-md-4">

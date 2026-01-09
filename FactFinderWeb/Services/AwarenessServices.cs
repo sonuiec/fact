@@ -32,7 +32,7 @@ namespace FactFinderWeb.Services
         }
         public async Task<AwarenessViewModel> AwarenessProfileDetail(long pid)
         {
-            var awarenessData = await _context.TblffAwarenessProfileDetails
+             var awarenessData = await _context.TblffAwarenessProfileDetails
                             .Where(p => p.ProfileId == pid)
                             .Select(p => new AwarenessViewModel
                             {

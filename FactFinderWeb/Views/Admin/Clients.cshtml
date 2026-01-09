@@ -433,8 +433,9 @@
                                                                 {
                                                                         <tr style=" border-bottom: 1px solid #e5e7eb;" class="parent-row" data-uid="@child.UId">
 
-                                                                            <td style="    display: inline-flex;" class="showexpireplan">
-                                                                                @if (@child.RevisionNumber > 0)
+                                                                            <td style="    " class="showexpireplan">
+                                                                              <div class="" style="display:inline-flex">
+                                                                                    @if (@child.RevisionNumber > 0)
                                                                                 {
                                                                                     <svg class="toggle-icon w-4 h-4"
                                                                                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -447,9 +448,23 @@
                                                                                 {
                                                                                     <p>  &nbsp;</p>
                                                                                 }
-
                                                                             
-                                                                           &nbsp; @child.UIdText </td>
+                                                                           &nbsp; @child.UIdText  
+                                                                    </div>
+
+                                                                                @if (child.IsRenewal==true)
+                                                                                {
+                                                                                    <div class="ml-5 mt-1">
+                                                                            <span class="inline-flex items-center justify-center
+                                                                            rounded-full px-3 py-1
+                                                                            text-xs font-semibold
+                                                                            bg-yellow-100 text-yellow-800">
+                                                                            🔄  Renewal
+                                                                            </span>
+                                                                            </div>
+                                                                                }
+                                                                           
+                                                                           </td>
                                                         <td>@child.UserFullName 
                                                             <div class="text-xs text-gray-500">@child.UserEmail</div>
                                                         
